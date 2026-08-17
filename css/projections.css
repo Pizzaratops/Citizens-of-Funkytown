@@ -1,0 +1,736 @@
+/* ============================================================
+   PROJECTIONS (nativ) — "Player > Live Projections (Test) > Projections"
+   ============================================================
+   Uebernommen aus dem eigenstaendigen MFHFBs-NBA-Projections-Toolkit
+   (projections/index.html), das bis 2026-08-01 per Iframe eingebettet war.
+   Jetzt echte TTHQ-Seite, kein Iframe mehr fuer diesen Teil.
+
+   Ausgelassen ggue. dem Original, weil TTHQ das schon global mitbringt:
+   - :root-Farbvariablen (--bg/--surface/--text/... sind in css/style.css
+     bereits 1:1 identisch definiert, siehe Merge-Historie im README)
+   - *{box-sizing:border-box} (schon global in css/style.css)
+   - body{...} Basis-Styling (kommt von TTHQ)
+   - .theme-toggle (TTHQ hat schon eine fast identische Klasse, wird fuer
+     den Admin-Button hier mitbenutzt statt dupliziert)
+   - .topnav/.topnav-links/.wrap (TTHQ hat seine eigene Navigation/Seiten-
+     Container, siehe .page.page-wide)
+
+   Neu ggue. dem Original:
+   - --good/--warn/--bad: gab's nur in der Projections-eigenen :root-
+     Definition, TTHQs eigenes css/style.css kennt diese Namen nicht.
+     Hier ergaenzt, damit die Heatmap-Funktion (mfhfbHeatStyle in
+     projections/assets/shared.js) weiter funktioniert.
+   ============================================================ */
+
+:root {
+  --good: #4caf81; --warn: #f5c842; --bad: #ff6584;
+}
+body.light {
+  --good: #3d8a5c; --warn: #a8710a; --bad: #b43c64;
+}
+
+#liveProjectionsPage .hero, #liveProjTeamsPage .hero { margin-bottom: 26px; }
+#liveProjectionsPage .eyebrow, #liveProjTeamsPage .eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent2); margin-bottom: 8px; }
+#liveProjectionsPage h1 { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 34px; margin: 0 0 6px; letter-spacing: -0.01em; }
+#liveProjectionsPage .sub, #liveProjTeamsPage .sub { color: var(--muted); font-size: 13.5px; line-height: 1.5; max-width: 680px; }
+
+#liveProjectionsPage .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 18px; overflow: hidden; }
+#liveProjectionsPage .panel-head { padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+#liveProjectionsPage .panel-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+#liveProjectionsPage .badge { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--warn); padding: 2px 8px; border-radius: 20px; text-transform: none; letter-spacing: 0; }
+#liveProjectionsPage .chevron { color: var(--muted); font-size: 12px; transition: transform 0.15s; }
+#liveProjectionsPage .panel.collapsed .chevron { transform: rotate(-90deg); }
+#liveProjectionsPage .panel-body { padding: 0 20px 18px; }
+#liveProjectionsPage .panel.collapsed .panel-body { display: none; }
+
+#liveProjectionsPage .pool-title { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+#liveProjectionsPage .pool-toggle { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+#liveProjectionsPage .pool-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600; padding: 7px 14px; border-radius: 20px; cursor: pointer; }
+#liveProjectionsPage .pool-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+#liveProjectionsPage .pool-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent2); }
+#liveProjectionsPage .pool-hint { font-size: 11.5px; color: var(--muted); line-height: 1.4; margin: -10px 0 18px; }
+
+#liveProjectionsPage .weight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 18px; }
+@media (max-width: 640px) { #liveProjectionsPage .weight-grid { grid-template-columns: 1fr; } }
+#liveProjectionsPage .weight-row { display: flex; flex-direction: column; gap: 8px; }
+#liveProjectionsPage .weight-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
+#liveProjectionsPage .weight-val { font-family: 'DM Mono', monospace; color: var(--accent2); font-size: 13px; }
+#liveProjectionsPage input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 4px; background: var(--surface2); outline: none; }
+#liveProjectionsPage input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg); }
+#liveProjectionsPage .weight-hint { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+
+#liveProjectionsPage .cat-weight-title { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 4px 0 12px; padding-top: 14px; border-top: 1px solid var(--border); }
+#liveProjectionsPage .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px 20px; }
+#liveProjectionsPage .cat-row { display: flex; flex-direction: column; gap: 6px; }
+#liveProjectionsPage .cat-label { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; }
+#liveProjectionsPage .cat-val { font-family: 'DM Mono', monospace; color: var(--accent2); font-size: 12px; }
+#liveProjectionsPage .reset-weights { margin-top: 16px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 11.5px; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+#liveProjectionsPage .reset-weights:hover { border-color: var(--accent); color: var(--accent2); }
+#liveProjectionsPage .reset-btn, #liveProjTeamsPage .reset-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+#liveProjectionsPage .reset-btn:hover, #liveProjTeamsPage .reset-btn:hover { color: var(--bad); }
+
+#liveProjectionsPage .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+#liveProjectionsPage .search-row, #liveProjTeamsPage .search-row { position: relative; flex: 1; min-width: 220px; }
+#liveProjectionsPage .search-row input, #liveProjTeamsPage .search-row input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 11px 16px 11px 40px; border-radius: 10px; outline: none; }
+#liveProjectionsPage .search-row input:focus, #liveProjTeamsPage .search-row input:focus { border-color: var(--accent); }
+#liveProjectionsPage .search-row svg, #liveProjTeamsPage .search-row svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+#liveProjectionsPage .csv-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600; padding: 10px 16px; border-radius: 10px; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+#liveProjectionsPage .csv-btn:hover { border-color: var(--accent); color: var(--accent2); }
+#liveProjectionsPage .tag-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600; padding: 9px 13px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+#liveProjectionsPage .tag-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+#liveProjectionsPage .tag-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent2); }
+#liveProjectionsPage .count { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+#liveProjectionsPage .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow-x: auto; }
+#liveProjectionsPage table { width: 100%; border-collapse: collapse; min-width: 920px; }
+#liveProjectionsPage thead th { position: sticky; top: 0; background: var(--surface2); text-align: right; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 9px 10px; border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap; }
+#liveProjectionsPage thead th:nth-child(1) { text-align: center; }
+#liveProjectionsPage thead th:nth-child(2), #liveProjectionsPage thead th:nth-child(3), #liveProjectionsPage thead th:nth-child(4) { text-align: left; }
+#liveProjectionsPage thead th:hover { color: var(--text); }
+#liveProjectionsPage thead th.sep-col { border-left: 1px solid var(--border); }
+#liveProjectionsPage tbody td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#liveProjectionsPage tbody tr:last-child td { border-bottom: none; }
+#liveProjectionsPage tbody tr:hover td:not([style*="background-color"]) { background: var(--surface2); }
+#liveProjectionsPage td.rank-cell { text-align: center; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 12px; }
+#liveProjectionsPage td.name-cell, #liveProjTeamsPage td.name-cell { text-align: left; }
+#liveProjectionsPage .p-name { font-weight: 700; font-size: 13.5px; }
+#liveProjectionsPage .ext-badge { display: inline-block; margin-left: 6px; font-size: 9.5px; font-weight: 700; background: var(--accent-light, rgba(108,99,255,0.12)); color: var(--accent); border: 1px solid var(--border); border-radius: 8px; padding: 1px 6px; cursor: pointer; white-space: nowrap; }
+#liveProjectionsPage .ext-badge:hover { border-color: var(--accent); }
+#liveProjectionsPage .p-meta { color: var(--muted); font-size: 11px; margin-top: 1px; font-family: 'DM Mono', monospace; }
+#liveProjectionsPage td.left { text-align: left; }
+#liveProjectionsPage td.sep-col { border-left: 1px solid var(--border); }
+#liveProjectionsPage .col-z { font-weight: 700; }
+#liveProjectionsPage footer { margin-top: 22px; margin-bottom: 40px; font-size: 11.5px; color: var(--muted); line-height: 1.6; }
+
+/* ============================================================
+   NBA TEAMS (nativ) — "Player > Live Projections (Test) > NBA Teams"
+   ============================================================
+   Uebernommen aus projections/teams.html. h1-Groesse (32px statt 34px)
+   und .theme-toggle.admin-on bewusst hier separat, nicht in die
+   gemeinsamen Projections-Regeln oben gemischt, um beide Seiten bei
+   kuenftigen Anpassungen unabhaengig zu halten.
+   ============================================================ */
+
+#liveProjTeamsPage h1 { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 32px; margin: 0 0 6px; letter-spacing: -0.01em; }
+#liveProjTeamsPage .theme-toggle.admin-on { background: var(--accent); border-color: var(--accent); color: #fff; }
+#liveProjTeamsPage .min-input:disabled, #liveProjTeamsPage .stat-input:disabled { opacity: 0.6; cursor: not-allowed; }
+#liveProjTeamsPage .lock-note { font-size: 11.5px; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+
+#liveProjTeamsPage .empty-state { background: var(--surface); border: 1px dashed var(--border); border-radius: 14px; padding: 32px; text-align: center; color: var(--muted); font-size: 13.5px; line-height: 1.7; }
+#liveProjTeamsPage .empty-state code { background: var(--surface2); padding: 2px 6px; border-radius: 5px; font-family: 'DM Mono', monospace; color: var(--accent2); }
+
+#liveProjTeamsPage .team-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 18px; overflow: hidden; }
+#liveProjTeamsPage .team-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface2); }
+#liveProjTeamsPage .team-name { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 17px; }
+#liveProjTeamsPage .team-count { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+#liveProjTeamsPage .team-cols { display: grid; grid-template-columns: 1fr 1fr; }
+@media (max-width: 900px) { #liveProjTeamsPage .team-cols { grid-template-columns: 1fr; } }
+#liveProjTeamsPage .col { overflow-x: auto; }
+#liveProjTeamsPage .col + .col { border-left: 1px solid var(--border); }
+@media (max-width: 900px) { #liveProjTeamsPage .col + .col { border-left: none; border-top: 1px solid var(--border); } }
+#liveProjTeamsPage .col-title { padding: 10px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent2); background: var(--bg); border-bottom: 1px solid var(--border); }
+#liveProjTeamsPage .col-title.right { color: var(--muted); }
+
+#liveProjTeamsPage table.stat-table { width: 100%; border-collapse: collapse; min-width: 460px; }
+#liveProjTeamsPage table.stat-table thead th { text-align: right; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); padding: 5px 5px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+#liveProjTeamsPage table.stat-table thead th:first-child { text-align: left; }
+#liveProjTeamsPage table.stat-table tbody td { padding: 4px 5px; border-bottom: 1px solid var(--border); text-align: right; font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+#liveProjTeamsPage table.stat-table tbody tr:last-child td { border-bottom: none; }
+#liveProjTeamsPage table.stat-table tbody tr:hover { background: var(--surface2); }
+#liveProjTeamsPage .left-table tbody tr:nth-child(5) td { border-bottom: 2px dashed var(--accent2); }
+#liveProjTeamsPage table.stat-table td.name-cell { text-align: left; font-weight: 600; font-size: 11.5px; }
+#liveProjTeamsPage table.stat-table tr.unmatched td { opacity: 0.5; font-style: italic; }
+#liveProjTeamsPage table.stat-table tr.manual-row td { background: rgba(108,99,255,0.06); }
+#liveProjTeamsPage .manual-tag { font-size: 9px; font-weight: 700; color: var(--accent2); text-transform: uppercase; margin-left: 4px; }
+#liveProjTeamsPage .stat-input { width: 30px; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: 10.5px; text-align: right; border-radius: 4px; padding: 2px 3px; outline: none; }
+#liveProjTeamsPage .stat-input:focus { border-color: var(--accent); color: var(--accent2); }
+#liveProjTeamsPage .stat-input.proj-min { border-color: var(--accent2); color: var(--accent2); font-style: italic; }
+#liveProjTeamsPage .pause-tag { color: var(--bad); font-size: 9px; font-weight: 700; margin-left: 5px; }
+#liveProjTeamsPage .min-input { width: 34px; background: var(--bg); border: 1px solid var(--border); color: var(--accent2); font-family: 'DM Mono', monospace; font-size: 11px; text-align: right; border-radius: 4px; padding: 2px 3px; outline: none; }
+#liveProjTeamsPage .min-input:focus { border-color: var(--accent); }
+#liveProjTeamsPage .min-input.edited { border-color: var(--accent); color: var(--warn); }
+/* Zahlen-Spinner-Pfeile ausblenden, spart horizontalen Platz */
+#liveProjTeamsPage .min-input, #liveProjTeamsPage .stat-input { -moz-appearance: textfield; }
+#liveProjTeamsPage .min-input::-webkit-outer-spin-button, #liveProjTeamsPage .min-input::-webkit-inner-spin-button,
+#liveProjTeamsPage .stat-input::-webkit-outer-spin-button, #liveProjTeamsPage .stat-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+#liveProjTeamsPage .no-match-note { padding: 10px 14px; font-size: 11px; color: var(--muted); font-style: italic; }
+#liveProjTeamsPage .left-table tbody tr[draggable] { cursor: grab; }
+#liveProjTeamsPage .left-table tbody tr[draggable]:active { cursor: grabbing; }
+#liveProjTeamsPage .left-table tbody tr.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; }
+#liveProjTeamsPage .drag-handle { color: var(--muted); font-size: 10px; margin-right: 3px; user-select: none; }
+
+#liveProjTeamsPage footer { margin-top: 24px; margin-bottom: 40px; font-size: 11.5px; color: var(--muted); line-height: 1.6; }
+
+
+/* ============================================================
+   DRAFT BOARD (nativ) — "Player > Live Projections (Test) > Draft Board"
+   ============================================================
+   Uebernommen aus projections/draft.html. Ausgelassen: :root-Variablen,
+   Reset, body, .wrap/.topnav/.theme-toggle (TTHQ), .hero/.eyebrow/h1/.sub
+   (Draft nutzt die gemeinsamen Projections-Regeln weiter oben mit; die
+   leicht andere hero-Anordnung kommt inline im Markup). Side-Panel-Tabs
+   heissen hier dtabs/dtab/dtabpane, weil TTHQ .tabs/.tab GLOBAL fuer die
+   Roster-Seite definiert (css/style.css Z. 304ff) und die Styles sonst
+   ineinander leaken wuerden.
+   ============================================================ */
+
+#liveProjDraftPage a.settings-link {color:var(--accent2); text-decoration:none; font-size:12px;}
+#liveProjDraftPage a.settings-link:hover {text-decoration:underline;}
+
+  /* --- draft status bar --- */
+#liveProjDraftPage .statusbar {
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:14px 18px; margin-bottom:18px;
+  }
+#liveProjDraftPage .chip {background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:6px 14px; text-align:center; min-width:60px;}
+#liveProjDraftPage .chip .num {font-family:'DM Mono',monospace; font-weight:600; font-size:17px; display:block;}
+#liveProjDraftPage .chip .lbl {font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
+#liveProjDraftPage .onclock {padding:9px 16px; border-radius:10px; font-weight:700; font-size:13.5px;}
+#liveProjDraftPage .onclock.me {background:var(--accent); color:#fff;}
+#liveProjDraftPage .onclock.other {background:var(--surface2); color:var(--muted); border:1px solid var(--border);}
+#liveProjDraftPage .sb-btn {
+    background:var(--surface2); border:1px solid var(--border); color:var(--text);
+    font-family:'DM Sans',sans-serif; font-size:12.5px; font-weight:600; padding:8px 14px;
+    border-radius:10px; cursor:pointer;
+  }
+#liveProjDraftPage .sb-btn:hover {border-color:var(--accent); color:var(--accent2);}
+#liveProjDraftPage .sb-btn:disabled {opacity:.35; cursor:not-allowed;}
+#liveProjDraftPage .sb-btn.danger:hover {border-color:var(--bad); color:var(--bad);}
+#liveProjDraftPage .save-indicator {font-size:10.5px; color:var(--muted); margin-left:auto;}
+
+  /* --- setup panel (reuses .panel look from Projections) --- */
+#liveProjDraftPage .panel {background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:18px; overflow:hidden;}
+#liveProjDraftPage .panel-head {padding:12px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none;}
+#liveProjDraftPage .panel-title {font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);}
+#liveProjDraftPage .chevron {color:var(--muted); font-size:12px; transition:transform 0.15s;}
+#liveProjDraftPage .panel.collapsed .chevron {transform:rotate(-90deg);}
+#liveProjDraftPage .panel-body {padding:2px 18px 16px; display:flex; gap:22px; flex-wrap:wrap; align-items:flex-end;}
+#liveProjDraftPage .panel.collapsed .panel-body {display:none;}
+#liveProjDraftPage .field {display:flex; flex-direction:column; gap:5px; min-width:0; max-width:100%;}
+#liveProjDraftPage .field label {color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.06em;}
+#liveProjDraftPage select {
+    background:var(--surface2); border:1px solid var(--border); color:var(--text);
+    padding:7px 10px; border-radius:8px; font-size:13px; font-family:'DM Sans',sans-serif;
+    min-width:0; max-width:100%;
+  }
+#liveProjDraftPage .punt-cats {display:flex; gap:6px; flex-wrap:wrap;}
+#liveProjDraftPage .punt-chip {
+    border:1px solid var(--border); background:var(--surface2); color:var(--muted);
+    padding:5px 11px; border-radius:14px; cursor:pointer; font-size:11.5px; font-weight:600; user-select:none;
+  }
+#liveProjDraftPage .punt-chip.active {background:var(--bad); border-color:var(--bad); color:#fff;}
+
+  /* --- layout --- */
+#liveProjDraftPage .layout {display:grid; grid-template-columns:1fr 380px; gap:18px; align-items:start;}
+  @media (max-width:1000px){ #liveProjDraftPage .layout{grid-template-columns:1fr;} }
+
+#liveProjDraftPage .pool-toolbar {display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; align-items:center;}
+#liveProjDraftPage .search-row {position:relative; flex:1; min-width:200px;}
+#liveProjDraftPage .search-row input {
+    width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text);
+    font-family:'DM Sans',sans-serif; font-size:14px; padding:11px 16px 11px 40px; border-radius:10px; outline:none;
+  }
+#liveProjDraftPage .search-row input:focus {border-color:var(--accent);}
+#liveProjDraftPage .search-row svg {position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted);}
+#liveProjDraftPage .tag-btn {
+    background:var(--surface2); border:1px solid var(--border); color:var(--muted);
+    font-family:'DM Sans',sans-serif; font-size:12.5px; font-weight:600; padding:9px 13px;
+    border-radius:10px; cursor:pointer; white-space:nowrap;
+  }
+#liveProjDraftPage .tag-btn.active {background:var(--accent); border-color:var(--accent); color:#fff;}
+#liveProjDraftPage .tag-btn:hover:not(.active) {border-color:var(--accent); color:var(--accent2);}
+
+#liveProjDraftPage .table-wrap {background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:auto; max-height:calc(100vh - 340px);}
+#liveProjDraftPage table {width:100%; border-collapse:collapse; min-width:880px;}
+#liveProjDraftPage thead th {
+    position:sticky; top:0; background:var(--surface2); text-align:right;
+    font-size:10.5px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--muted); padding:9px 9px; border-bottom:1px solid var(--border); cursor:pointer; white-space:nowrap; z-index:2;
+  }
+#liveProjDraftPage thead th:nth-child(1) {text-align:center;}
+#liveProjDraftPage thead th:nth-child(2), #liveProjDraftPage thead th:nth-child(3) {text-align:left;}
+#liveProjDraftPage thead th:hover {color:var(--text);}
+#liveProjDraftPage thead th.sorted {color:var(--accent2);}
+#liveProjDraftPage tbody td {padding:8px 9px; border-bottom:1px solid var(--border); text-align:right; font-size:12.5px; font-variant-numeric:tabular-nums; white-space:nowrap;}
+#liveProjDraftPage tbody tr:hover td {background:var(--surface2);}
+#liveProjDraftPage tbody tr.drafted {opacity:.32;}
+#liveProjDraftPage tbody tr.drafted:hover td {background:transparent;}
+#liveProjDraftPage td.rank-cell {text-align:center; color:var(--muted); font-family:'DM Mono',monospace; font-size:11.5px;}
+#liveProjDraftPage td.name-cell {text-align:left;}
+#liveProjDraftPage .p-name {font-weight:700; font-size:13px;}
+#liveProjDraftPage .p-meta {color:var(--muted); font-size:10.5px; margin-top:1px; font-family:'DM Mono',monospace;}
+#liveProjDraftPage .postag {display:inline-block; background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:1px 5px; font-size:10px; color:var(--muted); margin-right:2px;}
+#liveProjDraftPage .col-z {font-weight:700; color:var(--accent2);}
+#liveProjDraftPage .col-adp {font-weight:700; color:var(--good);}
+#liveProjDraftPage .col-adp .adp-n {color:var(--muted); font-weight:400; font-size:10px;}
+#liveProjDraftPage .col-adp.no-adp {color:var(--muted); font-weight:400;}
+#liveProjDraftPage .col-adp.clickable {cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px;}
+#liveProjDraftPage .col-fadp {font-weight:700; color:var(--accent2);}
+#liveProjDraftPage .col-fadp.no-adp {color:var(--muted); font-weight:400;}
+
+  /* Draft-Range-Popover (Klick auf ADP-Zelle) -- feste Position, wird per
+     JS über der geklickten Zelle platziert. */
+#liveProjDraftPage .adp-popover {
+    position:fixed; z-index:200; background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; box-shadow:0 8px 28px rgba(0,0,0,0.35); padding:12px 14px;
+    width:260px; max-height:340px; overflow-y:auto; font-size:12px;
+  }
+#liveProjDraftPage .adp-popover h4 {margin:0 0 8px; font-size:12.5px; display:flex; justify-content:space-between; align-items:center;}
+#liveProjDraftPage .adp-popover .close-x {cursor:pointer; color:var(--muted); font-weight:700; padding:0 4px;}
+#liveProjDraftPage .adp-range-bar {position:relative; height:6px; background:var(--surface2); border-radius:3px; margin:8px 0 12px;}
+#liveProjDraftPage .adp-range-bar .fill {position:absolute; top:0; height:100%; background:var(--accent); border-radius:3px;}
+#liveProjDraftPage .adp-range-bar .avgmark {position:absolute; top:-3px; width:2px; height:12px; background:var(--accent2);}
+#liveProjDraftPage .adp-range-labels {display:flex; justify-content:space-between; font-size:10px; color:var(--muted); margin-top:-8px; margin-bottom:10px;}
+#liveProjDraftPage .adp-pick-list {display:flex; flex-wrap:wrap; gap:4px;}
+#liveProjDraftPage .adp-pick-chip {
+    background:var(--surface2); border:1px solid var(--border); border-radius:5px;
+    padding:2px 6px; font-family:'DM Mono',monospace; font-size:11px;
+  }
+#liveProjDraftPage .adp-pick-chip.lo {border-color:var(--good); color:var(--good);}
+#liveProjDraftPage .adp-pick-chip.hi {border-color:var(--bad); color:var(--bad);}
+#liveProjDraftPage .draft-btn {
+    background:var(--accent); color:#fff; border:none; padding:5px 11px; border-radius:7px;
+    font-size:11px; font-weight:700; cursor:pointer;
+  }
+#liveProjDraftPage .draft-btn:hover {filter:brightness(1.1);}
+#liveProjDraftPage .drafted-tag {font-size:10.5px; color:var(--muted); font-weight:600;}
+#liveProjDraftPage .drafted-tag.me {color:var(--accent2);}
+
+  /* --- side panel --- */
+#liveProjDraftPage .side-card {background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:16px;}
+#liveProjDraftPage .side-card h3 {font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin:0 0 10px;}
+#liveProjDraftPage .dtabs {display:flex; gap:2px; margin-bottom:12px; border-bottom:1px solid var(--border);}
+#liveProjDraftPage .dtab {padding:8px 11px; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent;}
+#liveProjDraftPage .dtab.active {color:var(--accent2); border-color:var(--accent);}
+#liveProjDraftPage .dtabpane {display:none;}
+#liveProjDraftPage .dtabpane.active {display:block;}
+
+#liveProjDraftPage .cat-row2 {display:grid; grid-template-columns:40px 1fr 26px; align-items:center; gap:8px; margin-bottom:7px;}
+#liveProjDraftPage .cat-row2 .clabel {font-size:11px; font-weight:700; color:var(--muted); font-family:'DM Mono',monospace;}
+#liveProjDraftPage .cat-bar-track {height:13px; background:var(--surface2); border-radius:3px; position:relative; overflow:hidden;}
+#liveProjDraftPage .cat-bar-fill {position:absolute; top:0; bottom:0; border-radius:3px;}
+#liveProjDraftPage .cat-rank {font-size:11px; font-family:'DM Mono',monospace; font-weight:700; text-align:right;}
+
+#liveProjDraftPage .slot-grid {display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:12px;}
+#liveProjDraftPage .slot-pill {border:1px solid var(--border); border-radius:7px; padding:5px 4px; text-align:center; font-size:10.5px; background:var(--surface2); min-width:0;}
+#liveProjDraftPage .slot-pill .k {color:var(--muted); display:block; font-size:9.5px; text-transform:uppercase;}
+#liveProjDraftPage .slot-pill .v {font-family:'DM Mono',monospace; font-weight:600; font-size:12.5px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+#liveProjDraftPage .slot-pill.full {border-color:var(--good); background:rgba(76,175,129,.08);}
+#liveProjDraftPage .slot-pill.full .v {color:var(--good);}
+#liveProjDraftPage .slot-pill.open .v {color:var(--accent2);}
+#liveProjDraftPage .slot-warn {grid-column:1/-1; border-color:var(--bad); background:rgba(255,101,132,.08);}
+#liveProjDraftPage .slot-warn .k {color:var(--bad);}
+#liveProjDraftPage .slot-warn .v {color:var(--bad); font-size:10.5px;}
+
+#liveProjDraftPage .reco-item {display:flex; justify-content:space-between; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--border);}
+#liveProjDraftPage .reco-item:last-child {border-bottom:none;}
+#liveProjDraftPage .reco-name {font-weight:700; font-size:12.5px;}
+#liveProjDraftPage .reco-tags {font-size:10px; color:var(--muted);}
+#liveProjDraftPage .reco-score {font-family:'DM Mono',monospace; font-size:11px; color:var(--accent2); font-weight:700;}
+
+#liveProjDraftPage .picklog {max-height:170px; overflow-y:auto; font-size:11.5px;}
+#liveProjDraftPage .picklog-row {display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--border); color:var(--muted);}
+#liveProjDraftPage .picklog-row b {color:var(--text);}
+
+#liveProjDraftPage .matrix-wrap {overflow-x:auto;}
+#liveProjDraftPage table.matrix {font-size:11px; min-width:0;}
+#liveProjDraftPage table.matrix th, #liveProjDraftPage table.matrix td {padding:5px 6px; text-align:center; border-bottom:1px solid var(--border);}
+#liveProjDraftPage table.matrix th {background:var(--surface2); position:sticky; top:0;}
+#liveProjDraftPage table.matrix td.rankcell {font-family:'DM Mono',monospace; font-weight:700;}
+#liveProjDraftPage table.matrix .rowlabel {text-align:left; font-weight:700; color:var(--muted); font-family:'DM Mono',monospace;}
+#liveProjDraftPage .mycol {background:rgba(108,99,255,.10);}
+
+#liveProjDraftPage .powerrank-row {display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--border);}
+#liveProjDraftPage .powerrank-row .prk {width:20px; font-family:'DM Mono',monospace; color:var(--muted); font-weight:700; font-size:12px;}
+#liveProjDraftPage .powerrank-row .pname2 {flex:1; font-size:12.5px; font-weight:600;}
+#liveProjDraftPage .powerrank-row.me .pname2 {color:var(--accent2);}
+#liveProjDraftPage .powerrank-row .pval {font-family:'DM Mono',monospace; font-size:12px; color:var(--muted);}
+
+#liveProjDraftPage .empty {color:var(--muted); font-size:12px; padding:10px 0; text-align:center;}
+#liveProjDraftPage .note {font-size:10.5px; color:var(--muted); margin-top:8px; line-height:1.5;}
+#liveProjDraftPage footer {margin-top:22px; font-size:11.5px; color:var(--muted); line-height:1.6;}
+
+  /* --- live sync (Fantrax league ID) --- */
+#liveProjDraftPage .cloud-status {font-size:11px; font-weight:600; text-transform:none; letter-spacing:0;}
+#liveProjDraftPage .cloud-status.ok {color:var(--good);}
+#liveProjDraftPage .cloud-status.err {color:var(--bad);}
+#liveProjDraftPage .league-sync-row {display:flex; gap:8px; width:100%; flex-wrap:wrap;}
+#liveProjDraftPage .league-sync-row input[type=text] {
+    flex:1 1 140px; min-width:0; background:var(--surface); border:1px solid var(--border); color:var(--text);
+    padding:9px 12px; border-radius:8px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none;
+  }
+#liveProjDraftPage .league-sync-row input[type=text]:focus {border-color:var(--accent);}
+#liveProjDraftPage .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:200;
+    display:flex; align-items:center; justify-content:center; padding:16px;
+  }
+#liveProjDraftPage .modal-box {
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:18px; max-width:640px; width:100%; max-height:85vh; overflow-y:auto;
+  }
+#liveProjDraftPage .modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+#liveProjDraftPage .league-row {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:9px 4px; border-bottom:1px solid var(--border); font-size:12.5px;
+  }
+#liveProjDraftPage .league-row:last-child { border-bottom:none; }
+#liveProjDraftPage .league-row .lg-name { font-weight:600; color:var(--text); }
+#liveProjDraftPage .league-row .lg-id { font-family:'DM Mono',monospace; font-size:10.5px; color:var(--muted); }
+#liveProjDraftPage .league-row .lg-status { text-align:right; white-space:nowrap; font-family:'DM Mono',monospace; }
+#liveProjDraftPage .league-row .lg-status.done { color:var(--good); }
+#liveProjDraftPage .league-row .lg-status.err { color:var(--bad); }
+
+/* ─── Meine Spieler: Besitz und ADP ueber alle Ligen ─────────
+   Modal auf der Fantrax-Redraft-Seite, gerendert von
+   js/projections-draft-native.js (openMyPlayers).
+
+   Das Fenster ist bewusst breiter als die uebrigen Modals: die
+   Tabelle hat fuenf Zahlenspalten plus Spielername, bei 640px wurde
+   die letzte Spalte abgeschnitten. Breite haengt an der Viewport-
+   breite (min aus 1100px und 94vw), damit es auf grossen Schirmen
+   viel Platz hat und auf dem Handy nicht ueber den Rand laeuft. */
+#liveProjDraftPage .mp-owned-box {
+  max-width: min(1100px, 94vw);
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#liveProjDraftPage .mp-owned-cfg {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+#liveProjDraftPage .mp-owned-lbl {
+  display: block; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 7px;
+}
+#liveProjDraftPage .mp-owned-row { display: flex; gap: 8px; flex-wrap: wrap; }
+#liveProjDraftPage .mp-owned-input {
+  flex: 1 1 220px; min-width: 0;
+  padding: 8px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+}
+#liveProjDraftPage .mp-owned-input:focus { outline: none; border-color: var(--accent); }
+#liveProjDraftPage .mp-owned-row .sb-btn { flex: 0 0 auto; }
+
+/* Erkannte Teams, damit sich die Zuordnung nachpruefen laesst */
+#liveProjDraftPage .mp-owned-hits {
+  margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px;
+}
+#liveProjDraftPage .mp-owned-hit {
+  font-family: 'DM Mono', monospace; font-size: 10.5px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2px 9px; color: var(--muted);
+}
+
+#liveProjDraftPage .mp-owned-warn {
+  margin: 8px 0 0; padding: 9px 12px;
+  border: 1px solid var(--bad); border-radius: 8px;
+  color: var(--text); line-height: 1.55;
+}
+
+#liveProjDraftPage .mp-owned-toggle {
+  display: flex; align-items: center; gap: 7px;
+  margin: 12px 0 10px; font-size: 12.5px; color: var(--muted); cursor: pointer;
+}
+
+/* Eigener Scrollbereich, damit Kopf und Einstellungen stehen bleiben
+   und nur die Spielerliste rollt. */
+#liveProjDraftPage .mp-owned-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+#liveProjDraftPage .mp-owned {
+  width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px;
+}
+#liveProjDraftPage .mp-owned th {
+  position: sticky; top: 0; z-index: 2;
+  padding: 9px 8px; text-align: center;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap; cursor: help;
+}
+#liveProjDraftPage .mp-owned td {
+  padding: 8px; text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+}
+#liveProjDraftPage .mp-owned tr:last-child td { border-bottom: none; }
+#liveProjDraftPage .mp-owned tbody tr:hover td { background: var(--surface2); }
+
+/* Spielername bleibt beim Querscrollen stehen, sonst weiss man auf
+   schmalen Schirmen nicht mehr, zu wem die Zahlen gehoeren. */
+#liveProjDraftPage .mp-owned .mp-o-name {
+  position: sticky; left: 0; z-index: 1;
+  text-align: left; font-family: 'DM Sans', sans-serif;
+  min-width: 150px;
+  background: var(--surface);
+}
+#liveProjDraftPage .mp-owned th.mp-o-name { z-index: 3; background: var(--surface2); }
+#liveProjDraftPage .mp-owned tbody tr:hover .mp-o-name { background: var(--surface2); }
+#liveProjDraftPage .mp-o-pname { display: block; font-weight: 600; color: var(--text); }
+#liveProjDraftPage .mp-o-pmeta { display: block; font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+#liveProjDraftPage .mp-o-num { white-space: nowrap; }
+#liveProjDraftPage .mp-o-num.own { color: var(--accent); font-weight: 700; }
+#liveProjDraftPage .mp-o-num.good { color: var(--good); }
+#liveProjDraftPage .mp-o-num.bad { color: var(--bad); }
+/* Duenne Stichprobe: Spieler ging nicht in allen Ligen weg, sein ADP
+   beruht entsprechend auf weniger Beobachtungen. */
+#liveProjDraftPage .mp-o-num.thin { color: var(--muted); }
+
+/* ─── Mobile ─────────────────────────────────────────────────
+   Unter 700px wird das Modal randlos und nutzt die volle Hoehe, die
+   Tabelle rollt quer mit fixierter Namensspalte. Kopfzeilen werden
+   gekuerzt (siehe data-short-Attribute im JS), weil "Overall ADP"
+   und "Gedraftet in" sonst dreimal umbrechen. */
+@media (max-width: 700px) {
+  #liveProjDraftPage .modal-overlay { padding: 0; align-items: stretch; }
+  #liveProjDraftPage .mp-owned-box {
+    max-width: 100%; max-height: 100%; border-radius: 0;
+    border: none; padding: 14px;
+  }
+  #liveProjDraftPage .mp-owned { font-size: 12px; }
+  #liveProjDraftPage .mp-owned th { padding: 7px 6px; font-size: 9.5px; }
+  #liveProjDraftPage .mp-owned td { padding: 7px 6px; font-size: 11.5px; }
+  #liveProjDraftPage .mp-owned .mp-o-name { min-width: 118px; }
+  #liveProjDraftPage .mp-o-pname { font-size: 12px; }
+  #liveProjDraftPage .mp-o-pmeta { font-size: 9.5px; }
+  /* Lange Kopfzeilen durch Kurzform ersetzen */
+  #liveProjDraftPage .mp-owned th[data-short]::after { content: attr(data-short); }
+  #liveProjDraftPage .mp-owned th[data-short] span { display: none; }
+  #liveProjDraftPage .mp-owned-row .sb-btn { flex: 1 1 100%; }
+}
+
+/* Betroffene Ligen (nicht erreichbar / kein eigenes Team gefunden).
+   Zeilennummer bezieht sich auf projections/data/fantrax-leagues.txt,
+   damit sich die Zeile bei 66 Eintraegen direkt finden laesst. */
+#liveProjDraftPage .mp-owned-fail-box {
+  margin: 8px 0 0; padding: 9px 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); line-height: 1.55;
+}
+#liveProjDraftPage .mp-owned-fails {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;
+}
+#liveProjDraftPage .mp-owned-fail {
+  font-size: 11px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 3px 8px; color: var(--muted);
+}
+#liveProjDraftPage .mp-owned-fail-ln {
+  font-family: 'DM Mono', monospace; color: var(--accent); font-weight: 600;
+}
+#liveProjDraftPage .mp-owned-fail code {
+  font-family: 'DM Mono', monospace; font-size: 10.5px; opacity: 0.8;
+}
+#liveProjDraftPage .mp-owned-det { margin-top: 8px; }
+#liveProjDraftPage .mp-owned-det summary {
+  cursor: pointer; font-size: 12px; color: var(--accent); user-select: none;
+}
+
+/* Sortierbare Kopfzeilen im Meine-Spieler-Modal */
+#liveProjDraftPage .mp-owned th.mp-o-th { cursor: pointer; user-select: none; }
+#liveProjDraftPage .mp-owned th.mp-o-th:hover { color: var(--text); }
+#liveProjDraftPage .mp-owned th.mp-o-th.sorted { color: var(--accent); }
+
+/* ─── Fantasy-Besitz auf der Projections-Seite ───────────────
+   Kurzkuerzel statt vollem Teamnamen, weil die Spalte sonst die
+   Statistik-Spalten aus dem sichtbaren Bereich schiebt. Voller Name
+   im title-Attribut. */
+.own-tag {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  padding: 2px 6px; border-radius: 5px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  white-space: nowrap;
+}
+.own-tag.fa {
+  color: var(--muted);
+  border-style: dashed;
+}
+.owner-filter {
+  padding: 8px 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  max-width: 100%;
+  margin-top: 8px;
+}
+.owner-filter:focus { outline: none; border-color: var(--accent); }
+
+/* ─── Fund-Hinweis auf der NBA-Teams-Seite ───────────────────
+   Freier Spieler mit hoher Minutenzahl: viel Rolle in der NBA, aber
+   in keinem Kader der Liga. Bewusst ein Rand links statt einer
+   Flaechenfarbe, damit die Heatmap der Statistikspalten lesbar
+   bleibt. */
+#liveProjTeamsPage tr.fa-find td:first-child {
+  box-shadow: inset 3px 0 0 var(--accent2);
+}
+#liveProjTeamsPage tr.fa-find .name-cell::after {
+  content: 'FREI';
+  font-family: 'DM Mono', monospace;
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.08em;
+  color: var(--accent2);
+  border: 1px solid var(--accent2);
+  border-radius: 4px;
+  padding: 1px 4px; margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ─── Consensus Projections (Player → Projections) ───────────
+   Tabelle mit Mittelwerten aus Beyaz' Projections und Josh Lloyd
+   (BBM), inkl. Z-Score, Gewichtung und Stat-Filtern.
+   Gerendert von js/consensus-projections.js. */
+#playerProjectionsPage .cp-controls {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+}
+#playerProjectionsPage .cp-input {
+  flex: 0 1 170px; min-width: 0;
+  padding: 9px 12px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+}
+#playerProjectionsPage .cp-input:focus { outline: none; border-color: var(--accent); }
+#playerProjectionsPage .cp-select {
+  padding: 9px 12px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; cursor: pointer;
+}
+#playerProjectionsPage .cp-btn {
+  padding: 9px 14px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+#playerProjectionsPage .cp-btn:hover { border-color: var(--accent); color: var(--accent); }
+#playerProjectionsPage .cp-btn-sm { padding: 5px 10px; font-size: 11.5px; font-weight: 500; }
+
+/* Aufklappbare Panels fuer Gewichtung und Filter */
+#playerProjectionsPage .cp-panel {
+  display: none;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;
+}
+#playerProjectionsPage .cp-panel.open { display: block; }
+#playerProjectionsPage .cp-panel-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted);
+}
+#playerProjectionsPage .cp-panel-note {
+  margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);
+  font-size: 11.5px; color: var(--muted); line-height: 1.55;
+}
+
+#playerProjectionsPage .cp-wgrid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 8px;
+}
+#playerProjectionsPage .cp-w { display: flex; flex-direction: column; gap: 4px; }
+#playerProjectionsPage .cp-w span {
+  font-family: 'DM Mono', monospace; font-size: 10.5px; color: var(--muted);
+  text-align: center; letter-spacing: 0.04em;
+}
+#playerProjectionsPage .cp-w input {
+  width: 100%; padding: 6px 8px; text-align: center;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: 12.5px;
+}
+#playerProjectionsPage .cp-w input:focus { outline: none; border-color: var(--accent); }
+
+#playerProjectionsPage .cp-fgrid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;
+}
+#playerProjectionsPage .cp-f { display: flex; align-items: center; gap: 6px; }
+#playerProjectionsPage .cp-f-lab {
+  font-family: 'DM Mono', monospace; font-size: 10.5px; color: var(--muted);
+  min-width: 34px; letter-spacing: 0.04em;
+}
+#playerProjectionsPage .cp-f input {
+  flex: 1; min-width: 0; padding: 5px 7px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: 11.5px;
+}
+#playerProjectionsPage .cp-f input:focus { outline: none; border-color: var(--accent); }
+
+#playerProjectionsPage .cp-legend {
+  display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+  font-size: 11.5px; color: var(--muted); margin-bottom: 14px;
+}
+#playerProjectionsPage .cp-legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+#playerProjectionsPage .cp-src {
+  font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600;
+  padding: 2px 6px; border-radius: 5px; border: 1px solid var(--border);
+  white-space: nowrap;
+}
+#playerProjectionsPage .cp-src-full { color: var(--good); border-color: var(--good); font-weight: 700; }
+#playerProjectionsPage .cp-src-two  { color: var(--accent); border-color: var(--accent); }
+#playerProjectionsPage .cp-src-one  { color: var(--muted); }
+#playerProjectionsPage .cp-src-warn { color: var(--bad); border-color: var(--bad); }
+
+#playerProjectionsPage #cpTableWrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; }
+#playerProjectionsPage .cp-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+#playerProjectionsPage .cp-table th {
+  position: sticky; top: 0; z-index: 2;
+  padding: 9px 7px; text-align: center; white-space: nowrap;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--muted); background: var(--surface2); border-bottom: 1px solid var(--border);
+}
+#playerProjectionsPage .cp-th { cursor: pointer; user-select: none; }
+#playerProjectionsPage .cp-th:hover { color: var(--text); }
+#playerProjectionsPage .cp-th.sorted { color: var(--accent); }
+#playerProjectionsPage .cp-table td {
+  padding: 6px 7px; text-align: center; border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+}
+#playerProjectionsPage .cp-table tbody tr:hover td { background: var(--surface2); }
+#playerProjectionsPage .cp-rank { color: var(--muted); font-size: 11px; width: 44px; }
+#playerProjectionsPage .cp-table .cp-name {
+  position: sticky; left: 0; z-index: 1;
+  text-align: left; font-family: 'DM Sans', sans-serif; font-weight: 600;
+  color: var(--text); background: var(--surface); min-width: 150px;
+}
+#playerProjectionsPage .cp-table th.cp-name { z-index: 3; background: var(--surface2); }
+#playerProjectionsPage .cp-table tbody tr:hover .cp-name { background: var(--surface2); }
+#playerProjectionsPage .cp-team { color: var(--muted); font-size: 11px; }
+#playerProjectionsPage .cp-num { white-space: nowrap; }
+#playerProjectionsPage .cp-zcol { font-weight: 700; color: var(--accent); }
+#playerProjectionsPage .cp-att { color: var(--muted); font-size: 11px; }
+#playerProjectionsPage .cp-diff { font-weight: 600; }
+#playerProjectionsPage .cp-agree { color: var(--good); }
+#playerProjectionsPage .cp-disagree { color: var(--bad); font-weight: 700; }
+#playerProjectionsPage .cp-srccell { white-space: nowrap; }
+#playerProjectionsPage .cp-empty {
+  padding: 40px 20px; text-align: center; color: var(--muted); font-size: 13px;
+  background: var(--surface); border: 1px dashed var(--border); border-radius: 12px;
+}
+
+@media (max-width: 700px) {
+  #playerProjectionsPage .cp-table { font-size: 11.5px; }
+  #playerProjectionsPage .cp-table td, #playerProjectionsPage .cp-table th { padding: 5px 4px; }
+  #playerProjectionsPage .cp-table .cp-name { min-width: 110px; }
+  #playerProjectionsPage .cp-legend { font-size: 10.5px; gap: 10px; }
+  #playerProjectionsPage .cp-wgrid { grid-template-columns: repeat(3, 1fr); }
+}
