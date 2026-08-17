@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MFHFBs NBA Projections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  // Theme so frueh wie moeglich setzen, damit die Seite nicht kurz im
+  // falschen Theme aufblitzt. Wenn eingebettet (?theme=dark|light von
+  // Taco Tuesday HQ), hat der URL-Parameter Vorrang vor dem eigenen
+  // gespeicherten Theme.
+  (function(){
+    var params = new URLSearchParams(location.search);
+    var urlTheme = params.get('theme');
+    var t = (urlTheme === 'light' || urlTheme === 'dark')
+      ? urlTheme
+      : (localStorage.getItem('mfhfb_theme_v1') || 'dark');
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('mfhfb_theme_v1', t); } catch(e) {}
+  })();
+  // Live-Theme-Wechsel von Taco Tuesday HQ annehmen, wenn als Iframe eingebettet
+  window.addEventListener('message', function(ev){
+    if (!ev || !ev.data || ev.data.type !== 'mfhfb-theme') return;
+    var t = ev.data.theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('mfhfb_theme_v1', t); } catch(e) {}
+  });
+</script>
+<style>
+  :root{
+    --bg:#0f1117; --surface:#1a1d27; --surface2:#222636; --border:#2e3250;
+    --text:#e8eaf6; --muted:#7b7f9e; --accent:#6c63ff; --accent2:#ff6584;
+    --good:#4caf81; --warn:#f5c842; --bad:#ff6584;
+  }
+  :root[data-theme="light"]{
+    --bg:#fff5ee; --surface:#ffffff; --surface2:#fdebd8; --border:#f0d5bc;
+    --text:#2c1a0e; --muted:#9a7560; --accent:#c0622f; --accent2:#e8975a;
+    --good:#3d8a5c; --warn:#a8710a; --bad:#b43c64;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; -webkit-font-smoothing:antialiased; transition:background-color 0.15s, color 0.15s;}
+  .wrap{max-width:none;width:100%;margin:0 auto;padding:28px 32px 80px;}
+  .topnav{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:22px; font-size:13px;}
+  .topnav-links{display:flex; gap:14px;}
+  .topnav a{color:var(--muted); text-decoration:none; padding:6px 0; border-bottom:2px solid transparent;}
+  .topnav a.active{color:var(--text); border-color:var(--accent); font-weight:600;}
+  .topnav a:hover{color:var(--text);}
+  .theme-toggle{
+    background:var(--surface2); border:1px solid var(--border); color:var(--text);
+    font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; padding:7px 12px;
+    border-radius:20px; cursor:pointer;
+  }
+  .theme-toggle:hover{border-color:var(--accent); color:var(--accent2);}
+  .hero{margin-bottom:26px;}
+  .eyebrow{font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent2); margin-bottom:8px;}
+  h1{font-family:'Playfair Display',serif; font-weight:800; font-size:34px; margin:0 0 6px; letter-spacing:-0.01em;}
+  .sub{color:var(--muted); font-size:13.5px; line-height:1.5; max-width:680px;}
+
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:18px; overflow:hidden;}
+  .panel-head{
+    padding:14px 20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none;
+  }
+  .panel-title{font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:8px;}
+  .badge{font-family:'DM Mono',monospace; font-size:10px; background:var(--surface2); border:1px solid var(--border); color:var(--warn); padding:2px 8px; border-radius:20px; text-transform:none; letter-spacing:0;}
+  .chevron{color:var(--muted); font-size:12px; transition:transform 0.15s;}
+  .panel.collapsed .chevron{transform:rotate(-90deg);}
+  .panel-body{padding:0 20px 18px;}
+  .panel.collapsed .panel-body{display:none;}
+
+  .pool-title{font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin:0 0 10px;}
+  .pool-toggle{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .pool-btn{
+    background:var(--surface2); border:1px solid var(--border); color:var(--muted);
+    font-family:'DM Sans',sans-serif; font-size:12.5px; font-weight:600; padding:7px 14px;
+    border-radius:20px; cursor:pointer;
+  }
+  .pool-btn.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .pool-btn:hover:not(.active){border-color:var(--accent); color:var(--accent2);}
+  .pool-hint{font-size:11.5px; color:var(--muted); line-height:1.4; margin:-10px 0 18px;}
+
+  .weight-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:18px;}
+  @media (max-width:640px){.weight-grid{grid-template-columns:1fr;}}
+  .weight-row{display:flex; flex-direction:column; gap:8px;}
+  .weight-label{display:flex; justify-content:space-between; font-size:13px; font-weight:600;}
+  .weight-val{font-family:'DM Mono',monospace; color:var(--accent2); font-size:13px;}
+  input[type=range]{-webkit-appearance:none; width:100%; height:4px; border-radius:4px; background:var(--surface2); outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid var(--bg);}
+  .weight-hint{font-size:11.5px; color:var(--muted); line-height:1.4;}
+
+  .cat-weight-title{font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin:4px 0 12px; padding-top:14px; border-top:1px solid var(--border);}
+  .cat-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:16px 20px;}
+  .cat-row{display:flex; flex-direction:column; gap:6px;}
+  .cat-label{display:flex; justify-content:space-between; font-size:12px; font-weight:600;}
+  .cat-val{font-family:'DM Mono',monospace; color:var(--accent2); font-size:12px;}
+  .reset-weights{
+    margin-top:16px; background:var(--surface2); border:1px solid var(--border); color:var(--muted);
+    font-family:'DM Sans',sans-serif; font-size:11.5px; padding:6px 12px; border-radius:8px; cursor:pointer;
+  }
+  .reset-weights:hover{border-color:var(--accent); color:var(--accent2);}
+
+
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;}
+  .search-row{position:relative; flex:1; min-width:220px;}
+  .search-row input{width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; padding:11px 16px 11px 40px; border-radius:10px; outline:none;}
+  .search-row input:focus{border-color:var(--accent);}
+  .search-row svg{position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted);}
+  .csv-btn{
+    background:var(--surface2); border:1px solid var(--border); color:var(--text);
+    font-family:'DM Sans',sans-serif; font-size:12.5px; font-weight:600; padding:10px 16px;
+    border-radius:10px; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:6px;
+  }
+  .csv-btn:hover{border-color:var(--accent); color:var(--accent2);}
+  .count{font-size:12px; color:var(--muted); margin-bottom:10px;}
+
+  .table-wrap{background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow-x:auto;}
+  table{width:100%; border-collapse:collapse; min-width:920px;}
+  thead th{
+    position:sticky; top:0; background:var(--surface2); text-align:right;
+    font-size:10.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--muted); padding:9px 10px; border-bottom:1px solid var(--border); cursor:pointer; white-space:nowrap;
+  }
+  thead th:nth-child(1){text-align:center;}
+  thead th:nth-child(2), thead th:nth-child(3), thead th:nth-child(4){text-align:left;}
+  thead th:hover{color:var(--text);}
+  thead th.sep-col{border-left:1px solid var(--border);}
+  tbody td{padding:9px 10px; border-bottom:1px solid var(--border); text-align:right; font-size:13px; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td:not([style*="background-color"]){background:var(--surface2);}
+  td.rank-cell{text-align:center; color:var(--muted); font-family:'DM Mono',monospace; font-size:12px;}
+  td.name-cell{text-align:left;}
+  .p-name{font-weight:700; font-size:13.5px;}
+  .ext-badge{
+    display:inline-block; margin-left:6px; font-size:9.5px; font-weight:700;
+    background:var(--accent-light, rgba(108,99,255,0.12)); color:var(--accent);
+    border:1px solid var(--border); border-radius:8px; padding:1px 6px; cursor:pointer;
+    white-space:nowrap;
+  }
+  .ext-badge:hover{border-color:var(--accent);}
+  .p-meta{color:var(--muted); font-size:11px; margin-top:1px; font-family:'DM Mono',monospace;}
+  td.left{text-align:left;}
+  td.sep-col{border-left:1px solid var(--border);}
+  .col-z{font-weight:700;}
+  footer{margin-top:22px; font-size:11.5px; color:var(--muted); line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topnav">
+    <div class="topnav-links">
+      <a href="index.html" class="active">Projections</a>
+      <a href="teams.html">NBA Teams</a>
+      <a href="draft.html">Draft Board</a>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button class="theme-toggle" id="adminToggle"></button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>NBA Projections</h1>
+  </div>
+
+  <div class="panel collapsed" id="weightPanel">
+    <div class="panel-head" id="weightPanelHead">
+      <div class="panel-title">Gewichtung <span class="badge" id="seasonBadge"></span></div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="panel-body">
+      <div class="pool-title">Z-Score-Basis (Ranking-Population)</div>
+      <div class="pool-toggle" id="poolToggle">
+        <button class="pool-btn" data-pool="200">Top 200</button>
+        <button class="pool-btn" data-pool="400">Top 400</button>
+        <button class="pool-btn" data-pool="all">Alle</button>
+      </div>
+      <div class="pool-hint">Bestimmt, welche Spieler in die Mittelwert-/Streuungsberechnung für den Z-Score einfließen (sortiert nach projizierten Punkten). Kleinere Basis = strengerer Maßstab, größere Basis = mehr Grundrauschen von Tiefenkader-Spielern.</div>
+
+      <div class="weight-grid">
+        <div class="weight-row">
+          <div class="weight-label"><span id="w1Label">Vorletztes Jahr</span><span class="weight-val" id="w1val">1.50×</span></div>
+          <input type="range" id="w1" min="1" max="2" step="0.25" value="1.5">
+          <div class="weight-hint">Gewicht der zweitjüngsten Saison, die für den jeweiligen Spieler vorliegt.</div>
+        </div>
+        <div class="weight-row">
+          <div class="weight-label"><span id="w2Label">Letztes Jahr</span><span class="weight-val" id="w2val">1.75×</span></div>
+          <input type="range" id="w2" min="1" max="2" step="0.25" value="1.75">
+          <div class="weight-hint">Gewicht der jüngsten Saison, die für den jeweiligen Spieler vorliegt.</div>
+        </div>
+      </div>
+
+      <div class="cat-weight-title">Kategorie-Gewichtung (fließt in den Z-Score ein)</div>
+      <div class="cat-grid" id="catGrid"></div>
+      <button class="reset-weights" onclick="resetWeights()">Alle Gewichtungen zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="panel collapsed" id="livePanel">
+    <div class="panel-head" id="livePanelHead">
+      <div class="panel-title">Live &amp; externe Quellen <span class="badge" id="liveBadge">…</span></div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="panel-body">
+      <div class="pool-hint" id="liveStatusText">Lade Live-Daten…</div>
+      <button class="reset-weights" onclick="refreshLiveData()">🔄 Live-Daten neu laden</button>
+
+      <div id="adminExtProjArea" style="display:none; margin-top:16px; border-top:1px solid var(--border); padding-top:14px;">
+        <div class="pool-title">Anzeige-Modus (nur du siehst das, Admin)</div>
+        <label style="display:flex; align-items:center; gap:7px; font-size:12.5px; margin:6px 0 14px;">
+          <input type="checkbox" id="baselineOnlyToggle">
+          Nur eigene Minuten-Baseline zeigen (externe Quellen &amp; Live-Blend ignorieren)
+        </label>
+
+        <div class="pool-title">Externe Projections — Bulk-Import</div>
+        <div class="pool-hint">Erste Zeile = Header (Name, Min, PTS, REB, AST, STL, BLK, 3PM, TOV, FG%, FT% — beliebige Reihenfolge, Komma oder Tab getrennt). Direkt aus Excel/Sheets reinkopierbar.</div>
+        <input type="text" id="extSourceName" placeholder="Quellenname (z.B. FantasyEdge, Josh Lloyd)" style="width:100%; margin:8px 0 6px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
+        <textarea id="extBulkText" rows="6" placeholder="Name,PTS,REB,AST&#10;Shai Gilgeous-Alexander,32,5.5,6.1&#10;Nikola Jokic,26,12.8,10.2" style="width:100%; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:'DM Mono',monospace; font-size:11.5px; resize:vertical;"></textarea>
+        <button class="reset-weights" onclick="runBulkImport()">⬆ Importieren</button>
+        <div id="bulkImportResult" class="pool-hint" style="margin-top:6px;"></div>
+
+        <div class="pool-title" style="margin-top:16px;">Einzelner Spieler</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
+          <input type="text" id="extPlayerSearch" placeholder="Spielername…" style="flex:1; min-width:160px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
+          <input type="text" id="extPlayerSource" placeholder="Quelle" style="width:140px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
+        </div>
+        <div class="cat-grid" id="extSingleGrid"></div>
+        <button class="reset-weights" onclick="saveSingleExternal()">💾 Quelle speichern</button>
+        <div id="extPlayerSourcesList" class="pool-hint" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="cmpModal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.55); padding:40px 16px;">
+    <div style="max-width:520px; margin:0 auto; background:var(--card-bg, var(--bg)); border:1px solid var(--border); border-radius:12px; padding:18px; max-height:85vh; overflow:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="panel-title" id="cmpTitle" style="font-size:15px;"></div>
+        <button class="reset-btn" style="font-size:16px;" onclick="closeComparison()">✕</button>
+      </div>
+      <div id="cmpBody"></div>
+    </div>
+  </div>
+
+
+  <div class="toolbar">
+    <div class="search-row">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search" placeholder="Spieler, Team oder Position suchen…">
+    </div>
+    <button class="csv-btn" onclick="downloadCSV()">⬇ CSV Export</button>
+  </div>
+  <div class="count" id="count"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-k="rank">#</th>
+          <th data-k="name">Name</th>
+          <th data-k="team">Team</th>
+          <th data-k="pos">Pos</th>
+          <th data-k="min" class="sep-col">Min</th>
+          <th data-k="pts">PTS</th>
+          <th data-k="reb">REB</th>
+          <th data-k="ast">AST</th>
+          <th data-k="stl">STL</th>
+          <th data-k="blk">BLK</th>
+          <th data-k="fg3m">3PM</th>
+          <th data-k="fga" title="Field Goals Made-Attempted">FGM-FGA</th>
+          <th data-k="fgpct">FG%</th>
+          <th data-k="fta" title="Free Throws Made-Attempted">FTM-FTA</th>
+          <th data-k="ftpct">FT%</th>
+          <th data-k="tov">TOV</th>
+          <th data-k="z">Z</th>
+          <th data-k="zFloor" title="Z ohne schlechteste Kat — Boden/Floor">Z-Floor</th>
+          <th data-k="zDepth" title="Z ohne beste Kat — Tiefe ohne Signature-Stärke">Z-Depth</th>
+          <th data-k="adpVal" title="Z ÷ ADP × 10 — grün = unterbewertet">ADP-Val</th>
+        </tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+
+  <footer id="footerText"></footer>
+</div>
+
+<script src="players-data.js"></script>
+<script src="projected-minutes.js"></script>
+<script src="adp-data.js" onerror="window.__adpMissing=true"></script>
+<script src="rosters-data.js" onerror="window.__rostersMissing=true"></script>
+<script src="rookie-projections.js" onerror="window.__rookiesMissing=true"></script>
+<script src="assets/shared.js"></script>
+<script src="assets/inseason-blend.js"></script>
+<script>
+let sortKey = 'z', sortAsc = false;
+let query = '';
+let showBaselineOnly = false;
+
+const NEWEST_LABEL = SEASON_LABELS[SEASON_LABELS.length - 1];
+const Z_CATS = ['pts', 'reb', 'ast', 'stl', 'blk', 'fg3m', 'tov', 'ftpct', 'fgpct'];
+const CAT_LABELS = { pts:'PTS', reb:'REB', ast:'AST', stl:'STL', blk:'BLK', fg3m:'3PM', tov:'TOV', ftpct:'FT%', fgpct:'FG%' };
+// Spalten, die im Table auch farblich (Heatmap) markiert werden — TOV invertiert.
+const HEAT_COLS = ['min', 'pts', 'reb', 'ast', 'stl', 'blk', 'fg3m', 'fgpct', 'ftpct', 'tov', 'z', 'zFloor', 'zDepth'];
+const HEAT_INVERT = { tov: true };
+
+mfhfbInitThemeToggle('themeToggle');
+
+// Team-Anzeige auf AKTUELLES Team umstellen (aus dem täglichen ESPN-Fetch,
+// rosters-data.js) statt dem historischen Team der letzten gespielten
+// Saison aus players-data.js -- z.B. nach Trades wie Giannis -> Miami.
+// Einmalig beim Laden, danach lesen alle Renders einfach p.team wie bisher.
+// Nur hier + draft.html, NICHT auf teams.html (siehe Kommentar in shared.js).
+if (typeof ROSTERS_DATA !== 'undefined') { mfhfbApplyCurrentTeams(PLAYER_RATES); mfhfbSyncManualTeams(); }
+
+document.getElementById('seasonBadge').textContent = SEASON_LABELS.join(' · ');
+
+if (SEASON_LABELS.length >= 2) {
+  document.getElementById('w1Label').textContent = `Vorletztes Jahr (${SEASON_LABELS[SEASON_LABELS.length - 2]})`;
+  document.getElementById('w2Label').textContent = `Letztes Jahr (${NEWEST_LABEL})`;
+}
+
+let weights = mfhfbGetWeights();
+let catWeights = mfhfbGetCategoryWeights();
+let poolSize = mfhfbGetPoolSize();
+document.getElementById('w1').value = weights.w1;
+document.getElementById('w2').value = weights.w2;
+document.getElementById('w1val').textContent = weights.w1.toFixed(2) + '×';
+document.getElementById('w2val').textContent = weights.w2.toFixed(2) + '×';
+
+function updatePoolButtons() {
+  document.querySelectorAll('.pool-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.pool === poolSize);
+  });
+}
+updatePoolButtons();
+document.querySelectorAll('.pool-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    poolSize = btn.dataset.pool;
+    mfhfbSetPoolSize(poolSize);
+    updatePoolButtons();
+    render();
+  });
+});
+
+// Kategorie-Slider dynamisch bauen
+document.getElementById('catGrid').innerHTML = Z_CATS.map(cat => `
+  <div class="cat-row">
+    <div class="cat-label"><span>${CAT_LABELS[cat]}</span><span class="cat-val" id="cw_${cat}_val">${catWeights[cat].toFixed(2)}</span></div>
+    <input type="range" id="cw_${cat}" min="0" max="1.5" step="0.05" value="${catWeights[cat]}">
+  </div>
+`).join('');
+
+Z_CATS.forEach(cat => {
+  document.getElementById(`cw_${cat}`).addEventListener('input', e => {
+    catWeights[cat] = parseFloat(e.target.value);
+    document.getElementById(`cw_${cat}_val`).textContent = catWeights[cat].toFixed(2);
+    mfhfbSetCategoryWeights(catWeights);
+    render();
+  });
+});
+
+document.getElementById('weightPanelHead').addEventListener('click', () => {
+  document.getElementById('weightPanel').classList.toggle('collapsed');
+});
+
+function resetWeights() {
+  weights = { ...MFHFB_DEFAULT_SEASON_WEIGHTS };
+  catWeights = { ...MFHFB_DEFAULT_CATEGORY_WEIGHTS };
+  poolSize = 'all';
+  mfhfbSetWeights(weights);
+  mfhfbSetCategoryWeights(catWeights);
+  mfhfbSetPoolSize(poolSize);
+  document.getElementById('w1').value = weights.w1;
+  document.getElementById('w2').value = weights.w2;
+  document.getElementById('w1val').textContent = weights.w1.toFixed(2) + '×';
+  document.getElementById('w2val').textContent = weights.w2.toFixed(2) + '×';
+  updatePoolButtons();
+  Z_CATS.forEach(cat => {
+    document.getElementById(`cw_${cat}`).value = catWeights[cat];
+    document.getElementById(`cw_${cat}_val`).textContent = catWeights[cat].toFixed(2);
+  });
+  render();
+}
+
+function fmt(v, d=1) { return v.toFixed(d); }
+
+function mean(arr) { return arr.reduce((a,b)=>a+b,0) / arr.length; }
+function stdev(arr, m) {
+  const variance = arr.reduce((a,b)=>a+(b-m)*(b-m),0) / arr.length;
+  return Math.sqrt(variance) || 1; // vermeidet Division durch 0
+}
+
+function computeAll() {
+  const overrides = mfhfbGetOverrides();
+  const rows = PLAYER_RATES
+    .filter(p => mfhfbIsValidCurrentTeam(p.team))
+    .map(p => {
+    const latest = mfhfbLatestSeason(p);
+    const key = mfhfbNormalizeName(p.name);
+    const minutes = overrides[key] !== undefined ? overrides[key] : mfhfbDefaultMinutes(p.name, latest.mpg, latest.gp);
+    const proj = mfhfbComputeProjection(p, minutes, weights);
+    const live = showBaselineOnly
+      ? { values: mfhfbBaselineOnly(proj), meta: { gamesPlayed: 0, usingLiveData: false, sourceCount: 0 } }
+      : mfhfbComputeLiveProjection(p.name, proj);
+    return { p, s: live.values, edited: overrides[key] !== undefined, manual: false, liveMeta: live.meta, _base: proj };
+  });
+
+  // Manuell gepflegte Spieler (Rookies etc. ohne Rate-Daten, auf der
+  // Teams-Seite eingetragen) als eigenständige Zeilen mit einmischen —
+  // aber nur, wenn tatsächlich Produktionswerte eingetragen sind. Rookies,
+  // für die bisher nur (projizierte) Minuten vorliegen, würden das Ranking
+  // sonst mit lauter Nullen zumüllen.
+  const manualStats = mfhfbGetManualStats();
+  const PROD_CATS = ['pts', 'reb', 'ast', 'stl', 'blk', 'fg3m'];
+  Object.values(manualStats).forEach(m => {
+    const hasProduction = PROD_CATS.some(c => m[c] !== undefined && m[c] !== 0);
+    if (!hasProduction) return;
+    // Einträge ohne Team (z.B. Spekulations-Prospects ohne realen Rosterplatz,
+    // wie "Drake Mitchell") NICHT in die Projections -- gleiche Regel wie im
+    // Draft Board. Sobald du ihm auf teams.html ein Team einträgst, taucht er
+    // automatisch wieder auf.
+    if (!m.team || !m.team.trim()) return;
+    const s = {
+      min: m.min || 0, pts: m.pts || 0, reb: m.reb || 0, ast: m.ast || 0,
+      stl: m.stl || 0, blk: m.blk || 0, fg3m: m.fg3m || 0, tov: m.tov || 0,
+      fgpct: m.fgpct || 0, ftpct: m.ftpct || 0,
+    };
+    // Keine echten Attempt-Daten für manuelle/Rookie-Einträge -- Minuten als
+    // Volumen-Proxy (gleiche Näherung wie in draft.html/teams.html), sonst
+    // fehlen fgm/fga/ftm/fta komplett und die FGM-FGA-Zelle crasht beim Rendern.
+    // Keine echten Attempt-Daten für manuelle Einträge -- 1:1 Minuten als
+    // Proxy war zu grob, siehe Kommentar in draft.html (Kingston-Flemings-
+    // Fall). Realistischere Liga-Schnittwerte: ~0,35 FGA/Min, ~0,12 FTA/Min.
+    s.fga = s.min * 0.35; s.fgm = s.fga * s.fgpct/100;
+    s.fta = s.min * 0.12; s.ftm = s.fta * s.ftpct/100;
+    const live = showBaselineOnly
+      ? { values: mfhfbBaselineOnly(s), meta: { gamesPlayed: 0, usingLiveData: false, sourceCount: 0 } }
+      : mfhfbComputeLiveProjection(m.name, s);
+    rows.push({
+      p: { name: m.name, team: m.team || '-', pos: m.pos || '-', seasons: {}, manualGP: m.gp },
+      s: live.values, edited: true, manual: true, liveMeta: live.meta, _base: s,
+    });
+  });
+
+  // Z-Score-Population bestimmen: Top 200 / Top 400 / Alle, sortiert nach
+  // projizierten Punkten. Mean/SD kommen aus dieser Population, angewendet
+  // wird der Z-Score trotzdem auf ALLE Spieler (auch außerhalb der Basis).
+  let pool = rows;
+  if (poolSize === '200' || poolSize === '400') {
+    const n = poolSize === '200' ? 200 : 400;
+    pool = [...rows].sort((a, b) => b.s.pts - a.s.pts).slice(0, n);
+  }
+
+  // FG%/FT%: NICHT die rohe Quote z-scoren -- ein Spieler mit 1/1 (100%)
+  // sähe sonst identisch aus wie einer mit 9/10 (90%) auf echtem Volumen.
+  // Stattdessen der tatsächliche Impact auf die Team-Quote: (eigene Quote
+  // minus Liga-Schnitt) mal eigene Versuche -- exakt wie im Draft Board.
+  const poolFga = pool.reduce((a,r)=>a+r.s.fga,0), poolFgm = pool.reduce((a,r)=>a+r.s.fgm,0);
+  const poolFta = pool.reduce((a,r)=>a+r.s.fta,0), poolFtm = pool.reduce((a,r)=>a+r.s.ftm,0);
+  const leagueFgPct = poolFga > 0 ? poolFgm / poolFga : 0;
+  const leagueFtPct = poolFta > 0 ? poolFtm / poolFta : 0;
+  rows.forEach(r => {
+    r._fgImpact = (r.s.fgpct/100 - leagueFgPct) * r.s.fga;
+    r._ftImpact = (r.s.ftpct/100 - leagueFtPct) * r.s.fta;
+  });
+
+  const stats = {};
+  Z_CATS.forEach(cat => {
+    let vals;
+    if (cat === 'fgpct') vals = pool.map(r => r._fgImpact);
+    else if (cat === 'ftpct') vals = pool.map(r => r._ftImpact);
+    else vals = pool.map(r => r.s[cat]);
+    const m = mean(vals);
+    stats[cat] = { mean: m, sd: stdev(vals, m) };
+  });
+  rows.forEach(r => {
+    let z = 0;
+    const catContribs = {};
+    Z_CATS.forEach(cat => {
+      let basis;
+      if (cat === 'fgpct') basis = r._fgImpact;
+      else if (cat === 'ftpct') basis = r._ftImpact;
+      else basis = r.s[cat];
+      let catZ = (basis - stats[cat].mean) / stats[cat].sd;
+      if (cat === 'tov') catZ = -catZ;
+      catContribs[cat] = catZ * catWeights[cat];
+      z += catContribs[cat];
+    });
+    r.z = z;
+
+    // Z-Floor: ohne schlechteste Kategorie
+    const worst = Object.entries(catContribs).reduce((a,b) => a[1]<b[1]?a:b);
+    r.zFloor = z - worst[1];
+    r.worstCat = worst[0];
+
+    // Z-Depth: ohne beste Kategorie
+    const best = Object.entries(catContribs).reduce((a,b) => a[1]>b[1]?a:b);
+    r.zDepth = z - best[1];
+    r.bestCat = best[0];
+
+    // ADP-Value: wird nach dem Sort gesetzt (braucht finalen Z-Rang)
+    r.adpVal = null;
+    r._adpRef = null;
+    const _normName = mfhfbNormalizeName(r.p.name);
+    const _adpEntry = (typeof ADP_DATA !== 'undefined') ? (ADP_DATA[_normName] || ADP_DATA[mfhfbResolveAliasReverse(_normName)]) : undefined;
+    if (_adpEntry) r._adpRef = _adpEntry.fantraxAdp || _adpEntry.ownAdp || null;
+  });
+
+  // ADP-Value = ADP-Rang minus unser Z-Rang: positiv = unterbewertet, negativ = überbewertet
+  rows.sort((x,y) => {
+    let av, bv;
+    // (Vorsort für ADP-Val-Berechnung — wird weiter unten nochmal sortiert)
+    return y.z - x.z;
+  });
+  rows.forEach((r,i) => {
+    r._zRank = i + 1;
+    r.adpVal = r._adpRef ? Math.round(r._adpRef - r._zRank) : null;
+  });
+
+  return rows;
+}
+
+function render() {
+ try {
+  const q = query.toLowerCase().trim();
+  let rows = computeAll();
+  rows = rows.filter(r =>
+    !q || r.p.name.toLowerCase().includes(q) || r.p.team.toLowerCase().includes(q) || r.p.pos.toLowerCase().includes(q)
+  );
+
+  rows.sort((x, y) => {
+    let av, bv;
+    if (sortKey === 'name') { av = x.p.name; bv = y.p.name; }
+    else if (sortKey === 'team') { av = x.p.team; bv = y.p.team; }
+    else if (sortKey === 'pos') { av = x.p.pos; bv = y.p.pos; }
+    else if (sortKey === 'z') { av = x.z; bv = y.z; }
+    else if (sortKey === 'zFloor') { av = x.zFloor; bv = y.zFloor; }
+    else if (sortKey === 'zDepth') { av = x.zDepth; bv = y.zDepth; }
+    else if (sortKey === 'adpVal') { av = x.adpVal ?? -999; bv = y.adpVal ?? -999; }
+    else { av = x.s[sortKey]; bv = y.s[sortKey]; }
+    const c = typeof av === 'string' ? av.localeCompare(bv) : av - bv;
+    return sortAsc ? c : -c;
+  });
+
+  window.__mfhfbCurrentRows = rows;
+  document.getElementById('count').textContent = `${rows.length} Spieler`;
+
+  // Min/Max je Heatmap-Spalte über die aktuell angezeigten (gefilterten) Zeilen.
+  const heatRange = {};
+  HEAT_COLS.forEach(col => {
+    const vals = rows.map(r => {
+      if (col === 'z') return r.z;
+      if (col === 'zFloor') return r.zFloor;
+      if (col === 'zDepth') return r.zDepth;
+      return r.s[col];
+    });
+    heatRange[col] = { min: Math.min(...vals), max: Math.max(...vals) };
+  });
+  const heat = (col, val) => mfhfbHeatStyle(val, heatRange[col].min, heatRange[col].max, !!HEAT_INVERT[col]);
+
+  document.getElementById('body').innerHTML = rows.map((row, i) => {
+    const {p, s, z, edited, manual} = row;
+    const zFloor = row.zFloor, zDepth = row.zDepth, adpVal = row.adpVal;
+    const worstCat = row.worstCat, bestCat = row.bestCat;
+    return `<tr>
+      <td class="rank-cell">${i + 1}.</td>
+      <td class="name-cell">
+        <div class="p-name">${p.name}${manual ? '<span style="color:var(--accent2);font-size:9px;font-weight:700;margin-left:5px;">MANUELL</span>' : ''}${mfhfbNameBadge(row)}</div>
+        <div class="p-meta">GP: ${manual ? (p.manualGP !== undefined ? p.manualGP : '-') : mfhfbRecentGP(p)}</div>
+      </td>
+      <td class="left">${p.team}</td>
+      <td class="left">${p.pos}</td>
+      <td class="sep-col" style="${edited ? 'color:var(--warn);' : ''}${heat('min', s.min)}">${fmt(s.min)}</td>
+      <td style="${heat('pts', s.pts)}">${fmt(s.pts)}</td>
+      <td style="${heat('reb', s.reb)}">${fmt(s.reb)}</td>
+      <td style="${heat('ast', s.ast)}">${fmt(s.ast)}</td>
+      <td style="${heat('stl', s.stl)}">${fmt(s.stl,1)}</td>
+      <td style="${heat('blk', s.blk)}">${fmt(s.blk,1)}</td>
+      <td style="${heat('fg3m', s.fg3m)}">${fmt(s.fg3m,1)}</td>
+      <td style="font-size:11px; color:var(--muted);">${fmt(s.fgm,1)}-${fmt(s.fga,1)}</td>
+      <td style="${heat('fgpct', s.fgpct)}">${fmt(s.fgpct)}%</td>
+      <td style="font-size:11px; color:var(--muted);">${fmt(s.ftm,1)}-${fmt(s.fta,1)}</td>
+      <td style="${heat('ftpct', s.ftpct)}">${fmt(s.ftpct)}%</td>
+      <td style="${heat('tov', s.tov)}">${fmt(s.tov,1)}</td>
+      <td class="col-z" style="${heat('z', z)}">${z >= 0 ? '+' : ''}${fmt(z,2)}</td>
+      <td style="${heat('zFloor', zFloor)};font-size:11px;font-weight:700" title="Floor — ohne ${worstCat||''}">${zFloor >= 0 ? '+' : ''}${fmt(zFloor,2)}</td>
+      <td style="${heat('zDepth', zDepth)};font-size:11px;font-weight:700" title="Depth — ohne ${bestCat||''}">${zDepth >= 0 ? '+' : ''}${fmt(zDepth,2)}</td>
+      <td style="font-weight:700;font-size:11px;color:${adpVal===null?'var(--muted)':adpVal>0?'var(--good)':'var(--bad)'}">${adpVal!==null?(adpVal>0?'+':'')+adpVal:'—'}</td>
+    </tr>`;
+  }).join('');
+ } catch(err) {
+   console.error('render() fehlgeschlagen:', err);
+   document.getElementById('count').textContent = 'Fehler beim Rendern (siehe Browser-Konsole)';
+   document.getElementById('body').innerHTML =
+     `<tr><td colspan="20" style="padding:16px; color:var(--bad);">
+       Fehler beim Anzeigen der Projections — Details in der Browser-Konsole (F12).
+       Häufigste Ursache: veraltete Daten in localStorage nach einem Update.
+       Falls das Problem bleibt: localStorage für diese Seite leeren und neu laden.
+     </td></tr>`;
+ }
+}
+
+function downloadCSV() {
+  const rows = window.__mfhfbCurrentRows || computeAll();
+  const header = ['Rank','Name','Team','Pos','Min','PTS','REB','AST','STL','BLK','3PM','FG%','FT%','TOV','Z','Z-Floor','Z-Depth','ADP-Val','RecentGP'];
+  const lines = [header.join(',')];
+  rows.forEach((r, i) => {
+    const row = [
+      i + 1, `"${r.p.name}"`, r.p.team, r.p.pos,
+      fmt(r.s.min), fmt(r.s.pts), fmt(r.s.reb), fmt(r.s.ast), fmt(r.s.stl,1), fmt(r.s.blk,1), fmt(r.s.fg3m,1), fmt(r.s.fgpct), fmt(r.s.ftpct), fmt(r.s.tov,1),
+      fmt(r.z,2), fmt(r.zFloor,2), fmt(r.zDepth,2), r.adpVal !== null ? fmt(r.adpVal,2) : '',
+      r.manual ? (r.p.manualGP !== undefined ? r.p.manualGP : '-') : mfhfbRecentGP(r.p),
+    ];
+    lines.push(row.join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mfhfb-projections-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('search').addEventListener('input', e => { query = e.target.value; render(); });
+
+document.querySelectorAll('thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const k = th.dataset.k;
+    if (sortKey === k) sortAsc = !sortAsc; else { sortKey = k; sortAsc = false; }
+    render();
+  });
+});
+
+document.getElementById('w1').addEventListener('input', e => {
+  weights.w1 = parseFloat(e.target.value);
+  document.getElementById('w1val').textContent = weights.w1.toFixed(2) + '×';
+  mfhfbSetWeights(weights);
+  render();
+});
+document.getElementById('w2').addEventListener('input', e => {
+  weights.w2 = parseFloat(e.target.value);
+  document.getElementById('w2val').textContent = weights.w2.toFixed(2) + '×';
+  mfhfbSetWeights(weights);
+  render();
+});
+
+document.getElementById('footerText').textContent =
+  `Pro-Minute-Raten aus Season-Totals ÷ MPG je Saison (${SEASON_LABELS.join(', ')}). Z-Score wird kategorienweise über die gewählte Ranking-Population berechnet und mit den Kategorie-Gewichtungen kombiniert (TOV invertiert). Farben markieren je Spalte den besten (grün) bis schlechtesten (rot) Wert der aktuell angezeigten Spieler. Minuten-Änderungen kommen von der Teams-Seite (localStorage, geräteweit noch nicht synchronisiert).`;
+
+// Live-Update, wenn auf der Teams-Seite (anderer Tab) Minuten geändert werden
+window.addEventListener('storage', (e) => {
+  if (e.key === MFHFB_STORAGE_KEY || e.key === MFHFB_WEIGHT_KEY || e.key === MFHFB_CATWEIGHT_KEY || e.key === MFHFB_POOL_KEY) {
+    weights = mfhfbGetWeights();
+    catWeights = mfhfbGetCategoryWeights();
+    poolSize = mfhfbGetPoolSize();
+    updatePoolButtons();
+    render();
+  }
+});
+
+// ============================================================
+//  LIVE-BLENDING / EXTERNE QUELLEN — UI-Verkabelung
+//  (Engine: assets/inseason-blend.js)
+// ============================================================
+
+// Badge neben dem Spielernamen: 🔗n = n externe Quellen eingeflossen,
+// 🏀n = n Live-Spiele dieser Saison eingeflossen. Klick öffnet den
+// Preseason-vs-Live-Vergleich für diesen Spieler.
+function mfhfbNameBadge(row) {
+  const meta = row.liveMeta;
+  if (!meta) return '';
+  const parts = [];
+  if (meta.sourceCount) parts.push(`🔗${meta.sourceCount}`);
+  if (meta.usingLiveData) parts.push(`🏀${meta.gamesPlayed}`);
+  if (!parts.length) return '';
+  const safeName = row.p.name.replace(/'/g, "\\'");
+  return `<span class="ext-badge" onclick="openComparison('${safeName}')" title="Preseason vs. Live vergleichen">${parts.join(' ')}</span>`;
+}
+
+function openComparison(name) {
+  const row = (window.__mfhfbCurrentRows || []).find(r => r.p.name === name);
+  if (!row || !row._base) return;
+  const cmp = mfhfbProjectionComparisonRow(name, row._base);
+  const cats = [
+    ['min', 'MIN'], ['pts', 'PTS'], ['reb', 'REB'], ['ast', 'AST'], ['stl', 'STL'],
+    ['blk', 'BLK'], ['fg3m', '3PM'], ['tov', 'TOV'], ['fgpct', 'FG%'], ['ftpct', 'FT%'],
+  ];
+  const fv = (v, c) => (v === undefined || v === null) ? '—' : ((c === 'fgpct' || c === 'ftpct') ? v.toFixed(1) + '%' : v.toFixed(1));
+  const rowsHtml = cats.map(([c, label]) => `<tr>
+      <td style="text-align:left;color:var(--muted);">${label}</td>
+      <td>${fv(cmp.baseline[c], c)}</td>
+      <td>${fv(cmp.preseasonBlended[c], c)}</td>
+      <td style="font-weight:700;">${fv(cmp.live[c], c)}</td>
+      <td>${cmp.seasonActualAvg ? fv(cmp.seasonActualAvg[c], c) : '—'}</td>
+    </tr>`).join('');
+
+  let statusText;
+  if (cmp.usingLiveData) {
+    statusText = `Live-Blend aktiv — ${cmp.gamesPlayed} Spiel${cmp.gamesPlayed === 1 ? '' : 'e'} dieser Saison bereits eingerechnet.`;
+  } else if (cmp.preseasonBlended.sourceCount) {
+    statusText = `Geblendete Preseason-Projection (${cmp.preseasonBlended.sourceCount} externe Quelle${cmp.preseasonBlended.sourceCount === 1 ? '' : 'n'}), noch keine Live-Saison-Daten.`;
+  } else {
+    statusText = 'Reine Minuten-Baseline — keine externen Quellen, noch keine Live-Daten.';
+  }
+
+  document.getElementById('cmpTitle').textContent = name;
+  document.getElementById('cmpBody').innerHTML = `
+    <div class="pool-hint" style="margin-bottom:10px;">${statusText}</div>
+    <table style="width:100%; font-size:12px; border-collapse:collapse;">
+      <thead><tr style="color:var(--muted);">
+        <th style="text-align:left;">Kat.</th><th>Baseline</th><th>+Quellen</th><th>Live</th><th>Season-Ø</th>
+      </tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>`;
+  document.getElementById('cmpModal').style.display = 'block';
+}
+function closeComparison() { document.getElementById('cmpModal').style.display = 'none'; }
+document.getElementById('cmpModal').addEventListener('click', (e) => {
+  if (e.target.id === 'cmpModal') closeComparison();
+});
+
+document.getElementById('livePanelHead').addEventListener('click', () => {
+  document.getElementById('livePanel').classList.toggle('collapsed');
+});
+
+function updateLiveStatusUI() {
+  const actuals = mfhfbGetLiveActualsSync();
+  const nPlayers = Object.keys(actuals).length;
+  const badge = document.getElementById('liveBadge');
+  const text = document.getElementById('liveStatusText');
+  if (nPlayers === 0) {
+    badge.textContent = 'Vorsaison';
+    text.textContent = 'Noch keine Live-Saison-Daten von Taco Tuesday HQ (vor Saisonstart normal) — Projections laufen auf der (ggf. mit externen Quellen geblendeten) Preseason-Projection.';
+  } else {
+    badge.textContent = nPlayers + ' Spieler live';
+    text.textContent = `Live-Daten geladen: ${nPlayers} Spieler mit Season-Actuals aus Taco Tuesday HQ. Wird automatisch spätestens alle ${MFHFB_LIVE_CACHE_HOURS}h neu geholt.`;
+  }
+}
+
+async function refreshLiveData() {
+  document.getElementById('liveStatusText').textContent = 'Lade Live-Daten…';
+  await mfhfbFetchInSeasonActuals(true);
+  updateLiveStatusUI();
+  render();
+}
+
+// --- Admin-Bereich (externe Quellen pflegen) ---
+mfhfbInitAdminToggle('adminToggle', (isAdmin) => {
+  document.getElementById('adminExtProjArea').style.display = isAdmin ? 'block' : 'none';
+  render();
+});
+if (mfhfbIsAdmin()) document.getElementById('adminExtProjArea').style.display = 'block';
+
+document.getElementById('baselineOnlyToggle').addEventListener('change', (e) => {
+  showBaselineOnly = e.target.checked;
+  render();
+});
+
+function mfhfbAllKnownPlayerNames() {
+  const names = PLAYER_RATES.map(p => p.name);
+  if (typeof ROOKIE_PROJECTIONS !== 'undefined') names.push(...Object.values(ROOKIE_PROJECTIONS).map(r => r.name));
+  names.push(...Object.values(mfhfbGetManualStats()).map(m => m.name));
+  return names;
+}
+
+function runBulkImport() {
+  const source = document.getElementById('extSourceName').value.trim();
+  const text = document.getElementById('extBulkText').value;
+  const resultEl = document.getElementById('bulkImportResult');
+  if (!source) { resultEl.textContent = 'Bitte zuerst einen Quellennamen eingeben.'; return; }
+  if (!text.trim()) { resultEl.textContent = 'Keine Daten zum Importieren im Textfeld.'; return; }
+
+  const result = mfhfbImportExternalBulk(source, text, mfhfbAllKnownPlayerNames());
+  let msg = `${result.imported} importiert, ${result.skipped} übersprungen.`;
+  if (result.error) msg += ` Fehler: ${result.error}`;
+  if (result.unmatched && result.unmatched.length) {
+    msg += `<br>Nicht zugeordnet (Tippfehler o.ä.?): ${result.unmatched.join(', ')}`;
+  }
+  resultEl.innerHTML = msg;
+  render();
+}
+
+// --- Einzel-Editor ---
+document.getElementById('extSingleGrid').innerHTML = MFHFB_EXT_CATS.map(cat => `
+  <div class="cat-row">
+    <div class="cat-label"><span>${(CAT_LABELS[cat] || cat).toUpperCase()}</span></div>
+    <input type="number" step="0.1" id="extcat_${cat}" style="width:70px; padding:4px 6px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12px;">
+  </div>
+`).join('');
+
+function renderExtPlayerSourcesList() {
+  const name = document.getElementById('extPlayerSearch').value.trim();
+  const listEl = document.getElementById('extPlayerSourcesList');
+  if (!name) { listEl.innerHTML = ''; return; }
+  const sources = mfhfbGetExternalSourcesFor(name);
+  const names = Object.keys(sources);
+  if (!names.length) { listEl.innerHTML = 'Noch keine externen Quellen für diesen Spieler.'; return; }
+  listEl.innerHTML = names.map(s => {
+    const vals = MFHFB_EXT_CATS.filter(c => sources[s][c] !== undefined).map(c => `${(CAT_LABELS[c] || c)}: ${sources[s][c]}`).join(', ');
+    return `<div style="display:flex; justify-content:space-between; gap:8px; padding:3px 0;">
+      <span><strong>${s}</strong> (${sources[s].updatedAt}) — ${vals}</span>
+      <button class="reset-btn" onclick="deleteExtSource('${name.replace(/'/g, "\\'")}','${s.replace(/'/g, "\\'")}')">✕ löschen</button>
+    </div>`;
+  }).join('');
+}
+document.getElementById('extPlayerSearch').addEventListener('input', renderExtPlayerSourcesList);
+
+function saveSingleExternal() {
+  const name = document.getElementById('extPlayerSearch').value.trim();
+  const source = document.getElementById('extPlayerSource').value.trim();
+  if (!name || !source) { alert('Bitte Spielername UND Quelle angeben.'); return; }
+  if (!mfhfbAllKnownPlayerNames().some(n => mfhfbNormalizeName(n) === mfhfbNormalizeName(name))) {
+    if (!confirm(`"${name}" wurde in keiner bekannten Spielerliste gefunden — trotzdem als Quelle speichern (z.B. bei Namens-Tippfehler)?`)) return;
+  }
+  const stats = {};
+  MFHFB_EXT_CATS.forEach(cat => {
+    const v = document.getElementById(`extcat_${cat}`).value;
+    if (v !== '') stats[cat] = v;
+  });
+  mfhfbSetExternalSource(name, source, stats);
+  renderExtPlayerSourcesList();
+  render();
+}
+
+function deleteExtSource(name, source) {
+  mfhfbDeleteExternalSource(name, source);
+  renderExtPlayerSourcesList();
+  render();
+}
+
+// Live-Daten einmal beim Laden holen (gecacht, siehe MFHFB_LIVE_CACHE_HOURS),
+// dann neu rendern -- vor Saisonstart liefert das einfach "keine Daten" und
+// die Projections bleiben unverändert auf dem Preseason-Blend.
+mfhfbFetchInSeasonActuals().then(() => { updateLiveStatusUI(); render(); });
+updateLiveStatusUI();
+
+render();
+</script>
+</body>
+</html>
