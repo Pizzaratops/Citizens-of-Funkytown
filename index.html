@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taco Tuesday HQ 🌮</title>
+  <link rel="manifest" href="manifest.json?v=6">
+  <!-- iOS Safari nutzt manifest.json kaum -- fuer "Zum Home-Bildschirm" (Teilen-Menü,
+       immer vorhanden, aber ohne diese Tags nur ein Screenshot-Lesezeichen statt
+       eines echten App-Icons im Vollbild) braucht es diese Apple-eigenen Tags. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Taco Tuesday HQ">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#fff5ee">
+  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/big-board.css?v=5">
+  <link rel="stylesheet" href="css/projections.css?v=1">
+  <link rel="stylesheet" href="css/flow.css?v=1">
+  <link rel="stylesheet" href="css/matchup.css?v=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" id="backBtn" onclick="goHome()">← Back</button>
+  <div class="logo">🌮 Taco Tuesday <span>HQ</span></div>
+  <div class="header-right">
+    <!-- App-Installieren-Button (nur Android/Chrome/Edge -- iOS hat keinen
+         programmatischen Install-Trigger, dort bleibt nur "Teilen > Zum
+         Home-Bildschirm", siehe apple-mobile-web-app-* Tags im <head>).
+         Standardmaessig versteckt, erscheint nur wenn der Browser das
+         beforeinstallprompt-Event feuert (js/init.js). -->
+    <button id="pwaInstallBtn" onclick="pwaInstallApp()" style="display:none;background:rgba(108,99,255,0.12);border:1.5px solid rgba(108,99,255,0.35);color:var(--accent);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.2s;white-space:nowrap;margin-right:6px;">⬇️ App installieren</button>
+    <!-- iOS-Pendant: beforeinstallprompt feuert dort nie, deshalb eigener
+         Button mit den 3 manuellen Schritten (Teilen > Zum Home-Bildschirm).
+         Sichtbarkeit wird rein per JS gesteuert (pwaShowIosHint in init.js). -->
+    <button id="pwaIosHintBtn" onclick="pwaShowIosSteps()" style="display:none;background:rgba(108,99,255,0.12);border:1.5px solid rgba(108,99,255,0.35);color:var(--accent);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.2s;white-space:nowrap;margin-right:6px;">📲 Zum Home-Bildschirm</button>
+    <!-- ESPN Sync Button -->
+    <button id="espnSyncBtn" onclick="if(isAdmin)espnSync();else toast('⛔ Nur für Admins')" title="Nur Admins können manuell syncen" style="background:rgba(128,128,128,0.08);border:1.5px solid rgba(128,128,128,0.2);color:var(--muted);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:default;font-family:DM Sans,sans-serif;transition:all 0.2s;white-space:nowrap;margin-right:6px;">🔄 ESPN Sync</button>
+    <!-- Admin Settings link (visible only when logged in) -->
+    <button id="adminSettingsBtn" onclick="showAdminSettings()" style="display:none;background:rgba(245,200,66,0.12);border:1.5px solid rgba(245,200,66,0.35);color:#f5c842;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.2s;white-space:nowrap;margin-right:2px;">⚙️ Admin</button>
+    <!-- Global Admin Button -->
+    <div class="global-admin-btn" id="globalAdminBtn" onclick="toggleAdminDropdown(event)">
+      <span id="globalAdminIcon">&#128274;</span>
+      <span id="globalAdminLabel">Admin</span>
+      <div class="admin-dropdown" id="adminDropdown" onclick="event.stopPropagation()">
+        <div class="admin-dropdown-title">&#128272; Admin Login</div>
+        <div id="adminLoginForm">
+          <div class="admin-pin-row">
+            <input type="password" class="admin-pin-input" id="globalPinInput"
+              placeholder="PIN eingeben…" maxlength="8"
+              onkeydown="if(event.key==='Enter')globalCheckPin()"/>
+            <button class="admin-pin-btn" onclick="globalCheckPin()">OK</button>
+          </div>
+        </div>
+        <div class="admin-status-row" id="adminStatusRow" style="display:none;">
+          <span style="color:#f5c842;font-weight:700;">&#11088; Admin aktiv</span>
+          <button class="admin-logout-btn" onclick="globalLogout()">Logout</button>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5;">
+          Draft Duel: 3&#215; Vote-Gewicht<br>
+          Trade: Speichern &amp; Roster-Update
+        </div>
+      </div>
+    </div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">&#9728;&#65039; Light</button>
+  </div>
+</div>
+
+<!-- SUB-NAV BAR -->
+<div class="subnav" id="subNav">
+
+  <!-- Desktop: grouped dropdowns, one row -->
+  <div class="subnav-desktop">
+    <div class="subnav-inner">
+
+      <button class="snav-single" data-page="home" onclick="goHome()">🏠 Home</button>
+      <div class="snav-divider"></div>
+
+      <div class="snav-group">
+        <button class="snav-group-btn" id="snavPlayer">🧍 Player <span class="snav-arrow">▾</span></button>
+        <div class="snav-dropdown">
+          <button class="snav-dropdown-item" data-page="playerrankings"    onclick="showPlayerRankings()">🏅 2026/27 Rankings</button>
+          <button class="snav-dropdown-item" data-page="playerprojections" onclick="showPlayerProjections()">🔮 2026/27 Projections</button>
+          <div class="snav-dropdown-label">Live Projections (Test)</div>
+          <button class="snav-dropdown-item" data-page="liveprojections"     onclick="showLiveProjections()">🧪 Projections</button>
+          <button class="snav-dropdown-item" data-page="liveprojectionsteams" onclick="showLiveProjTeams()">🏀 NBA Teams</button>
+          <button class="snav-dropdown-item" data-page="liveprojectionsdraft" onclick="showLiveProjDraft()">🏆 Fantrax Redraft</button>
+        </div>
+      </div>
+
+      <div class="snav-group">
+        <button class="snav-group-btn" id="snavDynasty">🏅 Dynasty Rankings <span class="snav-arrow">▾</span></button>
+        <div class="snav-dropdown">
+          <button class="snav-dropdown-item" data-page="rankings"       onclick="showRankings()">🏅 Rankings</button>
+          <button class="snav-dropdown-item" data-page="dynastyrolling" onclick="showDynastyRolling()">📈 Rolling Rankings</button>
+        </div>
+      </div>
+      <div class="snav-divider"></div>
+
+      <div class="snav-group">
+        <button class="snav-group-btn" id="snavTTHQBoards">🏆 TTHQ Draft Boards <span class="snav-arrow">▾</span></button>
+        <div class="snav-dropdown">
+          <button class="snav-dropdown-item" data-page="draftboard"    onclick="showDraftboard()">📋 Full Draft Board</button>
+          <button class="snav-dropdown-item" data-page="draftresults" onclick="showDraftResults()">🏆 Draft Results</button>
+        </div>
+      </div>
+
+      <div class="snav-group">
+        <button class="snav-group-btn" id="snavDraft">📋 Draft <span class="snav-arrow">▾</span></button>
+        <div class="snav-dropdown">
+          <div class="snav-dropdown-label">2026</div>
+          <button class="snav-dropdown-item" data-page="draft26"    onclick="showDraft26()">🔎 Prospect Database</button>
+          <button class="snav-dropdown-item" data-page="bigBoard"  onclick="showBigBoard()">📋 MFHFBs Big Board</button>
+          <button class="snav-dropdown-item" data-page="lottery"    onclick="showLottery()">🎲 2026 Lottery</button>
+          <div class="snav-dropdown-label">2027</div>
+          <button class="snav-dropdown-item" data-page="draft27" onclick="showDraft27()">📋 MFHFBs Big Board</button>
+        </div>
+      </div>
+
+      <div class="snav-group">
+        <button class="snav-group-btn" id="snavAnalytics">📊 Analytics <span class="snav-arrow">▾</span></button>
+        <div class="snav-dropdown">
+          <button class="snav-dropdown-item" data-page="bestavail" onclick="showBestAvail()">🆓 Best Available</button>
+          <button class="snav-dropdown-item" data-page="analytics" onclick="showAnalytics()">📊 Team Analytics</button>
+          <button class="snav-dropdown-item" data-page="rollingrankings" onclick="showRollingRankings()">📈 Rolling Rankings</button>
+        </div>
+      </div>
+
+      <div class="snav-group">
+        <button class="snav-group-btn" id="snavTrade">⚖️ Trade <span class="snav-arrow">▾</span></button>
+        <div class="snav-dropdown">
+          <button class="snav-dropdown-item" data-page="trade"       onclick="showTrade()">⚖️ Trade Analyzer</button>
+          <button class="snav-dropdown-item" data-page="tradefinder" onclick="showTradeFinder()">🔍 Trade Finder</button>
+          <button class="snav-dropdown-item" data-page="tradehistory" onclick="showTradeHistory()">📜 Trade History</button>
+          <button class="snav-dropdown-item" data-page="nbatrades" onclick="showNbaTrades()">🏀 NBA Trades</button>
+        </div>
+      </div>
+
+      <div class="snav-divider"></div>
+      <button class="snav-single" data-page="matchup" onclick="showMatchupPlanner()">⚔️ Matchup Planer</button>
+      <button class="snav-single" data-page="livescores" onclick="showLiveScores()">🔴 Live Scores</button>
+      <button class="snav-single" data-page="standings" onclick="showStandings()">📈 Standings</button>
+      <button class="snav-single" data-page="rules"     onclick="showRules()">📜 Rules</button>
+      <div class="snav-divider"></div>
+      <!-- Draft Duel deaktiviert bis 2027er Prospects da sind — Block einfach wieder auskommentieren
+      <div class="snav-group">
+        <button class="snav-group-btn" id="snavDuel">⚡ Draft Duel <span class="snav-arrow">▾</span></button>
+        <div class="snav-dropdown">
+          <button class="snav-dropdown-item" data-page="duel"         onclick="showDuelPage()">⚡ Duell starten</button>
+          <button class="snav-dropdown-item" data-page="duelboard"    onclick="showDuelBoard()">📊 Duel Board</button>
+          <button class="snav-dropdown-item" data-page="duelsettings" onclick="showDuelSettings()">⚙️ Duel Settings</button>
+        </div>
+      </div>
+      -->
+
+    </div>
+  </div>
+
+  <!-- Mobile: hamburger -->
+  <div class="subnav-mobile">
+    <button class="subnav-hamburger" onclick="toggleMobileNav()">
+      <span id="mobileNavLabel">🌮 League Tools</span>
+      <span id="mobileNavArrow" style="transition:transform 0.2s;font-size:11px;">▾</span>
+    </button>
+    <div class="subnav-mobile-dropdown" id="mobileNavDropdown">
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">Navigation</div>
+        <button class="subnav-mobile-btn" data-page="home"      onclick="goHome();closeMobileNav()">🏠 Home</button>
+        <button class="subnav-mobile-btn" data-page="matchup"    onclick="showMatchupPlanner();closeMobileNav()">⚔️ Matchup Planer</button>
+        <button class="subnav-mobile-btn" data-page="livescores" onclick="showLiveScores();closeMobileNav()">🔴 Live Scores</button>
+        <button class="subnav-mobile-btn" data-page="standings" onclick="showStandings();closeMobileNav()">📈 Standings</button>
+        <button class="subnav-mobile-btn" data-page="rules"     onclick="showRules();closeMobileNav()">📜 Rules</button>
+      </div>
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">Player</div>
+        <button class="subnav-mobile-btn" data-page="playerrankings"    onclick="showPlayerRankings();closeMobileNav()">🏅 2026/27 Rankings</button>
+        <button class="subnav-mobile-btn" data-page="playerprojections" onclick="showPlayerProjections();closeMobileNav()">🔮 2026/27 Projections</button>
+        <button class="subnav-mobile-btn" data-page="liveprojections"      onclick="showLiveProjections();closeMobileNav()">🧪 Live Projections (Test): Projections</button>
+        <button class="subnav-mobile-btn" data-page="liveprojectionsteams" onclick="showLiveProjTeams();closeMobileNav()">🏀 Live Projections (Test): NBA Teams</button>
+        <button class="subnav-mobile-btn" data-page="liveprojectionsdraft" onclick="showLiveProjDraft();closeMobileNav()">🏆 Live Projections (Test): Fantrax Redraft</button>
+      </div>
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">Dynasty Rankings</div>
+        <button class="subnav-mobile-btn" data-page="rankings"       onclick="showRankings();closeMobileNav()">🏅 Rankings</button>
+        <button class="subnav-mobile-btn" data-page="dynastyrolling" onclick="showDynastyRolling();closeMobileNav()">📈 Rolling Rankings</button>
+      </div>
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">TTHQ Draft Boards</div>
+        <button class="subnav-mobile-btn" data-page="draftboard"    onclick="showDraftboard();closeMobileNav()">📋 Full Draft Board</button>
+        <button class="subnav-mobile-btn" data-page="draftresults" onclick="showDraftResults();closeMobileNav()">🏆 Draft Results</button>
+      </div>
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">Draft 2026</div>
+        <button class="subnav-mobile-btn" data-page="draft26"    onclick="showDraft26();closeMobileNav()">🔎 Prospect Database</button>
+        <button class="subnav-mobile-btn" data-page="bigBoard"  onclick="showBigBoard();closeMobileNav()">📋 MFHFBs Big Board</button>
+        <button class="subnav-mobile-btn" data-page="lottery"    onclick="showLottery();closeMobileNav()">🎲 2026 Lottery</button>
+      </div>
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">Draft 2027</div>
+        <button class="subnav-mobile-btn" data-page="draft27" onclick="showDraft27();closeMobileNav()">📋 MFHFBs Big Board</button>
+      </div>
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">Rankings & Analytics</div>
+        <button class="subnav-mobile-btn" data-page="bestavail" onclick="showBestAvail();closeMobileNav()">🆓 Best Available</button>
+        <button class="subnav-mobile-btn" data-page="analytics" onclick="showAnalytics();closeMobileNav()">📊 Team Analytics</button>
+        <button class="subnav-mobile-btn" data-page="rollingrankings" onclick="showRollingRankings();closeMobileNav()">📈 Rolling Rankings</button>
+      </div>
+      <!-- Draft Duel deaktiviert bis 2027er Prospects da sind — Block einfach wieder auskommentieren
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">Draft Duel</div>
+        <button class="subnav-mobile-btn" data-page="duel"         onclick="showDuelPage();closeMobileNav()">⚡ Duell</button>
+        <button class="subnav-mobile-btn" data-page="duelboard"    onclick="showDuelBoard();closeMobileNav()">📊 Duel Board</button>
+        <button class="subnav-mobile-btn" data-page="duelsettings" onclick="showDuelSettings();closeMobileNav()">⚙️ Settings</button>
+      </div>
+      -->
+      <div class="subnav-mobile-group">
+        <div class="subnav-mobile-label">Trade Tools</div>
+        <button class="subnav-mobile-btn" data-page="trade"       onclick="showTrade();closeMobileNav()">⚖️ Trade Analyzer</button>
+        <button class="subnav-mobile-btn" data-page="tradefinder" onclick="showTradeFinder();closeMobileNav()">🔍 Trade Finder</button>
+        <button class="subnav-mobile-btn" data-page="tradehistory" onclick="showTradeHistory();closeMobileNav()">📜 Trade History</button>
+        <button class="subnav-mobile-btn" data-page="nbatrades" onclick="showNbaTrades();closeMobileNav()">🏀 NBA Trades</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- HOME -->
+<div class="page active page-wide" id="homePage">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div class="home-title">The Taco Tuesday League</div>
+      <!-- Saison-Dropdown: baut sich aus SEASON_REGISTRY in js/navigation.js,
+           neue archivierte Saison = neuer Registry-Eintrag + Datendatei,
+           kein weiterer Code hier noetig. -->
+      <div id="seasonPicker" style="display:none;"></div>
+    </div>
+    <div class="home-sub">Klick auf Dein Team für Deine Spieler und Deine Picks</div>
+    <div class="team-grid" id="teamGrid"></div>
+
+    <!-- Datenfluss-Visualisierung. Markup ist bewusst leer, der Inhalt
+         steht als Datenstruktur in js/flow-diagram.js (FLOW_STAGES) und
+         wird von initFlowDiagram() aus js/init.js gerendert. -->
+    <div class="flow-section" id="flowSection">
+      <div class="flow-head">
+        <div class="flow-eyebrow">Unter der Haube</div>
+        <div class="flow-title">Wo die Zahlen herkommen</div>
+        <div class="flow-sub">
+          Jede Zahl auf dieser Seite läuft denselben Weg: von den ESPN Boxscores über die tägliche
+          Aggregation und die Z-Score Normierung bis in die Rankings, Projections und Werkzeuge.
+          Nichts davon wird von Hand gepflegt, bis auf die Preseason Baseline und das Dynasty Ranking.
+        </div>
+        <div class="flow-toggle">
+          <button class="flow-toggle-btn active" data-mode="compact"   onclick="flowSetMode('compact')">Kompakt</button>
+          <button class="flow-toggle-btn"        data-mode="detailed" onclick="flowSetMode('detailed')">Ausführlich</button>
+          <button class="flow-toggle-btn"        data-mode="flowchart" onclick="flowSetMode('flowchart')">Flow-Chart</button>
+        </div>
+      </div>
+
+      <div id="flowDiagram"></div>
+      <div id="flowChartDiagram" style="display:none;"></div>
+
+      <div class="flow-foot">
+        <strong>Warum Z-Scores?</strong> In einer 9-Cat Liga zählt jede Kategorie gleich viel, aber die Rohzahlen
+        sind völlig unterschiedlich groß. Zehn Punkte mehr sind Alltag, ein Block mehr pro Spiel ist eine
+        Ausnahmeerscheinung. Der Z-Score rechnet jede Kategorie auf dieselbe Skala um, indem er misst, wie weit
+        ein Spieler vom Ligadurchschnitt entfernt liegt. Erst dadurch lässt sich ein Center mit Blocks
+        überhaupt sinnvoll gegen einen Guard mit Dreiern stellen.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM PAGE -->
+<div class="page" id="teamPage">
+  <div class="team-page-header" id="teamHeader"></div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:24px;">
+    <div class="tabs" style="flex:1;margin-bottom:0;">
+      <div class="tab active" onclick="switchTab('roster')">🏀 Roster</div>
+      <div class="tab" onclick="switchTab('picks')">🎯 My Owned Picks</div>
+    </div>
+    <button onclick="showTrade()" style="background:linear-gradient(135deg,#4caf81,#6c63ff);border:none;color:white;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;"
+      onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
+      ⚖️ Trade
+    </button>
+  </div>
+  <div id="tabContent"></div>
+</div>
+
+<!-- DRAFT BOARD -->
+<div class="page page-wide" id="draftboardPage">
+  <h2 style="margin-bottom:6px;">📋 Full Draft Board</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">All traded picks already reflected</p>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--pick-own-bg);border:1px solid var(--pick-own-color);"></div>Own pick (kept)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--pick-traded-bg);border:1px solid var(--pick-traded-color);"></div>Traded away → shows new holder</div>
+  </div>
+  <div class="draftboard-grid" id="draftboardContent"></div>
+  <div class="edit-hint">✏️ After trades, update <code>currentOwner</code> in the <code>PICKS</code> array</div>
+</div>
+
+<!-- DRAFT RESULTS -->
+<!-- Wer hat wen gepickt, fuer bereits abgeschlossene Drafts. Anders als
+     Full Draft Board (Pick-BESITZ ueber alle Jahre) zeigt diese Seite
+     Pick-INHALT fuer EINEN konkreten, vergangenen Draft.
+     Daten: data/draft-results-<saison>.js, geholt von
+     scripts/fetch-draft-results-espn.js (manuell ausgeloest, kein
+     taeglicher Job -- ein abgeschlossener Draft aendert sich nicht mehr).
+     Logik: js/navigation.js (showDraftResults). -->
+<div class="page page-wide" id="draftResultsPage">
+  <h2 style="margin-bottom:6px;">🏆 Draft Results</h2>
+  <p id="draftResultsSub" style="color:var(--muted);font-size:13px;margin-bottom:20px;">Wer hat wen gepickt</p>
+  <div id="draftResultsContent"></div>
+</div>
+
+<!-- MATCHUP PLANER -->
+<!-- Logik: js/matchup-planner.js · Styling: css/matchup.css
+     Der ESPN-Knopf holt zwei Dinge: den Liga-Spielplan (welches Team
+     spielt in Woche N gegen welches, und welche Spieltage zu Woche N
+     gehoeren) und den NBA-Spielplan aller Pro-Teams. Daraus baut
+     js/matchup-planner.js das anklickbare Wochenraster. -->
+<div class="page page-wide" id="matchupPage">
+  <div class="mp-eyebrow">Head to Head</div>
+  <h2 style="margin-bottom:6px;">⚔️ Matchup Planer</h2>
+  <div class="mp-sub">
+    Stell Deinen Kader dem Gegner gegenüber und sieh, wie das Duell über alle neun Kategorien ausgeht.
+    Grundlage sind die real angesetzten NBA Spiele der Woche, jedes einzeln an- und abwählbar.
+  </div>
+
+  <div class="mp-panel">
+    <div class="mp-panel-title">Teams</div>
+    <div class="mp-teams">
+      <div class="mp-field">
+        <div class="mp-label">Dein Team</div>
+        <select class="mp-select" id="mpTeamA" onchange="mpSetTeam('a')"></select>
+      </div>
+      <div class="mp-vs">vs</div>
+      <div class="mp-field">
+        <div class="mp-label">Gegner</div>
+        <select class="mp-select" id="mpTeamB" onchange="mpSetTeam('b')"></select>
+      </div>
+    </div>
+
+    <div class="mp-row" style="margin-top:16px;">
+      <button class="mp-btn mp-btn-primary" id="mpSchedBtn" onclick="mpFetchSchedule()">↻ ESPN Spielplan laden</button>
+      <select class="mp-select" id="mpWeekSelect" style="width:auto;min-width:250px;" onchange="mpPickWeek()" disabled>
+        <option value="">— Spielplan noch nicht geladen —</option>
+      </select>
+    </div>
+    <div class="mp-status" id="mpSchedStatus" style="margin-top:9px;">
+      Holt den Liga-Spielplan und den NBA Spielplan. Danach lässt sich jede Woche der Saison durchrechnen, nicht nur die laufende.
+    </div>
+  </div>
+
+  <div class="mp-panel">
+    <div class="mp-panel-title">Berechnungsgrundlage</div>
+    <div class="mp-basis">
+      <button class="mp-basis-btn" data-pct="0"   onclick="mpSetBasis(0)">Nur Rankings</button>
+      <button class="mp-basis-btn" data-pct="25"  onclick="mpSetBasis(25)">75 / 25</button>
+      <button class="mp-basis-btn" data-pct="50"  onclick="mpSetBasis(50)">50 / 50</button>
+      <button class="mp-basis-btn" data-pct="75"  onclick="mpSetBasis(75)">25 / 75</button>
+      <button class="mp-basis-btn" data-pct="100" onclick="mpSetBasis(100)">Nur Projections</button>
+    </div>
+    <div class="mp-hint">
+      Rankings sind tatsächlich gespielte Stats, Projections sind die Erwartung aus Baseline und Live Blend.
+      Gemischt wird auf Ebene der Rohwerte, nicht der Ränge.
+    </div>
+
+    <div class="mp-opts">
+      <div>
+        <div class="mp-label">Quelle für Rankings</div>
+        <select class="mp-select" id="mpRankSource" onchange="mpSetRankSource(this.value)"></select>
+        <div class="mp-hint">
+          Die Prozentzahl sagt, wie viele der gerosterten Spieler in dieser Quelle überhaupt vorkommen.
+          In der Summer League tauchen kaum etablierte Spieler auf, deshalb sind die Preseason-Stats in der Off Season meist die brauchbarere Grundlage.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mpResult"></div>
+</div>
+
+<!-- STANDINGS -->
+<div class="page" id="standingsPage">
+  <h2 style="margin-bottom:6px;">📈 Standings History</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:24px;">Final standings per season — click teams in the legend to show/hide</p>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div style="position:relative;height:420px;min-height:320px;">
+      <canvas id="standingsChart"></canvas>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:12px;margin-top:12px;text-align:center;">— = did not participate that season</p>
+</div>
+
+<!-- PLAYER RANKINGS -->
+<div class="page page-wide" id="playerRankingsPage">
+  <h2 style="margin-bottom:6px;">🏅 2026/27 Rankings</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">9-Cat Z-Score Rankings · automatisch aus Live Score Stats</p>
+
+  <div class="ls-subtabs">
+    <div class="ls-subtab" id="prSubtabOffSeason" onclick="prSwitchTab('offseason')">☀️ Off Season</div>
+    <div class="ls-subtab active" id="prSubtabRegSeason" onclick="prSwitchTab('regseason')">🏆 Reg Season</div>
+  </div>
+
+  <div class="rankings-search">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="prSearch" placeholder="Search player or team…" oninput="prFilter()"/>
+  </div>
+
+  <div id="prMeta" style="color:var(--muted);font-size:12px;margin-bottom:14px;"></div>
+  <div id="prContent"></div>
+</div>
+
+<!-- PLAYER PROJECTIONS — bewusst leer. War bis 2026-07-31 der Iframe-Host fuer
+     den MFHFBs-Toolkit, der jetzt unter "Live Projections (Test)" laeuft
+     (siehe unten). Kuenftig vorgesehen fuer die native TTHQ-Baseline+Blend-
+     Berechnung (scripts/build-live-projections.js + data/live-projections.js
+     existieren bereits, sind aber unangebunden) — siehe README
+     "Season-Start-Plan: Projections-Flow". -->
+<!-- Consensus Projections: Mittelwert aus Beyaz' eigenen Projections und
+     denen von Josh Lloyd (Basketball Monster). Erzeugt von
+     scripts/build-consensus-projections.js -> data/projections-consensus.js.
+     Daten werden erst beim ersten Aufruf nachgeladen (~360 KB), siehe
+     js/consensus-projections.js. -->
+<div class="page page-wide" id="playerProjectionsPage">
+  <h2 style="margin-bottom:6px;">🔮 2026/27 Projections</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:4px;">
+    Mittelwert aus <b>Beyaz' eigenen Projections</b> und <b>Josh Lloyd</b> (Basketball Monster, August-Stand).
+    Zählstats werden gemittelt, FG%/FT% über die Wurfversuche gewichtet zurückgerechnet.
+  </p>
+  <p id="cpInfo" style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;margin-bottom:16px;"></p>
+
+  <div class="cp-controls">
+    <input type="text" id="cpSearch" class="cp-input" placeholder="Spieler, Team oder Position suchen…" oninput="cpSetQuery(this.value)">
+    <select class="cp-select" id="cpPos" onchange="cpSetPos(this.value)" title="Nach Position filtern">
+      <option value="">Alle Positionen</option>
+      <option value="PG">PG</option><option value="SG">SG</option><option value="G">G</option>
+      <option value="SF">SF</option><option value="PF">PF</option><option value="F">F</option>
+      <option value="C">C</option>
+    </select>
+    <select class="cp-select" id="cpPool" onchange="cpSetPool(this.value)" title="Vergleichsgruppe für den Z-Score">
+      <option value="100">Z relativ zu Top 100</option>
+      <option value="150">Z relativ zu Top 150</option>
+      <option value="200">Z relativ zu Top 200</option>
+      <option value="250">Z relativ zu Top 250</option>
+      <option value="300">Z relativ zu Top 300</option>
+      <option value="350">Z relativ zu Top 350</option>
+      <option value="400">Z relativ zu Top 400</option>
+      <option value="all">Z relativ zu allen Spielern</option>
+    </select>
+    <select class="cp-select" id="cpSource" onchange="cpSetSource(this.value)" title="Nach Datengrundlage filtern">
+      <option value="twoplus">Mind. 2 von 3 Quellen (Standard)</option>
+      <option value="">Alle Spieler</option>
+      <option value="three">Nur voller Konsens (alle 3 Quellen)</option>
+      <option value="two">Nur exakt 2 von 3 Quellen</option>
+      <option value="one">Nur 1 Quelle</option>
+      <option value="warn">Nur auffällige Werte</option>
+    </select>
+    <button class="cp-btn" onclick="cpTogglePanel('cpWeightPanel')">⚖️ Gewichtung</button>
+    <button class="cp-btn" onclick="cpTogglePanel('cpFilterPanel')">🔎 Stat-Filter</button>
+    <button class="cp-btn" onclick="cpExportCsv()" title="Aktuell angezeigte Spieler als CSV exportieren">⬇️ CSV</button>
+  </div>
+
+  <!-- Kategorie-Gewichte als Eingabefelder (Standard 1). Wirken direkt
+       auf den Z-Score, siehe cpComputeZ in js/consensus-projections.js. -->
+  <div class="cp-panel" id="cpWeightPanel">
+    <div class="cp-panel-head">
+      <span>Kategorie-Gewichtung · Standard nach Konsistenz gewichtet (Josh Lloyd)</span>
+      <button class="cp-btn cp-btn-sm" onclick="cpResetWeights()">↺ Zurücksetzen</button>
+    </div>
+    <div class="cp-wgrid" id="cpWeights"></div>
+    <div class="cp-panel-note">
+      0 blendet eine Kategorie komplett aus (Punt-Strategie), 2 verdoppelt ihr Gewicht.
+      Wirkt sofort auf Z-Score, Sortierung und die Rangdifferenz.
+    </div>
+  </div>
+
+  <!-- Stat-Filter nach Barttorvik-Art: Min/Max je Kategorie. Filtert die
+       Anzeige, verändert aber NICHT den Z-Score — der bleibt relativ zur
+       oben gewählten Pool-Größe, sonst würde jeder Filter die Bewertungs-
+       grundlage unter den Füßen wegziehen. -->
+  <div class="cp-panel" id="cpFilterPanel">
+    <div class="cp-panel-head">
+      <span>Stat-Filter · leer lassen heißt keine Grenze</span>
+      <button class="cp-btn cp-btn-sm" onclick="cpResetFilters()">↺ Zurücksetzen</button>
+    </div>
+    <div class="cp-fgrid" id="cpFilters"></div>
+    <div class="cp-panel-note">
+      Filtert nur die angezeigten Zeilen. Der Z-Score bleibt unverändert, damit die Bewertung
+      vergleichbar bleibt — sonst würde z.B. „nur Center“ die Center gegeneinander neu bewerten.
+    </div>
+  </div>
+
+  <div class="cp-legend">
+    <span><span class="cp-src cp-src-full">✓✓✓</span> alle 3 Quellen</span>
+    <span><span class="cp-src cp-src-two">✓✓</span> 2 von 3</span>
+    <span><span class="cp-src cp-src-one">✓</span> nur 1 Quelle</span>
+    <span><span class="cp-src cp-src-warn">⚠</span> Beyaz-Wert unplausibel, ausgeschlossen</span>
+    <span><b>Δ Rang</b> = Streuung zwischen den drei Quellen · niedrig heißt einig, hoch heißt uneinig</span>
+  </div>
+  <div id="cpTableWrap"></div>
+</div>
+
+<!-- Nativ portiert aus projections/index.html am 2026-08-01 (vorher Iframe).
+     Daten+Logik werden erst beim ersten Aufruf von showLiveProjections()
+     nachgeladen (siehe js/player-rankings.js), NICHT hier statisch
+     eingebunden — sonst wuerden alle TTHQ-Nutzer bei JEDEM Seitenaufruf
+     ~2,4 MB Projections-Daten mitladen, auch wenn sie diese Seite nie
+     besuchen. Markup selbst ist klein und bleibt daher statisch da. -->
+<div class="page page-wide" id="liveProjectionsPage">
+  <div class="hero" style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+    <h1>NBA Projections</h1>
+    <button class="theme-toggle" id="adminToggle" title="Eigenes Passwort, unabhängig vom TTHQ-Admin — schaltet den Bereich für externe Quellen frei"></button>
+  </div>
+
+  <div class="panel collapsed" id="weightPanel">
+    <div class="panel-head" id="weightPanelHead">
+      <div class="panel-title">Gewichtung</div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="panel-body">
+      <div class="pool-title">Z-Score-Basis (Ranking-Population)</div>
+      <div class="pool-toggle" id="poolToggle">
+        <button class="pool-btn" data-pool="200">Top 200</button>
+        <button class="pool-btn" data-pool="400">Top 400</button>
+        <button class="pool-btn" data-pool="all">Alle</button>
+      </div>
+      <div class="pool-hint">Bestimmt, welche Spieler in die Mittelwert-/Streuungsberechnung für den Z-Score einfließen (sortiert nach projizierten Punkten). Kleinere Basis = strengerer Maßstab, größere Basis = mehr Grundrauschen von Tiefenkader-Spielern.</div>
+
+      <div class="weight-grid">
+        <div class="weight-row">
+          <div class="weight-label"><span id="w1Label">Vorletztes Jahr</span><span class="weight-val" id="w1val">1.50×</span></div>
+          <input type="range" id="w1" min="1" max="2" step="0.25" value="1.5">
+          <div class="weight-hint">Gewicht der zweitjüngsten Saison, die für den jeweiligen Spieler vorliegt.</div>
+        </div>
+        <div class="weight-row">
+          <div class="weight-label"><span id="w2Label">Letztes Jahr</span><span class="weight-val" id="w2val">1.75×</span></div>
+          <input type="range" id="w2" min="1" max="2" step="0.25" value="1.75">
+          <div class="weight-hint">Gewicht der jüngsten Saison, die für den jeweiligen Spieler vorliegt.</div>
+        </div>
+      </div>
+
+      <div class="cat-weight-title">Kategorie-Gewichtung (fließt in den Z-Score ein)</div>
+      <div class="cat-grid" id="catGrid"></div>
+      <button class="reset-weights" onclick="resetWeights()">Alle Gewichtungen zurücksetzen</button>
+    </div>
+  </div>
+
+  <div class="panel collapsed" id="livePanel">
+    <div class="panel-head" id="livePanelHead">
+      <div class="panel-title">Live &amp; externe Quellen <span class="badge" id="liveBadge">…</span></div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="panel-body">
+      <div class="pool-hint" id="liveStatusText">Lade Live-Daten…</div>
+      <button class="reset-weights" onclick="refreshLiveData()">🔄 Live-Daten neu laden</button>
+
+      <div id="adminExtProjArea" style="display:none; margin-top:16px; border-top:1px solid var(--border); padding-top:14px;">
+        <div class="pool-title">Anzeige-Modus (nur du siehst das, Admin)</div>
+        <label style="display:flex; align-items:center; gap:7px; font-size:12.5px; margin:6px 0 14px;">
+          <input type="checkbox" id="baselineOnlyToggle">
+          Nur eigene Minuten-Baseline zeigen (externe Quellen &amp; Live-Blend ignorieren)
+        </label>
+
+        <div class="pool-title">Externe Projections — Bulk-Import</div>
+        <div class="pool-hint">Erste Zeile = Header (Name, Min, PTS, REB, AST, STL, BLK, 3PM, TOV, FG%, FT% — beliebige Reihenfolge, Komma oder Tab getrennt). Direkt aus Excel/Sheets reinkopierbar.</div>
+        <input type="text" id="extSourceName" placeholder="Quellenname (z.B. FantasyEdge, Josh Lloyd)" style="width:100%; margin:8px 0 6px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
+        <textarea id="extBulkText" rows="6" placeholder="Name,PTS,REB,AST&#10;Shai Gilgeous-Alexander,32,5.5,6.1&#10;Nikola Jokic,26,12.8,10.2" style="width:100%; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:'DM Mono',monospace; font-size:11.5px; resize:vertical;"></textarea>
+        <button class="reset-weights" onclick="runBulkImport()">⬆ Importieren</button>
+        <div id="bulkImportResult" class="pool-hint" style="margin-top:6px;"></div>
+
+        <div class="pool-title" style="margin-top:16px;">Einzelner Spieler</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
+          <input type="text" id="extPlayerSearch" placeholder="Spielername…" style="flex:1; min-width:160px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
+          <input type="text" id="extPlayerSource" placeholder="Quelle" style="width:140px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
+        </div>
+        <div class="cat-grid" id="extSingleGrid"></div>
+        <button class="reset-weights" onclick="saveSingleExternal()">💾 Quelle speichern</button>
+        <div id="extPlayerSourcesList" class="pool-hint" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="cmpModal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.55); padding:40px 16px;">
+    <div style="max-width:520px; margin:0 auto; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; max-height:85vh; overflow:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div class="panel-title" id="cmpTitle" style="font-size:15px;"></div>
+        <button class="reset-btn" style="font-size:16px;" onclick="closeComparison()">✕</button>
+      </div>
+      <div id="cmpBody"></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-row">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search" placeholder="Spieler, Team oder Position suchen…">
+    </div>
+    <select id="ownerFilter" class="owner-filter" title="Nach Fantasy Team, Free Agents oder NBA Team filtern"></select>
+    <div id="posFilters" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+    <button class="tag-btn" id="statFilterToggle">Stat-Filter</button>
+    <button class="csv-btn" onclick="downloadCSV()">⬇ CSV Export</button>
+  </div>
+
+  <div id="statFilterPanel" class="panel" style="display:none; padding:12px 14px;">
+    <div class="pool-hint" style="margin-bottom:8px;">
+      Bis zu 3 Bedingungen gleichzeitig (UND-verknüpft), z.B. FG% &gt; 50 UND AST &gt; 5,5 (Position über die Filter-Buttons oben kombinieren).
+    </div>
+    <div id="statFilterRows"></div>
+    <button class="reset-weights" id="statFilterClear">Zurücksetzen</button>
+  </div>
+
+  <div class="count" id="count">Lade Projections…</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-k="rank">#</th>
+          <th data-k="name">Name</th>
+          <th data-k="team">Team</th>
+          <th data-k="owner" title="Fantasy Team in der Taco Tuesday League, FA = Free Agent">Fantasy</th>
+          <th data-k="pos">Pos</th>
+          <th data-k="min" class="sep-col">Min</th>
+          <th data-k="pts">PTS</th>
+          <th data-k="reb">REB</th>
+          <th data-k="ast">AST</th>
+          <th data-k="stl">STL</th>
+          <th data-k="blk">BLK</th>
+          <th data-k="fg3m">3PM</th>
+          <th data-k="fga" title="Field Goals Made-Attempted">FGM-FGA</th>
+          <th data-k="fgpct">FG%</th>
+          <th data-k="fta" title="Free Throws Made-Attempted">FTM-FTA</th>
+          <th data-k="ftpct">FT%</th>
+          <th data-k="tov">TOV</th>
+          <th data-k="z">Z</th>
+          <th data-k="zFloor" title="Z ohne schlechteste Kat — Boden/Floor">Z-Floor</th>
+          <th data-k="zDepth" title="Z ohne beste Kat — Tiefe ohne Signature-Stärke">Z-Depth</th>
+          <th data-k="adpVal" title="Z ÷ ADP × 10 — grün = unterbewertet">ADP-Val</th>
+        </tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+
+  <footer id="footerText"></footer>
+</div>
+
+<!-- Nativ portiert aus projections/teams.html am 2026-08-01 (vorher Iframe).
+     IDs mit "Teams"-Suffix, wo die Projections-Seite denselben Namen schon
+     benutzt (search/footerText/adminToggle) -- siehe js/projections-teams-native.js.
+     Daten+Logik werden erst beim ersten Aufruf von showLiveProjTeams()
+     nachgeladen, gemeinsame Dateien mit Projections (players-data.js,
+     shared.js usw.) werden dabei nicht doppelt geladen (siehe
+     js/player-rankings.js, _loadScriptOnce()). -->
+<div class="page page-wide" id="liveProjTeamsPage">
+  <div class="hero" style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+    <div>
+      <h1>NBA Teams</h1>
+      <p class="sub" id="teamsHeroSub">Pro Team zwei Spalten: links der aktuelle Kader mit deinen Minuten (editierbar, 9-Cat-Stats basierend auf letzter Saison), rechts zum Vergleich die tatsächliche End-Rotation der letzten Saison.</p>
+    </div>
+    <button class="theme-toggle" id="adminToggleTeams" title="Eigenes Passwort, unabhängig vom TTHQ-Admin — schaltet Minuten-Bearbeitung frei"></button>
+  </div>
+
+  <div class="search-row">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchTeams" placeholder="Team oder Spieler suchen…">
+  </div>
+
+  <div class="lock-note" id="lockNote"></div>
+
+  <div id="teamsContent">Lade NBA Teams…</div>
+
+  <footer id="footerTextTeams"></footer>
+</div>
+
+<!-- Nativ portiert aus projections/draft.html am 2026-08-01 (vorher Iframe,
+     letzte der 3 Toolkit-Seiten). ID footerTextDraft statt
+     der kollidierenden Originale, Side-Panel-Tabs als dtab/dtabs/dtabpane
+     (TTHQ definiert .tab/.tabs global fuer die Roster-Seite). Daten+Logik
+     laden erst beim ersten Aufruf von showLiveProjDraft(), gemeinsame
+     Dateien mit Projections/NBA Teams dedupliziert (js/player-rankings.js). -->
+<div class="page page-wide" id="liveProjDraftPage">
+<div class="hero">
+    <div>
+            <h1>Fantrax Redraft Board</h1>
+      <div class="sub">Live-Draft-Tracker für Deine Fantrax Redraft Ligen, auf Basis Deiner aktuellen Projections. Nicht zu verwechseln mit den Boards unter Draft, die den Dynasty Rookie Draft der Taco Tuesday League abbilden.</div>
+    </div>
+    <a class="settings-link" href="#" onclick="showLiveProjections();return false;">Gewichtungen &amp; Z-Basis anpassen →</a>
+  </div>
+
+  <div class="statusbar">
+    <div class="chip"><span class="num" id="pickNo">1</span><span class="lbl">Pick</span></div>
+    <div class="chip"><span class="num" id="roundNo">1</span><span class="lbl">Runde</span></div>
+    <div class="onclock" id="onClockChip">Team 1 an der Reihe</div>
+    <button class="sb-btn" id="leagueProgressBtn">🏁 Liga-Fortschritt</button>
+    <button class="sb-btn" id="myPlayersBtn">👥 Meine Spieler</button>
+    <button class="sb-btn" id="undoBtn">↩ Undo</button>
+    <span class="save-indicator" id="saveIndicator"></span>
+  </div>
+
+  <div class="modal-overlay" id="leagueProgressOverlay" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="panel-title">Fortschritt in allen Ligen</div>
+        <button class="sb-btn" id="leagueProgressClose">✕</button>
+      </div>
+      <div class="note" id="leagueProgressSummary" style="margin:0 0 10px;">lädt…</div>
+      <div id="leagueProgressList"></div>
+    </div>
+  </div>
+
+  <!-- Meine Spieler: Besitzquote und ADP ueber alle Ligen aus
+       data/fantrax-leagues.txt. Logik in js/projections-draft-native.js
+       (openMyPlayers / buildOwnershipTable). -->
+  <div class="modal-overlay" id="myPlayersOverlay" style="display:none;">
+    <div class="modal-box mp-owned-box">
+      <div class="modal-head">
+        <div class="panel-title">Meine Spieler über alle Ligen</div>
+        <button class="sb-btn" id="myPlayersClose">✕</button>
+      </div>
+
+      <div class="mp-owned-cfg">
+        <label class="mp-owned-lbl" for="myTeamNamesInput">Meine Teamnamen, mit Komma getrennt</label>
+        <div class="mp-owned-row">
+          <input type="text" id="myTeamNamesInput" class="mp-owned-input"
+                 placeholder="MFHFBs, Steakosaurus, Pizzaratops, Hawkward">
+          <button class="sb-btn" id="myPlayersReload">↻ Neu auswerten</button>
+        </div>
+        <div class="mp-owned-hits" id="myPlayersHits"></div>
+        <div class="note" style="margin:6px 0 0;">
+          Die Zuordnung läuft über den Teamnamen, weil die Fantrax Team IDs je Liga verschieden sind.
+          Groß und Kleinschreibung, Emojis und Sonderzeichen sind egal. Der Teamname muss Deine Eingabe enthalten,
+          umgekehrt gilt es nicht: für ein Team namens <b>Steak</b> gib <b>Steak</b> ein, nicht Steakosaurus.
+          Oben siehst Du, welche Teams erkannt wurden.<br>
+          ADP ist die Overall Picknummer und über Ligagrößen hinweg direkt vergleichbar.
+          Die Spalte <b>Gedraftet in</b> zeigt, auf wie vielen Ligen der Wert beruht.
+          Steht dort eine kleine Zahl, ging der Spieler in den flacheren Ligen gar nicht weg und der ADP stammt nur aus denen, in denen ihn jemand wollte.
+        </div>
+      </div>
+
+      <div class="note" id="myPlayersSummary" style="margin:12px 0 0;">lädt…</div>
+      <div class="note mp-owned-warn" id="myPlayersWarn" style="display:none;"></div>
+      <div class="note mp-owned-fail-box" id="myPlayersFailed" style="display:none;"></div>
+
+      <label class="mp-owned-toggle">
+        <input type="checkbox" id="myPlayersShowAll">
+        Auch Spieler zeigen, die ich nirgends habe
+      </label>
+
+      <div class="mp-owned-scroll"><div id="myPlayersList"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="setupPanel">
+    <div class="panel-head" id="setupHead">
+      <div class="panel-title">Draft-Einstellungen</div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="panel-body">
+      <div class="field">
+        <label>Mein Draft-Slot (1–12)</label>
+        <select id="myTeamSel"></select>
+      </div>
+      <!-- Datenbasis: Consensus-Projections (Beyaz x Josh Lloyd) vs.
+           historische Pro-Minute-Raten. Umschaltung wirkt sofort, siehe
+           mfhfbConsensusRatesFor() in projections/assets/shared.js. -->
+      <div class="field">
+        <label>Datenbasis für die Projektion</label>
+        <select id="rateSourceSel">
+          <option value="consensus">Consensus-Projections 2026/27 (Beyaz × Josh Lloyd)</option>
+          <option value="history">Historische Raten (Saison-Gewichtung aktiv)</option>
+        </select>
+        <div class="note" id="rateSourceNote" style="margin-top:6px;font-size:11.5px;color:var(--muted);line-height:1.5;"></div>
+      </div>
+      <div class="field">
+        <label>Liga-Format (steuert die Empfehlungen)</label>
+        <select id="formatSel"></select>
+      </div>
+      <div class="field" id="puntWrap">
+        <label>Punt-Kategorien (bei Empfehlungen ignorieren)</label>
+        <div class="punt-cats" id="puntCats"></div>
+      </div>
+      <div class="field" id="pointsWeightsWrap" style="display:none;">
+        <label>Punkte je Stat</label>
+        <div class="punt-cats" id="pointsWeights"></div>
+      </div>
+      <div class="field">
+        <button class="sb-btn danger" id="resetBtn">Draft zurücksetzen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="leaguePanel">
+    <div class="panel-head" id="leagueHead">
+      <div class="panel-title">🔗 Live-Sync mit Fantrax — <span id="liveSyncStatus" class="cloud-status">nicht verbunden</span></div>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="panel-body" style="flex-direction:column; align-items:stretch;">
+      <div class="note" style="margin:0 0 10px;">
+        Liga-ID eingeben (aus der Fantrax-URL: fantrax.com/fantasy/league/<b>ABC123XYZ</b>/...) und laden —
+        der aktuelle Draft-Stand kommt live direkt von Fantrax. Einmal gespeicherte Ligen tauchen unten
+        im Dropdown auf und lassen sich ohne erneute Eingabe der ID nachladen (praktisch am Handy).
+      </div>
+      <div class="field" style="margin-bottom:10px;">
+        <label>Gespeicherte Liga</label>
+        <select id="savedLeagueSelect"><option value="">— Neue Liga eingeben —</option></select>
+      </div>
+      <div class="league-sync-row">
+        <input type="text" id="liveLeagueLabel" placeholder="Name (z.B. FBI Roto 01)" style="flex:0 0 40%;">
+        <input type="text" id="liveLeagueId" placeholder="Liga-ID…">
+      </div>
+      <div class="league-sync-row" style="margin-top:8px;">
+        <button class="sb-btn" id="liveLoadBtn" style="flex:1;">🔄 Laden &amp; speichern</button>
+        <button class="sb-btn danger" id="liveDeleteBtn" style="display:none;">🗑 Entfernen</button>
+      </div>
+      <div class="field" id="liveTeamPickWrap" style="display:none; margin-top:10px;">
+        <label>Welches Team ist deins?</label>
+        <select id="liveTeamPick"></select>
+      </div>
+      <div class="note" id="liveSyncDetail" style="margin-top:8px;"></div>
+      <div class="field" id="liveAutoWrap" style="display:none; margin-top:8px; flex-direction:row; align-items:center; gap:8px;">
+        <input type="checkbox" id="liveAutoRefresh" style="width:auto;">
+        <label for="liveAutoRefresh" style="text-transform:none; font-size:12px; letter-spacing:0; cursor:pointer;">Während des Drafts alle 30s automatisch aktualisieren</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="pool-toolbar">
+        <div class="search-row">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" autocomplete="off" placeholder="Spieler, Team oder Position suchen…">
+        </div>
+        <div id="dPosFilters" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+        <button class="tag-btn" id="dStatFilterToggle">Stat-Filter</button>
+        <button class="tag-btn" id="hideDraftedBtn">Gedraftete ausblenden</button>
+      </div>
+
+      <div id="dStatFilterPanel" class="panel" style="display:none; padding:12px 14px;">
+        <div class="note" style="margin-bottom:8px;">
+          Bis zu 3 Bedingungen gleichzeitig (UND-verknüpft), z.B. FG% &gt; 50 UND AST &gt; 5,5 UND POS = C
+          (Position über die Filter-Buttons oben kombinieren). Wirkt zusätzlich zur Text-/Positionssuche.
+        </div>
+        <div id="dStatFilterRows"></div>
+        <button class="tag-btn" id="dStatFilterClear" style="margin-top:6px;">Zurücksetzen</button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="poolTable">
+          <thead>
+            <tr>
+              <th data-k="rk">#</th>
+              <th data-k="name">Spieler</th>
+              <th data-k="pos">Pos</th>
+              <th data-k="pts">PTS</th>
+              <th data-k="reb">REB</th>
+              <th data-k="ast">AST</th>
+              <th data-k="stl">STL</th>
+              <th data-k="blk">BLK</th>
+              <th data-k="fg3m">3PM</th>
+              <th data-k="fga" title="Field Goals Made-Attempted — die Basis, aus der der volumen-gewichtete FG%-Score berechnet wird (siehe Z-Spalte)">FGM-FGA</th>
+              <th data-k="fgpct">FG%</th>
+              <th data-k="fta" title="Free Throws Made-Attempted — die Basis, aus der der volumen-gewichtete FT%-Score berechnet wird (siehe Z-Spalte)">FTM-FTA</th>
+              <th data-k="ftpct">FT%</th>
+              <th data-k="tov">TOV</th>
+              <th data-k="z">Z</th>
+              <th data-k="zFloor" title="Z-Score ohne die schlechteste Kategorie des Spielers — zeigt den Boden/Floor">Z-Floor</th>
+              <th data-k="zDepth" title="Z-Score ohne die beste Kategorie — entlarvt One-Cat-Wonders; hoher Wert = gut in der Tiefe">Z-Depth</th>
+              <th data-k="zPunt" title="Z-Score mit deinen aktuellen Punt-Kategorien auf Gewicht 0 — wie Basketball Monsters 'Punt Columns': kompletter Rerank ohne die gepuntete(n) Kategorie(n), Guard-/Big-Build-Spieler steigen dadurch automatisch">Z-Punt</th>
+              <th data-k="hscore" title="H-Score (Beta) — vereinfachte Umsetzung von Rosenof (2024) H-Scoring: simuliert den kompletten Rest-Draft in echter Snake-Reihenfolge (ein gemeinsam schrumpfender Pool) über bis zu 2 gepuntete Kategorien und schätzt die Ø-Kategorie-Gewinnwahrscheinlichkeit gegen die Liga (0-9). Nur für die Top ~80 verfügbaren Spieler berechnet — Tiefenkader/Free Agents zeigen bewusst '—'.">H-Score</th>
+              <th data-k="adpVal" title="ADP-Rang minus unser Z-Rang — grün = unterbewertet, rot = überbewertet">ADP-Val</th>
+              <th data-k="adp" title="Ø Draft-Position aus deinen erfassten Fantrax Draft Results">ADP</th>
+              <th data-k="fadp" title="Fantrax' eigener aktueller ADP-Snapshot (data/fantrax-adp.csv)">F-ADP</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="poolBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="side-card">
+        <div class="dtabs">
+          <div class="dtab active" data-tab="myteam">Mein Team</div>
+          <div class="dtab" data-tab="matrix">9-Cat Ranks</div>
+          <div class="dtab" data-tab="scarcity">Scarcity</div>
+          <div class="dtab" data-tab="puntplan">Punt-Planer</div>
+          <div class="dtab" data-tab="power">Best Ball Z</div>
+          <div class="dtab" data-tab="log">Pick-Log</div>
+        </div>
+
+        <div class="dtabpane active" id="pane-myteam">
+          <h3>Slots (14 Starter, kein Bench)</h3>
+          <div class="slot-grid" id="slotGrid"></div>
+          <h3>Kategorie-Ranks (1 = beste von 12)</h3>
+          <div id="catRanks"></div>
+          <div class="note">Rang unter allen 12 Teams, live nach aktuellem Draft-Stand. Grün = stark, Rot = schwach.</div>
+        </div>
+
+        <div class="dtabpane" id="pane-matrix">
+          <h3>Team vs. Team — Rang je Kategorie</h3>
+          <div class="matrix-wrap" id="matrixWrap"></div>
+          <div class="note">1 = bestes Team, 12 = schlechtestes. Deine Spalte ist hervorgehoben.</div>
+        </div>
+
+        <div class="dtabpane" id="pane-scarcity">
+          <h3>Wann kippt eine Kategorie?</h3>
+          <div class="note" style="margin-bottom:8px;">
+            Ø Kategorie-Z der noch verfügbaren Spieler, gebündelt nach Runde (12 Picks = 1 Runde).
+            Zeigt, wo eine Kategorie im verbleibenden Pool noch Tiefe hat und wo es steil bergab geht —
+            z.B. AST/PTS konzentrieren sich früh, danach reißt die Versorgung schneller ab als bei STL/BLK.
+            In jeder Zelle der stärkste noch verfügbare Name dieser Runde/Kategorie.
+          </div>
+          <div class="matrix-wrap" id="scarcityWrap"></div>
+          <div class="note" style="margin-top:8px;" id="scarcityCliffNote"></div>
+        </div>
+
+        <div class="dtabpane" id="pane-puntplan">
+          <h3>Punt-Planer — Wochen-Matchup-Simulation</h3>
+          <div class="note" style="margin-bottom:8px;">
+            Rechnet deinen aktuellen Kader (Starter, live nach Draft-Stand) gegen jedes andere Team
+            kategorienweise durch. Punt-Kategorien werden als bewusst abgegebene Punkte behandelt,
+            nicht als Niederlage gezählt — Ziel ist die verbleibenden Kategorien möglichst breit zu gewinnen
+            (idealerweise 6-3, im Zweifel 5-4). Nutzt dieselben Punt-Kategorien wie "Empfehlungen" links.
+          </div>
+          <div class="field" style="margin-bottom:10px;">
+            <label>Punt-Kategorien (auch hier änderbar)</label>
+            <div class="punt-cats" id="puntCatsPlan"></div>
+          </div>
+          <div id="puntSummary" class="note" style="margin-bottom:10px;"></div>
+          <div class="matrix-wrap" id="puntMatchupWrap"></div>
+          <div class="note" style="margin-top:8px;">
+            ⚠ = Team liegt in einer deiner Punt-Kategorien selbst unter den schwächsten im Ligavergleich
+            (mögliche Mirror-Punt) — gegen dieses Team fällt die Kategorie faktisch weg, die "Gewinn-Marge"-Spalte
+            zeigt, in welcher deiner NICHT gepunteten Kategorien du gegen genau dieses Team am knappsten liegst
+            (dort lohnt sich zusätzliche Stärke am meisten).
+          </div>
+        </div>
+
+        <div class="dtabpane" id="pane-power">
+          <h3>Gesamtwert-Ranking (Σ Z-Score im Kader)</h3>
+          <div id="powerRank"></div>
+          <div class="note">Reine Wertsumme aller gestarteten Spieler, unabhängig von Kategorie-Balance — die Best-Ball-Sichtweise.</div>
+        </div>
+
+        <div class="dtabpane" id="pane-log">
+          <h3>Letzte Picks</h3>
+          <div class="picklog" id="pickLog"></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Empfehlungen für dein Team</h3>
+        <div id="recoList"></div>
+        <div class="note">Gewichtet nach deinen aktuell schwächsten Kategorien (Punt-Kategorien ausgeschlossen). Kein Ersatz für eigenes Scouting.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="footerTextDraft"></footer>
+</div>
+
+<!-- LIVE SCORES -->
+<div class="page page-wide" id="liveScoresPage">
+  <h2 style="margin-bottom:6px;">🔴 Live Scores</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">9-Cat Z-Score Rankings · Summer League → Pre-Season → 2026/27 Season</p>
+
+  <div class="ls-subtabs">
+    <div class="ls-subtab active" id="lsSubtabDaily" onclick="lsSwitchPeriod('daily')">📅 Daily</div>
+    <div class="ls-subtab" id="lsSubtabWeekly" onclick="lsSwitchPeriod('week')">📈 Weekly</div>
+    <div class="ls-subtab" id="lsSubtabMonthly" onclick="lsSwitchPeriod('month')">🗓️ Monthly</div>
+  </div>
+
+  <div class="ls-toolbar">
+    <div class="ls-datepicker">
+      <button onclick="lsShiftDate(-1)" title="Vorheriger Tag">‹</button>
+      <input type="date" id="lsDateInput" onchange="lsLoadDate(this.value)"/>
+      <button onclick="lsShiftDate(1)" title="Nächster Tag">›</button>
+    </div>
+    <select class="ls-league-select" id="lsLeagueSelect" onchange="lsLoadDate(document.getElementById('lsDateInput').value)">
+      <option value="nba-summer-california">☀️ Summer League – California Classic</option>
+      <option value="nba-summer-utah">🏔️ Summer League – Salt Lake City</option>
+      <option value="nba-summer-las-vegas">🏖️ Summer League – Las Vegas</option>
+      <option value="nba-preseason">🏀 NBA Pre-Season</option>
+      <option value="nba">🏆 NBA 2026/27</option>
+    </select>
+    <div class="ls-meta" id="lsMeta"></div>
+  </div>
+  <div class="ls-hint" id="lsScheduleHint">Kalifornien: 3.–6. Juli · Salt Lake City: 4.–7. Juli · Las Vegas: 9.–19. Juli</div>
+
+  <div id="lsMinGamesPanel" style="display:none;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:var(--surface2,rgba(255,255,255,.04));border-radius:10px;">
+    <span style="font-size:13px;color:var(--muted);white-space:nowrap;">🎚️ Min. Spiele im Fenster:</span>
+    <input type="range" id="lsMinGamesSlider" min="1" max="5" step="1" value="1" oninput="lsSetMinGames(this.value)" style="flex:1;max-width:200px;"/>
+    <span style="font-size:13px;font-weight:700;min-width:16px;" id="lsMinGamesValue">1</span>
+    <span style="font-size:11px;color:var(--muted);">(1 = alle, auch Spieler mit nur einem Spiel im Fenster)</span>
+    <button id="lsExportCsvBtn" onclick="lsExportCsv()" style="margin-left:auto;white-space:nowrap;padding:7px 14px;border-radius:8px;background:rgba(76,175,129,0.12);border:1px solid rgba(76,175,129,0.3);color:#4caf81;font-size:12px;font-weight:700;cursor:pointer;">⬇️ CSV exportieren</button>
+  </div>
+
+  <div class="ls-punt-panel collapsed" id="lsPuntPanel">
+    <div class="ls-punt-header" onclick="lsTogglePuntPanel()">
+      <span>⚖️ Punt-Gewichtung — Kategorien von 0 bis 2 gewichten · 1 = normal, 0 = geputtet · nichts wird gespeichert</span>
+      <div class="ls-punt-header-right">
+        <button class="ls-punt-reset" onclick="event.stopPropagation(); lsResetPuntWeights()">↺ Zurücksetzen</button>
+        <span class="ls-punt-chevron">▾</span>
+      </div>
+    </div>
+    <div class="ls-punt-body">
+      <div class="ls-punt-grid" id="lsPuntGrid"></div>
+    </div>
+  </div>
+
+  <div id="lsGamesLine" class="ls-games-line"></div>
+  <div id="lsContent"></div>
+</div>
+
+<!-- RULES -->
+<div class="page" id="rulesPage">
+  <h2 style="margin-bottom:6px;">📜 Rules</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:28px;">Taco Tuesday League Rules & Regulations</p>
+  <div id="rulesContent">
+    <div class="rule-section">
+      <div class="rule-section-header" onclick="toggleRule(this)"><span>🏆 General League Rules</span><span class="rule-chevron">▾</span></div>
+      <div class="rule-section-body">
+        <div class="rule-item"><div class="rule-number">1</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+        <div class="rule-item"><div class="rule-number">2</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+        <div class="rule-item"><div class="rule-number">3</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+      </div>
+    </div>
+    <div class="rule-section">
+      <div class="rule-section-header" onclick="toggleRule(this)"><span>📅 Draft Rules</span><span class="rule-chevron">▾</span></div>
+      <div class="rule-section-body">
+        <div class="rule-item"><div class="rule-number">1</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+        <div class="rule-item"><div class="rule-number">2</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+      </div>
+    </div>
+    <div class="rule-section">
+      <div class="rule-section-header" onclick="toggleRule(this)"><span>🔄 Trade Rules</span><span class="rule-chevron">▾</span></div>
+      <div class="rule-section-body">
+        <div class="rule-item"><div class="rule-number">1</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+        <div class="rule-item"><div class="rule-number">2</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+      </div>
+    </div>
+    <div class="rule-section">
+      <div class="rule-section-header" onclick="toggleRule(this)"><span>💰 Scoring & Waivers</span><span class="rule-chevron">▾</span></div>
+      <div class="rule-section-body">
+        <div class="rule-item"><div class="rule-number">1</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+        <div class="rule-item"><div class="rule-number">2</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+      </div>
+    </div>
+    <div class="rule-section">
+      <div class="rule-section-header" onclick="toggleRule(this)"><span>🌮 Taco Tuesday Traditions</span><span class="rule-chevron">▾</span></div>
+      <div class="rule-section-body">
+        <div class="rule-item"><div class="rule-number">1</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DYNASTY RANKINGS -->
+<div class="page page-wide" id="rankingsPage">
+  <h2 style="margin-bottom:6px;">Dynasty Rankings</h2>
+<p style="color:var(--muted);font-size:13px;margin-bottom:20px;">811 players · MFHFBs DR = your ranking (Stand 28. Jul 2026) · Matt DR = Matt Lawson's ranking · #️⃣ = Hashtag Basketball</p>
+  <div id="dynEditToolbarAnchor"></div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+    <div class="rankings-search" style="margin-bottom:0;flex:1;min-width:220px;">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="rankSearch" placeholder="Search player, team, or position…" oninput="filterRankings()"/>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <label for="dynChangeSince" style="font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap;">Änderung seit</label>
+      <select id="dynChangeSince" onchange="setDynChangeSince(this.value)"
+        style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 10px;border-radius:8px;outline:none;">
+      </select>
+    </div>
+  </div>
+
+  <div class="rankings-table-wrap">
+    <table class="rankings-table">
+      <thead>
+        <tr>
+          <th onclick="sortRankings(0)">#<span class="r-sort-arrow">↕</span></th>
+          <th onclick="sortRankings(1)">Name<span class="r-sort-arrow">↕</span></th>
+          <th onclick="sortRankings(2)">Team<span class="r-sort-arrow">↕</span></th>
+          <th onclick="sortRankings(3)">Position<span class="r-sort-arrow">↕</span></th>
+          <th style="text-align:center;white-space:nowrap;">MFHFBs DR</th>
+          <th style="text-align:center;white-space:nowrap;" title="Kleine automatische Bewegung basierend auf aktueller Off-Season-/Saison-Performance — rein informativ, verändert nicht deinen Rang">📡 Live</th>
+          <th style="text-align:center;white-space:nowrap;">Matt DR</th>
+          <th style="text-align:center;white-space:nowrap;">#️⃣ Hashtag</th>
+          <th id="rankingsEditHeader" style="display:none;text-align:center;white-space:nowrap;">Edit Rank</th>
+        </tr>
+      </thead>
+      <tbody id="rankingsBody"></tbody>
+    </table>
+    <div class="r-no-results" id="rankingsNoResults" style="display:none;">No players found.</div>
+  </div>
+</div>
+
+<!-- DYNASTY ROLLING RANKINGS -->
+<div class="page page-wide" id="dynastyRollingPage">
+  <div class="rr-layout">
+    <div class="rr-sidebar">
+      <div class="rr-sidebar-header">
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:800;color:var(--text);">📈 Dynasty Rolling Rankings</div>
+          <div id="drSnapshotSubtitle" style="font-size:11px;color:var(--muted);margin-top:2px;">MFHFBs DR</div>
+        </div>
+        <div style="position:relative;">
+          <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;">🔍</span>
+          <input id="drSearch" class="rr-search" placeholder="Suchen…" oninput="drFilter()">
+        </div>
+      </div>
+      <div id="drToolbar" class="rr-toolbar"></div>
+      <div class="rr-list-scroll">
+        <div id="drListCols" class="rr-list-cols"></div>
+        <div id="drListBody"></div>
+      </div>
+    </div>
+    <div class="rr-main" id="drChartPanel">
+      <div style="margin:auto;text-align:center;color:var(--muted);">
+        <div style="font-size:40px;margin-bottom:12px;">📈</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">Spieler auswählen</div>
+        <div style="font-size:13px;">Klicke links auf einen Spieler um seinen Dynasty-Rang-Verlauf zu sehen</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HASHTAG RANKINGS -->
+<div class="page page-wide" id="hashtagRankingsPage">
+  <h2 style="margin-bottom:6px;">#️⃣ Hashtag Rankings</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">700+ players · Dynasty Values</p>
+  <div class="rankings-search">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="hashtagSearch" placeholder="Search player, team, or position…" oninput="filterHashtag()"/>
+  </div>
+  <div class="rankings-table-wrap">
+    <table class="rankings-table">
+      <thead>
+        <tr>
+          <th onclick="sortHashtag(0)">#<span class="r-sort-arrow">↕</span></th>
+          <th onclick="sortHashtag(1)">Name<span class="r-sort-arrow">↕</span></th>
+          <th onclick="sortHashtag(2)">Team<span class="r-sort-arrow">↕</span></th>
+          <th onclick="sortHashtag(3)">Position<span class="r-sort-arrow">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="hashtagBody"></tbody>
+    </table>
+    <div class="r-no-results" id="hashtagNoResults" style="display:none;">No players found.</div>
+  </div>
+</div>
+
+<!-- NBA TEAM PAGE -->
+<div class="page" id="nbaTeamPage">
+  <div id="nbaTeamHeader" style="margin-bottom:24px;"></div>
+  <div id="nbaTeamContent"></div>
+</div>
+	
+<!-- BEST AVAILABLE -->
+<div class="page page-wide" id="bestAvailPage">
+  <h2 style="margin-bottom:6px;">🆓 Best Available</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Spieler die in keinem Roster stehen — sortiert nach einem gewichteten Gesamtscore aus Dynasty-Rang, letzter Saison, Off-Season/Preseason, laufender Saison (sobald verfügbar) und für Rookies zusätzlich Big Board + Draft Capital + Sticky Score. MFHFBs DR = MFHFBs eigenes Dynasty-Ranking. MIN, Beste/Schwächste Kategorie und 2026/27 Rankings/Projections fehlen bei Spielern, für die noch keine Daten vorliegen.</p>
+  <div class="rankings-search" style="display:flex;align-items:center;gap:10px;">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="baSearch" placeholder="Search player, team, or position…" oninput="filterBestAvail()" style="flex:1;"/>
+    <select id="baExperienceSelect" onchange="baSetExperienceFilter(this.value)" style="padding:8px 12px;border-radius:8px;background:var(--surface2,rgba(255,255,255,.04));border:1px solid var(--border);color:var(--text);font-size:13px;">
+      <option value="all">Every Player</option>
+      <option value="rookie">Rookies</option>
+      <option value="sophomore">Sophomores</option>
+    </select>
+  </div>
+  <div class="rankings-table-wrap">
+    <table class="rankings-table">
+      <thead>
+        <tr>
+          <th style="width:56px;text-align:center;">#</th>
+          <th onclick="baSortBy('name')" style="cursor:pointer;">Name<span class="r-sort-arrow" id="baArrow-name">↕</span></th>
+          <th onclick="baSortBy('nbaTeam')" style="cursor:pointer;">NBA Team<span class="r-sort-arrow" id="baArrow-nbaTeam">↕</span></th>
+          <th onclick="baSortBy('pos')" style="cursor:pointer;">Position<span class="r-sort-arrow" id="baArrow-pos">↕</span></th>
+          <th onclick="baSortBy('age')" style="text-align:center;cursor:pointer;">Alter<span class="r-sort-arrow" id="baArrow-age">↕</span></th>
+          <th onclick="baSortBy('minutesAvg')" style="text-align:center;cursor:pointer;">MIN<span class="r-sort-arrow" id="baArrow-minutesAvg">↕</span></th>
+          <th onclick="baSortBy('bestCat30')" style="text-align:center;cursor:pointer;">Beste Kat.<span class="r-sort-arrow" id="baArrow-bestCat30">↕</span></th>
+          <th onclick="baSortBy('worstCat30')" style="text-align:center;cursor:pointer;">Schwächste Kat.<span class="r-sort-arrow" id="baArrow-worstCat30">↕</span></th>
+          <th onclick="baSortBy('dynastyRank')" style="text-align:center;cursor:pointer;">MFHFBs DR<span class="r-sort-arrow" id="baArrow-dynastyRank">↕</span></th>
+          <th onclick="baSortBy('stickyScore')" style="text-align:center;cursor:pointer;">Sticky<span class="r-sort-arrow" id="baArrow-stickyScore">↕</span></th>
+          <th onclick="baSortBy('season2627Rank')" style="text-align:center;cursor:pointer;">2026/27 Rankings<span class="r-sort-arrow" id="baArrow-season2627Rank">↕</span></th>
+          <th style="text-align:center;">2026/27 Projections</th>
+        </tr>
+      </thead>
+      <tbody id="baBody"></tbody>
+    </table>
+    <div class="r-no-results" id="baNoResults" style="display:none;">Keine Spieler gefunden.</div>
+  </div>
+</div>
+
+<!-- LOTTERY PAGE -->
+<div class="page" id="lotteryPage">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px;">
+    <div>
+      <h2 style="margin-bottom:4px;">🎲 2026 Draft Lottery</h2>
+      <p style="color:var(--muted);font-size:13px;">Pre-Lottery Odds · NBA Lottery: <strong style="color:var(--accent);">10. Mai 2026</strong></p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:11px;font-weight:700;background:rgba(76,175,129,0.15);color:#4caf81;padding:4px 10px;border-radius:20px;">■ hohe Chance</span>
+      <span style="font-size:11px;font-weight:700;background:rgba(245,200,66,0.15);color:#f5c842;padding:4px 10px;border-radius:20px;">■ mittel</span>
+      <span style="font-size:11px;font-weight:700;background:rgba(255,101,132,0.15);color:#ff6584;padding:4px 10px;border-radius:20px;">■ niedrig</span>
+    </div>
+  </div>
+
+  <!-- Rules banner -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:180px;">
+      <span style="font-size:18px;">🏆</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);">Champion = Pick #12</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Fighting Illini (Vorjahressieger) bekommen automatisch den letzten Pick</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:180px;">
+      <span style="font-size:18px;">🚫</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);">Non-Playoff → max. Pick #6</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Vancouver, Double Dribble, S-Town & Cooking Show können nicht später als #6 landen</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:180px;">
+      <span style="font-size:18px;">🔗</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);">NBA → TT Mapping</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Jedem TT-Team ist ein NBA-Team zugeordnet — dessen Lottery-Ergebnis wird zum TT-Pick</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Heatmap table -->
+  <div style="overflow-x:auto;border-radius:14px;border:1px solid var(--border);">
+    <table id="lotteryTable" style="width:100%;border-collapse:collapse;font-size:12px;min-width:680px;">
+      <thead>
+        <tr style="background:var(--surface2);border-bottom:2px solid var(--border);">
+          <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;border:none;">NBA Team</th>
+          <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;border:none;">TT Team</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#1</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#2</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#3</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#4</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#5</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#6</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#7</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#8</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#9</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#10</th>
+          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#11</th>
+          <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;white-space:nowrap;">Ø Pick</th>
+        </tr>
+      </thead>
+      <tbody id="lotteryBody"></tbody>
+    </table>
+  </div>
+  <p style="color:var(--muted);font-size:11px;text-align:center;margin-top:10px;">Klick auf eine Zeile für die detaillierte Odds-Ansicht</p>
+</div>
+
+<!-- ANALYTICS PAGE -->
+<div class="page page-wide" id="analyticsPage">
+  <div style="margin-bottom:16px;">
+    <h2 style="margin-bottom:4px;">📊 Team Analytics</h2>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <p style="color:var(--muted);font-size:13px;">Cat-Stärken & -Schwächen aller Teams · Quelle: BBM Z-Scores · <strong style="color:var(--accent);">Saison 2025–26</strong></p>
+      <button onclick="document.getElementById('anInfoModal').style.display='flex'"
+        style="width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);
+               color:var(--muted);font-size:11px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;
+               display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">?</button>
+    </div>
+  </div>
+
+  <!-- Info Modal -->
+  <div id="anInfoModal" onclick="if(event.target===this)this.style.display='none'"
+    style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);
+           backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;
+                width:100%;max-width:480px;padding:24px;position:relative;
+                box-shadow:0 20px 60px rgba(0,0,0,0.4);animation:modalIn 0.2s ease;max-height:90vh;overflow-y:auto;">
+      <button onclick="document.getElementById('anInfoModal').style.display='none'"
+        style="position:absolute;top:14px;right:14px;background:var(--surface2);border:1px solid var(--border);
+               color:var(--muted);border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;
+               display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;">✕</button>
+
+      <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:16px;">Wie funktioniert das?</div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;font-size:13px;line-height:1.6;color:var(--muted);">
+
+        <div style="background:var(--surface2);border-radius:12px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">📥 Datenquelle: BBM Z-Scores</div>
+          Die Rohdaten kommen von <strong style="color:var(--text);">Basketball Monster (BBM)</strong> und enthalten für jeden Spieler einen Z-Score pro Kategorie — also wie weit er vom Liga-Durchschnitt aller ~580 relevanten NBA-Spieler entfernt ist. Ein Wert von +2.0 bedeutet zwei Standardabweichungen über dem Schnitt, 0.0 ist Durchschnitt, negative Werte liegen darunter.
+        </div>
+
+        <div style="background:var(--surface2);border-radius:12px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">🔢 Berechnung: Roster → Team-Score</div>
+          Für jedes Team werden die Z-Scores der <strong style="color:var(--text);">Top N Spieler</strong> (Slider) pro Kategorie summiert. Diese Rohdaten werden dann <strong style="color:var(--text);">relativ zur Liga normalisiert</strong>: Das beste Team bekommt +1,0, das schlechteste −1,0. So sieht man sofort wer in welcher Cat dominiert — unabhängig vom absoluten Wert.
+        </div>
+
+        <div style="background:var(--surface2);border-radius:12px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">🎚️ Slider: Warum Top N?</div>
+          In einer H2H Liga mit ~45–55 Spielen/Woche spielt nicht das gesamte Roster. Bei ~3,5 Spielen/Spieler pro Woche kommen realistisch <strong style="color:var(--text);">13–15 Spieler</strong> zum Einsatz. Der Rest sitzt auf der Bank oder ist injured. Der Slider simuliert diese aktiven Slots — je niedriger, desto mehr zählt die Starpower, je höher, desto mehr zählt die Tiefe.
+        </div>
+
+        <div style="background:var(--surface2);border-radius:12px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">⚡ Per Game vs 🏥 Durability</div>
+          <strong style="color:var(--text);">Per Game</strong> sortiert Spieler nach reiner Qualität pro Spiel — Kawhi Leonard steht hoch, auch wenn er wenig spielt.<br><br>
+          <strong style="color:var(--text);">Durability</strong> nutzt den BBM <em>BZ-Score</em>, der Spielhäufigkeit einrechnet. Kawhi fällt, zuverlässige Spieler wie Cooper Flagg steigen. Für H2H ist das oft die realistischere Einschätzung.
+        </div>
+
+        <div style="background:var(--surface2);border-radius:12px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">⚠️ TO-Kategorie</div>
+          Turnovers sind invertiert: <strong style="color:var(--text);">weniger ist besser</strong>. Ein positiver Wert in TO bedeutet also, dass das Team weniger Ballverluste hat als der Liga-Schnitt — grün ist hier gut.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls row: View + Method + Cutoff slider -->
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+    <!-- View toggle -->
+    <div style="display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;">
+      <button id="anViewHeatmap" onclick="setAnView('heatmap')" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:var(--accent);color:white;transition:all 0.15s;">🗺️ Heatmap</button>
+      <button id="anViewRadar"   onclick="setAnView('radar')"   style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;">📊 Bars</button>
+    </div>
+    <!-- Method toggle -->
+    <div style="display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;">
+      <button id="anMethodValue" onclick="setAnMethod('value')" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:var(--accent);color:white;transition:all 0.15s;" title="Reine per-game Qualität — wer ist am stärksten wenn er spielt?">⚡ Per Game</button>
+      <button id="anMethodBz"    onclick="setAnMethod('bz')"    style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;" title="Durability-adjusted — berücksichtigt Spielhäufigkeit & Verletzungsrisiko">🏥 Durability</button>
+    </div>
+    <!-- Cutoff slider -->
+    <div style="display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px 14px;">
+      <span style="font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap;">Starter:</span>
+      <input type="range" min="10" max="18" value="13" step="1"
+        oninput="setAnCutoff(this.value)"
+        style="width:90px;accent-color:var(--accent);cursor:pointer;">
+      <span id="anCutoffLabel" style="font-size:13px;font-weight:800;color:var(--accent);min-width:44px;">Top 13</span>
+    </div>
+    <span style="font-size:11px;color:var(--muted);">Relativ zur Liga · grün = Stärke · rot = Schwäche</span>
+  </div>
+
+  <!-- HEATMAP VIEW -->
+  <div id="anHeatmapView">
+    <div style="overflow-x:auto;border-radius:14px;border:1px solid var(--border);">
+      <table style="width:100%;border-collapse:collapse;min-width:680px;">
+        <thead>
+          <tr style="background:var(--surface2);border-bottom:2px solid var(--border);">
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border:none;white-space:nowrap;">Team</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">PTS</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">3PM</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">REB</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">AST</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">STL</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">BLK</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">FG%</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">FT%</th>
+            <th style="padding:10px 8px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;">TO</th>
+            <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;white-space:nowrap;">Ø Score</th>
+          </tr>
+        </thead>
+        <tbody id="anHeatmapBody"></tbody>
+      </table>
+    </div>
+    <p style="color:var(--muted);font-size:11px;text-align:center;margin-top:10px;">Klick auf ein Team für Details</p>
+  </div>
+
+  <!-- RADAR VIEW -->
+  <div id="anRadarView" style="display:none;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;" id="anRadarGrid"></div>
+  </div>
+</div>
+
+<!-- ANALYTICS DETAIL MODAL -->
+<div id="anModal" onclick="if(event.target===this)closeAnModal()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:460px;padding:24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.4);animation:modalIn 0.2s ease;max-height:90vh;overflow-y:auto;">
+    <button onclick="closeAnModal()" style="position:absolute;top:14px;right:14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;">✕</button>
+    <div id="anModalContent"></div>
+  </div>
+</div>
+<div id="lotteryModal" onclick="if(event.target===this)closeLotteryModal()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:420px;padding:24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.4);animation:modalIn 0.2s ease;">
+    <button onclick="closeLotteryModal()" style="position:absolute;top:14px;right:14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;">✕</button>
+    <div id="lotteryModalContent"></div>
+  </div>
+</div>
+
+<!-- TRADE ANALYZER -->
+<div class="page" id="tradePage">
+  <h2 style="margin-bottom:6px;">⚖️ Trade Analyzer</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+    Schwierig, einen Dynastycalc zu bauen, der alles berücksichtigt. Nehmt dies hier als Anlaufpunkt, vorerst
+  </p>
+
+  <!-- VALUATION MODE TOGGLE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:20px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Valuation Mode</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="setTradeMode('dynasty')" class="trade-mode-btn active" id="modeBtn-dynasty">🏗️ Dynasty</button>
+      <button onclick="setTradeMode('raw')" class="trade-mode-btn" id="modeBtn-raw">📊 Raw</button>
+      <button onclick="setTradeMode('winnow')" class="trade-mode-btn" id="modeBtn-winnow">🏆 Win-Now</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;" id="tradeModeDesc">
+      <strong style="color:var(--text);">Dynasty:</strong> Age-adjusted for long-term value. Young players get a significant boost, veterans are discounted. Best for rebuilding teams.
+    </div>
+  </div>
+
+  <!-- START: Screenshot wrapper -->
+  <div id="tradeCapture">
+
+    <!-- TRADE SIDES -->
+    <div class="trade-layout">
+
+      <div class="trade-side" id="tradeSideA">
+        <div class="trade-side-title">Side A</div>
+
+        <div class="trade-dropdowns">
+          <div class="trade-dropdown-wrap">
+            <select id="tradeNbaFilterA" onchange="applyTradeDropdown('A')">
+              <option value="">🏀 NBA Team</option>
+            </select>
+          </div>
+          <div class="trade-dropdown-wrap">
+            <select id="tradeTTFilterA" onchange="applyTradeDropdown('A')">
+              <option value="">🌮 TT Team</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="trade-search-wrap">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="tradeSearchA" placeholder="Search player…" oninput="filterTradePlayers('A')"/>
+        </div>
+
+<div class="trade-player-list" id="tradeListA"></div>
+
+        <div class="trade-selected-wrap">
+          <div class="trade-selected-label">Selected</div>
+          <div id="tradeSelectedA">
+            <span style="color:var(--muted);font-size:12px;">None yet</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="trade-vs">vs</div>
+
+      <div class="trade-side" id="tradeSideB">
+        <div class="trade-side-title">Side B</div>
+
+        <div class="trade-dropdowns">
+          <div class="trade-dropdown-wrap">
+            <select id="tradeNbaFilterB" onchange="applyTradeDropdown('B')">
+              <option value="">🏀 NBA Team</option>
+            </select>
+          </div>
+          <div class="trade-dropdown-wrap">
+            <select id="tradeTTFilterB" onchange="applyTradeDropdown('B')">
+              <option value="">🌮 TT Team</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="trade-search-wrap">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="tradeSearchB" placeholder="Search player…" oninput="filterTradePlayers('B')"/>
+        </div>
+
+<div class="trade-player-list" id="tradeListB"></div>
+
+        <div class="trade-selected-wrap">
+          <div class="trade-selected-label">Selected</div>
+          <div id="tradeSelectedB">
+            <span style="color:var(--muted);font-size:12px;">None yet</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RESULT -->
+    <div class="trade-result-wrap" id="tradeResult">
+      <div class="trade-empty-state">
+        Select at least one player on each side to analyze the trade.
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+      <button id="tradeScreenshotBtn" class="draftboard-btn" style="flex:1;background:linear-gradient(135deg,#6c63ff,#ff6584);box-shadow:0 4px 14px rgba(108,99,255,0.3);">
+        📤 Share Trade
+      </button>
+
+    </div>
+
+  </div> <!-- END tradeCapture -->
+</div>
+
+<!-- REQUIRED SCRIPT -->
+
+<!-- SHARE MODAL -->
+<style>
+  #shareModalOverlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 600;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+	.nav-menu-item {
+    width:100%;background:none;border:none;border-bottom:1px solid var(--border);
+    color:var(--text);padding:14px 20px;font-size:14px;font-weight:600;
+    font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;
+    transition:background 0.15s;display:block;
+  }
+  .nav-menu-item:last-child { border-bottom:none; }
+  .nav-menu-item:hover { background:var(--accent-light); color:var(--accent); }
+  @media (min-width: 500px) {
+    #shareModalOverlay { align-items: center; padding: 20px; }
+  }
+  #shareModalBox {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 480px;
+    padding: 20px 20px 32px;
+    position: relative;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+    animation: slideUp 0.26s cubic-bezier(.22,.61,.36,1);
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  @media (min-width: 500px) {
+    #shareModalBox {
+      border-radius: 24px;
+      animation: modalIn 0.22s ease;
+      max-height: 85vh;
+    }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+  #shareModalBox .drag-handle {
+    width: 40px; height: 4px; border-radius: 2px;
+    background: var(--border); margin: 0 auto 16px;
+  }
+  @media (min-width: 500px) { #shareModalBox .drag-handle { display: none; } }
+  .share-modal-title {
+    font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 800;
+    color: var(--text); text-align: center; margin-bottom: 16px;
+  }
+  #shareCardContent {
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .share-btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .share-action-btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: 13px 10px; border-radius: 14px; font-size: 14px; font-weight: 700;
+    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.18s;
+    text-align: center;
+  }
+  .share-action-btn:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+  .share-action-btn.primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-color: transparent; color: white;
+    box-shadow: 0 4px 14px rgba(108,99,255,0.3);
+  }
+  .share-action-btn.primary:hover { opacity: 0.88; }
+  .share-close-btn {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); border-radius: 50%; width: 32px; height: 32px;
+    font-size: 16px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .share-close-btn:hover { border-color: var(--accent); color: var(--text); }
+  /* ── Rolling Rankings ───────────────────────── */
+  #rollingRankingsPage { padding: 0; overflow: hidden; }
+  #rollingRankingsPage.active { display: flex; flex-direction: column; height: calc(100vh - 120px); }
+  #dynastyRollingPage { padding: 0; overflow: hidden; }
+  #dynastyRollingPage.active { display: flex; flex-direction: column; height: calc(100vh - 120px); }
+  .rr-layout { display: grid; grid-template-columns: 340px 1fr; flex: 1; overflow: hidden; }
+  .rr-sidebar { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .rr-sidebar-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--surface); }
+  .rr-search { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 9px; color: var(--text); font-family: DM Sans, sans-serif; font-size: 12px; padding: 7px 10px 7px 30px; width: 160px; outline: none; transition: border-color .2s; }
+  .rr-search:focus { border-color: var(--accent); }
+  .rr-toolbar { display: flex; gap: 8px; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .rr-tb-group { display: flex; gap: 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 3px; }
+  .rr-tb-btn { background: transparent; border: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 6px; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .rr-tb-btn:hover { color: var(--text); }
+  .rr-tb-btn.rr-tb-active { background: var(--accent); color: var(--bg, #0f0f13); }
+  .rr-list-scroll { flex: 1; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; min-width: 0; }
+  .rr-list-cols { display: grid; grid-template-columns: 32px 1fr repeat(6, 30px); gap: 3px; padding: 7px 14px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); position: sticky; top: 0; z-index: 5; }
+  .rr-list-cols span { text-align: center; }
+  .rr-list-cols span:nth-child(2) { text-align: left; }
+  .rr-col-h { cursor: pointer; user-select: none; transition: color .12s; }
+  .rr-col-h:hover { color: var(--text); }
+  .rr-col-active { color: var(--accent) !important; }
+  #rrListBody { /* removed overflow — handled by parent .rr-list-scroll */ }
+  .rr-row { display: grid; grid-template-columns: 32px 1fr repeat(6, 30px); gap: 3px; padding: 6px 14px; border-bottom: 1px solid var(--border); align-items: center; cursor: pointer; transition: background .1s; }
+  .rr-row:hover { background: var(--surface2); }
+  .rr-row.rr-active { background: rgba(245,200,66,.08); border-left: 3px solid var(--accent); padding-left: 11px; }
+  .rr-idx { font-size: 10px; font-weight: 700; color: var(--muted); text-align: center; }
+  .rr-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rr-rank-cell { font-size: 10px; font-weight: 800; text-align: center; border-radius: 4px; padding: 2px 0; }
+  .rr-main { padding: 28px 36px; overflow-y: auto; display: flex; flex-direction: column; }
+  .rr-player-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .rr-player-name { font-size: 28px; font-weight: 800; color: var(--text); font-family: 'Playfair Display', serif; line-height: 1.1; }
+  .rr-player-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .rr-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+  .rr-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; text-align: center; display: flex; flex-direction: column; gap: 2px; }
+  .rr-pill-val { font-size: 18px; font-weight: 800; line-height: 1; }
+  .rr-pill-label { font-size: 10px; color: var(--muted); letter-spacing: .5px; text-transform: uppercase; }
+  .rr-chart-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+  .rr-badges { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .rr-month-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 68px; }
+  .rr-badge-label { font-size: 10px; color: var(--muted); font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+  .rr-badge-rank { font-size: 20px; font-weight: 800; }
+  .rr-compare-cards { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .rr-compare-card { flex: 1; min-width: 200px; background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .rr-share-row { margin-top: 18px; display: flex; justify-content: flex-end; }
+  .rr-share-btn { background: var(--accent); border: none; color: var(--bg, #0f0f13); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 800; padding: 10px 18px; border-radius: 10px; cursor: pointer; transition: opacity .15s; }
+  .rr-share-btn:hover { opacity: .85; }
+  .rr-share-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 1000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+  .rr-share-box { background: var(--surface); border-radius: 16px; padding: 22px; max-width: 540px; width: 100%; position: relative; max-height: 92vh; overflow-y: auto; }
+  .rr-style-toggle { display: flex; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 3px; margin: 0 auto 16px; width: fit-content; }
+  .rr-style-btn { background: transparent; border: none; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all .15s; }
+  .rr-style-btn.rr-style-active { background: var(--accent); color: var(--bg, #0f0f13); }
+  #rrShareCardContent { display: flex; justify-content: center; margin-bottom: 14px; }
+  @media (max-width: 768px) {
+    .rr-layout { grid-template-columns: 1fr; }
+    #rollingRankingsPage.active { height: auto; }
+    #dynastyRollingPage.active { height: auto; }
+    .rr-sidebar { height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
+    .rr-main { padding: 16px; }
+    .rr-toolbar { padding: 8px 12px; }
+    .rr-tb-btn { font-size: 10px; padding: 5px 8px; }
+    #rrShareCardContent { transform: scale(0.7); transform-origin: top center; height: 600px; margin-bottom: 0; }
+  }
+
+</style>
+
+<style>
+  /* ===== PICK POOL IN TRADE ANALYZER ===== */
+  .pick-pool-btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+    padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 700;
+    font-family: 'DM Sans', sans-serif; transition: all 0.15s; margin-bottom: 10px;
+  }
+  .pick-pool-btn:hover { border-color: #c58f32; color: #c58f32; }
+  .pick-pool-btn.active { background: rgba(197,143,50,0.15); border-color: #c58f32; color: #c58f32; }
+  body.light .pick-pool-btn { }
+  body.light .pick-pool-btn.active { background: rgba(154,110,16,0.12); border-color: #9a6e10; color: #9a6e10; }
+  /* Trennt Picks- und Spieler-Abschnitt in der vereinheitlichten Liste
+     (16.08.2026: ersetzt den frueheren "Picks anzeigen"-Umschalter). */
+  .trade-section-head {
+    padding: 8px 12px 5px;
+    font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--muted); background: var(--surface2); border-bottom: 1px solid var(--border);
+  }
+  .pick-item {
+    display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px;
+    cursor: pointer; transition: background 0.1s; border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .pick-item:last-child { border-bottom: none; }
+  .pick-item:hover { background: var(--surface2); }
+  .pick-item.selected { background: rgba(197,143,50,0.08); }
+  .pick-round-pos {
+    font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 5px;
+    letter-spacing: 0.05em; white-space: nowrap;
+    background: rgba(197,143,50,0.15); color: #c58f32;
+  }
+  body.light .pick-round-pos { background: rgba(154,110,16,0.12); color: #9a6e10; }
+  .pick-owner-chip {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); margin: 1px 2px 1px 0;
+  }
+  .pick-owner-chip.traded { border-color: rgba(255,101,132,0.4); color: #ff8fa3; background: rgba(255,101,132,0.08); }
+  body.light .pick-owner-chip.traded { border-color: rgba(180,60,100,0.3); color: #b43c64; background: rgba(180,60,100,0.06); }
+  .pick-value-badge {
+    font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px;
+    background: rgba(197,143,50,0.15); color: #c58f32; white-space: nowrap;
+  }
+  body.light .pick-value-badge { background: rgba(154,110,16,0.12); color: #9a6e10; }
+</style>
+
+<div id="shareModalOverlay">
+  <div id="shareModalBox">
+    <div class="drag-handle"></div>
+    <button class="share-close-btn" onclick="closeShareModal()">✕</button>
+    <div class="share-modal-title">🌮 Share Trade</div>
+    <div id="shareCardContent"></div>
+    <div class="share-btn-row">
+      <button class="share-action-btn" id="copyShareBtn">📋 Copy Text</button>
+      <button class="share-action-btn primary" id="downloadShareBtn">💾 Save Image</button>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="tradeFinderPage">
+  <h2 style="margin-bottom:4px;">🔍 Trade Finder</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Gib an was du abgeben willst — der Finder sucht faire Gegenleistungen</p>
+
+  <!-- TOP BAR: Mode + Target Team in one row -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+      <div style="flex:1;min-width:140px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Valuation</div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="setTFMode('dynasty')" class="trade-mode-btn active" id="tfModeBtn-dynasty" style="flex:1;padding:7px 4px;font-size:11px;">🏗️ Dynasty</button>
+          <button onclick="setTFMode('raw')"     class="trade-mode-btn"        id="tfModeBtn-raw"     style="flex:1;padding:7px 4px;font-size:11px;">📊 Raw</button>
+          <button onclick="setTFMode('winnow')"  class="trade-mode-btn"        id="tfModeBtn-winnow"  style="flex:1;padding:7px 4px;font-size:11px;">🏆 Win-Now</button>
+        </div>
+      </div>
+      <div style="min-width:160px;flex:0 0 auto;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Trade mit</div>
+        <div class="trade-dropdown-wrap" style="min-width:unset;">
+          <select id="tfOwnerDropdown" onchange="setTFOwnerFromDropdown()" style="width:100%;font-size:12px;">
+            <option value="">🌮 Alle Teams</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);line-height:1.5;" id="tfModeDesc">
+      <strong style="color:var(--text);">Dynasty:</strong> Age-adjusted for long-term value. Young players get a significant boost, veterans are discounted. Best for rebuilding teams.
+    </div>
+  </div>
+
+  <!-- CONFIG ROW: Format + Picks -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
+    <div style="display:flex;gap:14px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:160px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Trade Format</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <label style="font-size:10px;color:var(--muted);font-weight:600;">Ich gebe</label>
+            <input type="number" id="tfGiveNum" min="1" max="5" value="2"
+              oninput="setTFFormatFree()"
+              style="width:56px;background:var(--surface2);border:1px solid var(--border);color:var(--text);
+                     font-family:'DM Sans',sans-serif;font-size:18px;font-weight:800;text-align:center;
+                     padding:6px 4px;border-radius:9px;outline:none;-moz-appearance:textfield;"
+            />
+          </div>
+          <span style="font-size:20px;color:var(--muted);font-weight:300;padding-bottom:2px;">für</span>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <label style="font-size:10px;color:var(--muted);font-weight:600;">Ich bekomme</label>
+            <input type="number" id="tfGetNum" min="1" max="5" value="1"
+              oninput="setTFFormatFree()"
+              style="width:56px;background:var(--surface2);border:1px solid var(--border);color:var(--text);
+                     font-family:'DM Sans',sans-serif;font-size:18px;font-weight:800;text-align:center;
+                     padding:6px 4px;border-radius:9px;outline:none;-moz-appearance:textfield;"
+            />
+          </div>
+        </div>
+        <style>
+          #tfGiveNum:focus, #tfGetNum:focus { border-color: var(--accent); }
+          #tfGiveNum::-webkit-inner-spin-button, #tfGiveNum::-webkit-outer-spin-button,
+          #tfGetNum::-webkit-inner-spin-button,  #tfGetNum::-webkit-outer-spin-button { opacity:1; }
+        </style>
+      </div>
+      <div style="flex:1;min-width:160px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Picks</div>
+        <div style="display:flex;gap:8px;" id="tfPickModeGrid">
+          <button class="tf-format-btn active" onclick="setTFPickMode('with_picks')" id="tfPickModeBtn-with_picks" style="font-size:12px;padding:8px 14px;flex:1;">⚡ Mit Picks</button>
+          <button class="tf-format-btn" onclick="setTFPickMode('none')" id="tfPickModeBtn-none" style="font-size:12px;padding:8px 14px;flex:1;">🚫 Keine Picks</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN: Give + Results stacked on mobile, side by side on desktop -->
+  <div class="tf-main-grid">
+
+    <!-- LEFT: Du gibst ab -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Du gibst ab</div>
+        <span id="tfGiveCount" style="font-size:11px;font-weight:800;background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:10px;">0 / 2</span>
+      </div>
+      <!-- Give-side team filter -->
+      <div class="trade-dropdown-wrap" style="margin-bottom:8px;">
+        <select id="tfGiveTeamDropdown" onchange="setTFGiveTeamFromDropdown()" style="width:100%;font-size:12px;">
+          <option value="">🌮 Alle Teams</option>
+        </select>
+      </div>
+      <div class="tf-search-wrap" id="tfGiveSearchWrap">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="tfGiveSearch" placeholder="Spieler oder Pick suchen…" oninput="renderTFGiveList()"/>
+      </div>
+      <div class="tf-give-list" id="tfGiveList">
+        <div style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">Tippe zum Suchen…</div>
+      </div>
+      <div id="tfGivePills" style="margin-top:8px;min-height:28px;">
+        <span style="color:var(--muted);font-size:12px;">Noch nichts ausgewählt</span>
+      </div>
+      <div id="tfGiveValue" style="margin-top:6px;"></div>
+      <button onclick="runTradeFinder()" id="tfFindBtn" style="
+        width:100%;margin-top:12px;
+        background:linear-gradient(135deg,var(--accent),var(--accent2));
+        border:none;color:white;padding:13px;border-radius:11px;
+        font-size:14px;font-weight:800;font-family:'DM Sans',sans-serif;
+        cursor:pointer;transition:opacity 0.15s;box-shadow:0 4px 14px rgba(108,99,255,0.28);">
+        🔍 Faire Trades finden
+      </button>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Ergebnisse <span id="tfResultCount" style="color:var(--accent);text-transform:none;letter-spacing:0;"></span></div>
+        <button id="tfShareBtn" onclick="openTFShareModal()" style="display:none;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)';" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)';">
+          📤 Share
+        </button>
+      </div>
+      <div id="tfResults">
+        <div class="tf-empty">Wähle Spieler aus und klicke "Faire Trades finden"</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- TRADE HISTORY PAGE -->
+<div class="page" id="tradeHistoryPage">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+    <div>
+      <h2 style="margin-bottom:4px;">📜 Trade History</h2>
+      <p style="color:var(--muted);font-size:13px;">Alle gespeicherten Trades · Werte eingefroren zum Zeitpunkt des Trades</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+      <button id="thExportBtn" onclick="exportTradeHistoryFile()" style="display:none;padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all 0.15s;" title="Erzeugt die nächste Version von data/trade-history.js zum Committen — erst nach dem Commit sind neue Trades für alle sichtbar">⬇ Für Repo exportieren</button>
+      <div style="display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;">
+      <button id="thModeDynasty" onclick="setTHMode('dynasty')" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:var(--accent);color:white;transition:all 0.15s;">🏗️ Dynasty</button>
+      <button id="thModeRaw" onclick="setTHMode('raw')" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;">📊 Raw</button>
+      <button id="thModeWinnow" onclick="setTHMode('winnow')" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;">🏆 Win-Now</button>
+      </div>
+    </div>
+  </div>
+  <div id="tradeHistoryList"></div>
+</div>
+
+
+
+<div class="page" id="nbaTradesPage">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+    <div>
+      <h2 style="margin-bottom:4px;">🏀 NBA Trades</h2>
+      <p style="color:var(--muted);font-size:13px;">⚠️ Pausiert: die bisherige Datenquelle (Balldontlie) bietet den Trades-Endpoint nicht mehr an, kostenlosen Ersatz gibt es aktuell nicht.</p>
+    </div>
+    <button disabled title="Keine kostenlose Trades-API verfügbar — siehe Hinweis" style="background:var(--surface2);border:1.5px solid var(--border);color:var(--muted);border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:not-allowed;font-family:'DM Sans',sans-serif;">🔄 Aktualisieren</button>
+  </div>
+  <div id="nbaTradesList">
+    <div style="text-align:center;padding:60px 20px;color:var(--muted);">
+      <div style="font-size:36px;margin-bottom:12px;">🏀</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;">Lade NBA Trades…</div>
+      <div style="font-size:13px;">Klicke Aktualisieren oder ESPN Sync</div>
+    </div>
+  </div>
+</div>
+
+
+<div class="page" id="adminSettingsPage">
+  <div style="max-width:680px;margin:0 auto;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+      <div style="font-size:32px;">⚙️</div>
+      <div>
+        <h2 style="margin:0 0 2px;">Admin Settings</h2>
+        <p style="margin:0;color:var(--muted);font-size:13px;">Nur für Admins · Änderungen werden sofort gespeichert</p>
+      </div>
+    </div>
+
+    <!-- Section: Spieler -->
+    <div class="admin-section">
+      <div class="admin-section-title">👤 Spieler verwalten</div>
+
+      <div class="admin-row">
+        <label class="admin-label">Team</label>
+        <select id="as-player-team" class="admin-select">
+          <option value="">— Team wählen —</option>
+        </select>
+      </div>
+      <div class="admin-row">
+        <label class="admin-label">Spielername</label>
+        <input id="as-player-name" class="admin-input" type="text" placeholder="z.B. Andrew Nembhard" list="as-player-suggestions">
+        <datalist id="as-player-suggestions"></datalist>
+      </div>
+      <div class="admin-row">
+        <label class="admin-label">Position</label>
+        <select id="as-player-pos" class="admin-select" style="width:100px;">
+          <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
+        </select>
+        <label class="admin-label" style="margin-left:16px;">NBA Team</label>
+        <input id="as-player-nba" class="admin-input" type="text" placeholder="z.B. IND" maxlength="4" style="width:80px;">
+      </div>
+      <div class="admin-row" style="gap:8px;">
+        <button class="admin-btn green" onclick="asAddPlayer()">➕ Hinzufügen</button>
+        <button class="admin-btn red"   onclick="asRemovePlayer()">➖ Entfernen</button>
+      </div>
+    </div>
+
+    <!-- Section: Picks -->
+    <div class="admin-section">
+      <div class="admin-section-title">📋 Pick übertragen</div>
+      <div class="admin-row">
+        <label class="admin-label">Jahr</label>
+        <select id="as-pick-year" class="admin-select" style="width:90px;"></select>
+        <label class="admin-label" style="margin-left:12px;">Runde</label>
+        <select id="as-pick-round" class="admin-select" style="width:80px;">
+          <option value="1">R1</option><option value="2">R2</option><option value="3">R3</option>
+        </select>
+        <label class="admin-label" style="margin-left:12px;">Original-Team</label>
+        <select id="as-pick-orig" class="admin-select"></select>
+      </div>
+      <div class="admin-row">
+        <label class="admin-label">Neuer Besitzer</label>
+        <select id="as-pick-new-owner" class="admin-select"></select>
+        <label class="admin-label" style="margin-left:12px;">Notiz</label>
+        <input id="as-pick-note" class="admin-input" type="text" placeholder="z.B. Top-5 Protection" style="width:180px;">
+      </div>
+      <div class="admin-row">
+        <button class="admin-btn green" onclick="asUpdatePick()">💾 Pick speichern</button>
+        <button class="admin-btn" onclick="asAddNewPick()" style="margin-left:8px;">➕ Neuen Pick erstellen</button>
+      </div>
+      <div id="as-pick-list" style="margin-top:12px;font-size:12px;color:var(--muted);"></div>
+    </div>
+
+    <!-- Section: Trade manuell -->
+    <div class="admin-section">
+      <div class="admin-section-title">⚖️ Trade manuell eintragen</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Side A gibt ab</div>
+          <select id="as-trade-team-a" class="admin-select" style="width:100%;margin-bottom:8px;"></select>
+          <div id="as-trade-players-a" style="min-height:60px;background:var(--surface2);border-radius:8px;padding:8px;margin-bottom:6px;font-size:12px;"></div>
+          <div style="display:flex;gap:6px;">
+            <input id="as-trade-add-a" class="admin-input" type="text" placeholder="Spieler hinzufügen…" style="flex:1;" list="as-player-suggestions">
+            <button class="admin-btn" onclick="asTradeAddPlayer('A')" style="padding:6px 10px;">+</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Side B gibt ab</div>
+          <select id="as-trade-team-b" class="admin-select" style="width:100%;margin-bottom:8px;"></select>
+          <div id="as-trade-players-b" style="min-height:60px;background:var(--surface2);border-radius:8px;padding:8px;margin-bottom:6px;font-size:12px;"></div>
+          <div style="display:flex;gap:6px;">
+            <input id="as-trade-add-b" class="admin-input" type="text" placeholder="Spieler hinzufügen…" style="flex:1;" list="as-player-suggestions">
+            <button class="admin-btn" onclick="asTradeAddPlayer('B')" style="padding:6px 10px;">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="admin-row" style="margin-top:12px;">
+        <button class="admin-btn green" onclick="asSaveTrade()">💾 Trade speichern &amp; Roster updaten</button>
+        <button class="admin-btn" onclick="asClearTrade()" style="margin-left:8px;">🗑 Leeren</button>
+      </div>
+    </div>
+
+    <!-- Section: ESPN Sync -->
+    <div class="admin-section">
+      <div class="admin-section-title">🔄 ESPN &amp; Daten</div>
+      <div class="admin-row" style="flex-wrap:wrap;gap:10px;">
+        <button class="admin-btn green" onclick="espnSync()">🔄 ESPN Sync jetzt</button>
+        <button id="liveScoresTriggerBtn" class="admin-btn green" onclick="triggerLiveScoresWorkflow()">🚀 Live Scores jetzt aktualisieren</button>
+        <button class="admin-btn" onclick="asResetOverrides()">🧹 Roster-Overrides zurücksetzen</button>
+        <button class="admin-btn red"  onclick="asClearTradeHistory()">🗑 Trade History leeren</button>
+      </div>
+      <div id="as-sync-status" style="margin-top:10px;font-size:12px;color:var(--muted);"></div>
+    </div>
+
+    <!-- Section: ESPN Pick-Trade Diagnose -->
+    <!-- Rein informativ: der eigentliche Diagnoselauf passiert in GitHub
+         Actions, nicht auf der Seite. ESPN kennt keinen Handel mit Picks
+         kuenftiger Jahre, deshalb bleibt die manuelle Pflege sowieso
+         noetig -- diese Box klaert nur, ob 2026er Picks wenigstens
+         teilweise automatisch liefen. -->
+    <div class="admin-section">
+      <div class="admin-section-title">
+        🔍 ESPN Pick-Trade Diagnose
+        <span class="howto" tabindex="0">ⓘ
+          <span class="howto-box">
+            <span class="howto-title">So startest Du die Diagnose</span>
+            <ol>
+              <li>Auf GitHub im Repo <code>Taco-Tuesday-HQ</code> oben auf den Tab <b>Actions</b></li>
+              <li>In der Liste links auf <b>Diagnose – ESPN Pick-Trades</b> klicken</li>
+              <li>Rechts auf <b>Run workflow</b>, das Saison-Feld leer lassen, nochmal <b>Run workflow</b> bestätigen</li>
+              <li>Nach knapp einer Minute läuft ein grüner Haken auf. Draufklicken zeigt den Bericht direkt in der Job-Zusammenfassung</li>
+            </ol>
+            <span class="howto-note">Prüft nur, ob ESPN Pick-Trades überhaupt herausgibt. Ändert nichts an Rostern oder Picks — das Journal weiter unten trägt die tatsächlichen Trades ein.</span>
+          </span>
+        </span>
+      </div>
+      <div class="admin-row">
+        <span style="font-size:12px;color:var(--muted);line-height:1.6;">
+          Läuft manuell in GitHub Actions, nicht hier auf der Seite. Klick auf das ⓘ oben für die Schritte.
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="page page-wide" id="rollingRankingsPage">
+  <div class="rr-layout">
+    <div class="rr-sidebar">
+      <div class="rr-sidebar-header">
+        <div style="flex:1;">
+          <div style="font-size:15px;font-weight:800;color:var(--text);">📈 Rolling Rankings</div>
+          <div id="rrSeasonSubtitle" style="font-size:11px;color:var(--muted);margin-top:2px;">Saison 2025/26</div>
+        </div>
+        <div style="position:relative;">
+          <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;">🔍</span>
+          <input id="rrSearch" class="rr-search" placeholder="Suchen…" oninput="rrFilter()">
+        </div>
+      </div>
+      <div id="rrToolbar" class="rr-toolbar"></div>
+      <div class="rr-list-scroll">
+        <div id="rrListCols" class="rr-list-cols"></div>
+        <div id="rrListBody"></div>
+      </div>
+    </div>
+    <div class="rr-main" id="rrChartPanel">
+      <div style="margin:auto;text-align:center;color:var(--muted);">
+        <div style="font-size:40px;margin-bottom:12px;">📈</div>
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">Spieler auswählen</div>
+        <div style="font-size:13px;">Klicke links auf einen Spieler um seinen Ranking-Verlauf zu sehen</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROLLING RANKINGS SHARE MODAL -->
+<div id="rrShareModalOverlay" class="rr-share-overlay">
+  <div class="rr-share-box">
+    <button class="share-close-btn" onclick="rrCloseShareModal()">✕</button>
+    <div class="share-modal-title">📸 Rolling Rankings Share</div>
+    <div class="rr-style-toggle">
+      <button class="rr-style-btn rr-style-active" data-style="warm" onclick="rrSetShareStyle('warm')">☀️ Warm</button>
+      <button class="rr-style-btn" data-style="dark" onclick="rrSetShareStyle('dark')">🌙 Dark</button>
+    </div>
+    <div id="rrShareCardContent"></div>
+    <div class="share-btn-row">
+      <button class="share-action-btn primary" id="rrDownloadBtn" onclick="rrDownloadShareImage()">💾 Save Image</button>
+    </div>
+  </div>
+</div>
+
+<!-- DRAFT DUEL PAGES -->
+
+<!-- DUEL PAGE -->
+<div class="page" id="duelPage">
+  <div style="max-width:520px;margin:0 auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <h2 style="margin-bottom:3px;">⚡ Draft Duel</h2>
+        <p style="color:var(--muted);font-size:13px;">Wähle den besseren 2026 Prospect</p>
+      </div>
+      <span id="duelAdminBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);">User</span>
+    </div>
+    <div id="duelContent"></div>
+  </div>
+</div>
+
+<!-- DUEL BOARD PAGE -->
+<div class="page" id="duelBoardPage">
+  <div style="max-width:520px;margin:0 auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <h2 style="margin-bottom:3px;">📊 Duel Board</h2>
+        <p style="color:var(--muted);font-size:13px;">Community-Ranking der 2026 Prospects</p>
+      </div>
+      <span id="duelTotalVotesBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--muted);">0 Votes</span>
+    </div>
+    <div id="duelBoardList"></div>
+  </div>
+</div>
+
+<!-- DUEL SETTINGS PAGE -->
+<div class="page" id="duelSettingsPage">
+  <div style="max-width:520px;margin:0 auto;">
+    <h2 style="margin-bottom:20px;">⚙️ Duel Settings</h2>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">🔑 Admin Login</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Admin-PIN eingeben — dein Vote zählt dann 3× so viel</div>
+      <div style="display:flex;gap:8px;">
+        <input type="password" id="duelPinInput" placeholder="PIN eingeben…" maxlength="8"
+          onkeydown="if(event.key==='Enter')duelCheckPin()"
+          style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;border-radius:9px;outline:none;"/>
+        <button onclick="duelCheckPin()" style="background:var(--accent);border:none;color:white;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;">Login</button>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">🗂️ Meine Session</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Deine besuchten Duelle zurücksetzen (globale Votes bleiben erhalten)</div>
+      <button onclick="duelResetMySession()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;">Meine Duelle zurücksetzen</button>
+    </div>
+    <div id="duelAdminOnlySection" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">⚠️ Admin Tools</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Alle globalen Votes löschen — betrifft alle 12 User</div>
+      <button onclick="duelResetAllVotes()" style="background:rgba(255,101,132,.15);border:1px solid rgba(255,101,132,.3);color:#ff6584;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;">Alle Votes löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCOUT MODAL -->
+<div class="scout-modal-overlay" id="scoutModal" onclick="closeScoutModal(event)">
+  <div class="scout-modal">
+    <button class="scout-modal-close" onclick="closeScoutModal()">✕</button>
+    <div class="scout-modal-pick" id="modalPick"></div>
+    <div class="scout-modal-name" id="modalName"></div>
+    <div class="scout-modal-meta" id="modalMeta"></div>
+    <hr class="scout-modal-divider">
+    <div class="scout-modal-label">🔍 Scouting Report</div>
+    <div class="scout-modal-text" id="modalScouting"></div>
+  </div>
+</div>
+
+<!-- 2026 DRAFT BOARD -->
+<div class="page page-wide" id="draft26Page">
+  <h2 style="margin-bottom:6px;">🔎 Prospect Database · 2026 Draft</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Browse-Modus mit Suche · Scouting Reports & Fantasy-Insights · Tier-Struktur fest. Für deine persönliche Rangliste → <a href="#" onclick="showBigBoard();return false;" style="color:var(--accent);text-decoration:underline;">📋 Big Board</a>.</p>
+  <div class="draft26-search">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="draft26Search" placeholder="Search prospect, school, or position…" oninput="filterDraft26()"/>
+  </div>
+  <div id="draft26Grid"></div>
+  <div class="draft26-no-results" id="draft26NoResults" style="display:none;">No prospects found.</div>
+</div>
+
+<!-- 2027 DRAFT BOARD -->
+<div class="page page-wide" id="draft27Page">
+  <h2 style="margin-bottom:6px;">📋 MFHFBs Big Board · 2027 Draft</h2>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Fantasy-gewichtetes Top-20 Board, Stand 08.08.2026 · (abgeglichen mit Dizzle Dynasty, Game Theory Rankings, Ben Pfeifers Archetyp-Board, etc.) · sortiert nach Dynasty-9-cat-Wert, NICHT nach NBA-Draft-Slot. Volle Scouting-Reports &amp; Tape verlinkt zu <a href="https://grindingtape.com/board" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">Grinding Tape</a>.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);"><b style="color:var(--text);">Tier</b> = Fantasy-Archetyp-Qualität (MFHFBs Einschätzung), unabhängig vom NBA-Draft-Slot</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);"><b style="color:var(--text);">Erste Zahl</b> = Aggregat-Rang (Dizzle Dynasty, Game Theory Rankings, Tankathon, etc.)</span>
+    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);"><b style="color:var(--text);">Zweite Zahl</b> = Fantasy-Skillset-Einschätzung (MFHFBs)</span>
+  </div>
+  <div class="draft26-search">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="draft27Search" placeholder="Search prospect, school, or position…" oninput="filterDraft27()"/>
+  </div>
+  <div id="draft27Grid"></div>
+  <div class="draft26-no-results" id="draft27NoResults" style="display:none;">No prospects found.</div>
+</div>
+
+<!-- BIG BOARD (Interactive, Newspaper-Style) -->
+<div class="page page-wide" id="bigBoardPage"></div>
+
+<!-- TRADE CONFIRM MODAL -->
+<div id="tradeConfirmOverlay" onclick="if(event.target===this)closeTradeConfirm()">
+  <div id="tradeConfirmBox">
+    <div class="tcm-title">&#128203; Trade bestätigen</div>
+    <div class="tcm-sub">Prüfe die Roster-Änderungen und bestätige den Transfer</div>
+    <div id="tcmRows"></div>
+    <div class="tcm-btn-row">
+      <button class="tcm-btn cancel" onclick="closeTradeConfirm()">Abbrechen</button>
+      <button class="tcm-btn confirm" onclick="confirmTradeAndSave()">&#10003; Speichern &amp; Roster updaten</button>
+    </div>
+  </div>
+</div>
+
+<!-- CDN -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Data (load first — other scripts depend on these constants) -->
+<script src="data/teams-rosters.js?v=a5d8417f"></script>
+<script src="data/season-2025-26.js?v=58ffb567"></script>
+<script src="data/season-2024-25.js?v=f1d49ae1"></script>
+<script src="data/season-2023-24.js?v=8485cec3"></script>
+<script src="data/season-2022-23.js?v=ca4beb77"></script>
+<script src="data/season-2021-22.js?v=bb837487"></script>
+<script src="data/season-rankings.js?v=51f908be"></script>
+<script src="data/rosters-live.js?v=9cdcf7c7"></script>
+<script src="data/picks.js?v=43f5868b"></script>
+<!-- Auto-Override fuer den bevorstehenden Draft, taeglich aus ESPN --><script src="data/picks-live.js?v=8e0588aa"></script>
+<!-- Wer wen gepickt hat, fuer einen abgeschlossenen Draft. Manuell aktualisiert, siehe scripts/fetch-draft-results-espn.js. NUR diese "active"-Datei einbinden, nicht zusaetzlich data/draft-results-<jahr>.js -- beide deklarieren dieselbe Konstante. --><script src="data/draft-results-active.js?v=c819801f"></script>
+<script src="data/rankings.js?v=3b97f222"></script>
+<script src="data/projections-baseline.js?v=c194f5ad"></script>
+<script src="data/live-projections.js?v=4297f002"></script>
+<script src="data/dynasty-rolling.js?v=5a3bad82"></script>
+<script src="data/dynasty-live.js?v=374db52c"></script>
+<script src="data/hashtag.js?v=79b756a3"></script>
+<script src="data/aliases.js?v=be878c58"></script>
+<script src="data/draft2026.js?v=7795b40e"></script>
+<script src="data/draft2027.js?v=67c40565"></script>
+<script src="data/postdraft-board.js?v=fd7047cd"></script>
+<script src="data/best-available-board.js?v=3310f4ed"></script>
+<script src="data/stats.js?v=7b760995"></script>
+
+<!-- App logic -->
+<script src="js/theme.js?v=5"></script>
+<script src="js/navigation.js?v=5"></script>
+<!-- Gemeinsame Fantasy-Besitz-Logik fuer Projections, NBA Teams und Best Available -->
+<script src="js/fantasy-owner.js?v=1"></script>
+<script src="js/consensus-projections.js?v=1"></script>
+<script src="js/flow-diagram.js?v=1"></script>
+<script src="js/nba-teams.js?v=5"></script>
+<script src="js/standings.js?v=5"></script>
+<script src="js/rankings-ui.js?v=5"></script>
+<!-- Seit 2026-07-31 unangebunden: "Live Projections (Test)" zeigt jetzt den
+     eingebetteten MFHFBs-Toolkit statt der nativen Baseline+Blend-Tabelle,
+     die dieses Script rendert (Details siehe index.html-Kommentar bei
+     liveProjectionsPage). Auskommentiert statt geloescht, siehe README —
+     gleiches Prinzip wie beim Draft-Duel-Block weiter oben.
+<script src="js/live-projections-ui.js?v=1"></script>
+-->
+<script src="js/dynasty-rolling-ui.js?v=1"></script>
+<script src="js/dynasty-edit.js?v=5"></script>
+<script src="js/best-available.js?v=5"></script>
+<script src="js/trade-analyzer.js?v=5"></script>
+<script src="js/trade-finder.js?v=5"></script>
+<script src="data/trade-history.js?v=197e4415"></script>
+<script src="js/trade-history.js?v=6"></script>
+<script src="js/trade-admin.js?v=5"></script>
+<script src="js/draft-duel.js?v=5"></script>
+<script src="js/big-board.js?v=5"></script>
+<script src="data/team-analytics.js?v=04ccc292"></script>
+<script src="js/analytics.js?v=6"></script>
+<script src="js/admin.js?v=5"></script>
+<script src="js/admin-inline.js?v=5"></script>
+<script src="js/admin-settings.js?v=5"></script>
+<script src="js/admin-workflow-trigger.js?v=1"></script>
+<script src="js/espn-sync.js?v=5"></script>
+<script src="js/espn-trade-detect.js?v=5"></script>
+<!-- Muss nach espn-trade-detect.js stehen: nutzt dessen _fetchEspnViaProxy() -->
+<script src="js/matchup-planner.js?v=1"></script>
+
+<!-- Init runs last, after all scripts are loaded -->
+<script src="data/rolling-rankings.js?v=58090396"></script>
+<script src="data/rolling-rankings-2026-27.js?v=ac2c885a"></script>
+  <script src="js/rolling-rankings.js?v=5"></script>
+<script src="data/livescores-daily.js?v=ac7826b0"></script>
+<script src="data/livescores-aggregate.js?v=69091e1d"></script>
+<script src="js/livescores.js?v=6"></script>
+<script src="data/offseason-rankings.js?v=c53883eb"></script>
+<script src="js/player-rankings.js?v=1"></script>
+  <script src="js/init.js?v=5"></script>
+
+<script>
+  // Service Worker existierte im Repo, war aber nie registriert. Er cached
+  // bewusst NICHTS (siehe service-worker.js) -- passt zur No-Cache-Philosophie
+  // der App (siehe Meta-Tags oben) -- erfuellt aber das Installierbarkeits-
+  // Kriterium fuer Android/Chrome (Adressleisten-Icon bzw. Mini-Infobar) und
+  // raeumt beim ersten Aktivieren alte Caches aus fruaheren SW-Versionen auf.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js?v=1').catch(() => {
+        // Kein Beinbruch -- die Seite funktioniert auch ohne SW einwandfrei,
+        // er ist nur fuer die "Installierbar"-Erkennung von Android/Chrome da.
+      });
+    });
+  }
+</script>
+
+</body>
+</html>

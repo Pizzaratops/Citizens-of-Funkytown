@@ -1,0 +1,31 @@
+# ============================================================
+#  CONSENSUS KEEP-LIST — manuelle Ausnahmen
+# ============================================================
+#  scripts/build-consensus-projections.js entfernt standardmaessig
+#  Spieler, die NUR in Beyaz' eigener Baseline stehen (sources==='a')
+#  UND nicht auf einem aktuellen NBA-Roster sind. Grund: von 536
+#  solchen Eintraegen (Stand 17.08.2026) waren 516 tatsaechlich
+#  zurueckgetretene oder laengst aus der Liga verschwundene Spieler
+#  (Mirotic, Wade, Melo, Westbrook, Gasol, uvm.) -- ein Datenrelikt aus
+#  Beyaz' eigenem Baseline-Import, das nie um alte Jahrgaenge bereinigt
+#  wurde.
+#
+#  Zwei unabhaengige externe Projections-Tools (BBM, Hashtag), die
+#  BEIDE einen Spieler auslassen, ist ein starkes Signal, dass fuer die
+#  kommende Saison nichts von ihm erwartet wird. Aktuell gerosterte
+#  Spieler (per ESPN, projections/rosters-data.js) werden davon
+#  ausgenommen -- die bleiben immer erhalten, auch ohne Eintrag hier.
+#
+#  Diese Datei ist NUR fuer den Sonderfall: ein Spieler, den Du
+#  persoenlich fuer relevant haeltst, hat aber GERADE (noch) kein Team
+#  -- Free Agency, Vertragsverhandlung, o.ae. -- und taucht deshalb
+#  weder im ESPN-Rosterfeed noch bei BBM/Hashtag auf.
+#
+#  EIN NAME PRO ZEILE, muss exakt dem Namen in
+#  data/projections-baseline.js entsprechen.
+#
+#  Wirkung: node scripts/build-consensus-projections.js erneut laufen
+#  lassen, damit die Aenderung greift.
+# ============================================================
+
+DeMar DeRozan

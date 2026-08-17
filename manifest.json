@@ -1,0 +1,25 @@
+{
+  "name": "Taco Tuesday HQ",
+  "short_name": "Taco Tuesday HQ",
+  "description": "The Taco Tuesday Fantasy Basketball League",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff5ee",
+  "theme_color": "#fff5ee",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

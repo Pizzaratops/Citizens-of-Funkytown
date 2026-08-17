@@ -1,0 +1,16 @@
+{
+  "league": "nba-summer-las-vegas",
+  "date": "2026-07-14",
+  "games": [
+    "Philadelphia 76ers 64 @ Houston Rockets 90 (Final)",
+    "Sacramento Kings 83 @ Brooklyn Nets 115 (Final)",
+    "Memphis Grizzlies 106 @ Golden State Warriors 85 (Final)",
+    "Washington Wizards 87 @ Chicago Bulls 99 (Final)",
+    "Denver Nuggets 106 @ Oklahoma City Thunder 103 (Final)",
+    "LA Clippers 85 @ Los Angeles Lakers 99 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 45.2,
+    "ft": 72.1
+  }
+}

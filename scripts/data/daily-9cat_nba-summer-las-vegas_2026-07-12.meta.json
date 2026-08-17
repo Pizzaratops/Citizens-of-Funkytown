@@ -1,0 +1,18 @@
+{
+  "league": "nba-summer-las-vegas",
+  "date": "2026-07-12",
+  "games": [
+    "Phoenix Suns 75 @ New Orleans Pelicans 81 (Final)",
+    "Cleveland Cavaliers 94 @ Detroit Pistons 103 (Final)",
+    "Charlotte Hornets 75 @ Boston Celtics 87 (Final)",
+    "Oklahoma City Thunder 79 @ Golden State Warriors 104 (Final)",
+    "Orlando Magic 112 @ Portland Trail Blazers 105 (Final/OT)",
+    "Sacramento Kings 85 @ Washington Wizards 104 (Final)",
+    "San Antonio Spurs 90 @ Milwaukee Bucks 80 (Final)",
+    "LA Clippers 104 @ Utah Jazz 82 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 41.8,
+    "ft": 70.9
+  }
+}

@@ -1,0 +1,906 @@
+{
+  "erstellt": "2026-08-11T21:03:10.417Z",
+  "liga": 44361109,
+  "saisons": [
+    {
+      "saison": 2027,
+      "abgefragt": {
+        "mDraftDetail": {
+          "ok": true,
+          "vorhanden": true,
+          "draftAbgeschlossen": false,
+          "anzahlPicks": 360,
+          "felderJePick": [
+            "autoDraftTypeId",
+            "bidAmount",
+            "id",
+            "keeper",
+            "lineupSlotId",
+            "nominatingTeamId",
+            "overallPickNumber",
+            "owningTeamIds",
+            "playerId",
+            "reservedForKeeper",
+            "roundId",
+            "roundPickNumber",
+            "teamId",
+            "tradeLocked"
+          ],
+          "arrayFelder": [
+            "owningTeamIds"
+          ],
+          "aufHandelPruefbar": 18,
+          "picksMitKettenlaengeUeber1": 5,
+          "erkannteGehandeltePicks": 3,
+          "laengenVerteilungOwningTeamIds": {
+            "1": 13,
+            "2": 2,
+            "3": 3
+          },
+          "beispiele": [
+            {
+              "runde": 1,
+              "pickImDurchgang": 9,
+              "overallPickNumber": 9,
+              "owningTeamIds": [
+                11,
+                1
+              ],
+              "teamId": 11,
+              "vonTeamTT": 6,
+              "anTeamTT": 1
+            },
+            {
+              "runde": 3,
+              "pickImDurchgang": 9,
+              "overallPickNumber": 33,
+              "owningTeamIds": [
+                11,
+                1
+              ],
+              "teamId": 9,
+              "vonTeamTT": 6,
+              "anTeamTT": 1
+            },
+            {
+              "runde": 4,
+              "pickImDurchgang": 11,
+              "overallPickNumber": 47,
+              "owningTeamIds": [
+                2,
+                1,
+                14
+              ],
+              "teamId": 6,
+              "vonTeamTT": 2,
+              "anTeamTT": 10
+            }
+          ]
+        },
+        "mSettings": {
+          "ok": true,
+          "vorhanden": true,
+          "ligaName": "The Taco Tuesday League",
+          "tradeSettingsFelder": [
+            "allowOutOfUniverse",
+            "max",
+            "revisionHours",
+            "vetoVotesRequired"
+          ],
+          "draftSettingsFelder": [
+            "auctionBudget",
+            "availableDate",
+            "date",
+            "isTradingEnabled",
+            "keeperCount",
+            "keeperCountFuture",
+            "keeperDeadlineDate",
+            "keeperDeadlineFutureDate",
+            "keeperOrderType",
+            "leagueSubType",
+            "orderType",
+            "pickOrder",
+            "timePerSelection",
+            "type"
+          ],
+          "draftType": "LINEAR",
+          "pickHandelHinweis": [
+            "pickOrder"
+          ]
+        },
+        "mTransactions2": {
+          "ok": true,
+          "vorhanden": true,
+          "anzahl": 33,
+          "typen": {
+            "TRADE_ACCEPT": 21,
+            "ROSTER": 10,
+            "TRADE_PROPOSAL": 2
+          },
+          "mitItems": 33,
+          "itemTypWerte": [
+            "DRAFT_TRADE",
+            "TRADE",
+            "LINEUP",
+            "DROP"
+          ],
+          "draftTradeAnzahl": 28,
+          "draftTrades": [
+            {
+              "transaktionId": "911192be-68b7-40ca-82b8-1f6623c52c74",
+              "zeitpunkt": "2026-06-15T11:50:15.374Z",
+              "overallPickNumber": 1,
+              "fromTeamEspn": 3,
+              "toTeamEspn": 1,
+              "fromTeamTT": 11,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "c7fc3e68-835f-41da-afb5-3c9bd61ff44b",
+              "zeitpunkt": "2026-06-15T11:53:59.351Z",
+              "overallPickNumber": 2,
+              "fromTeamEspn": 6,
+              "toTeamEspn": 1,
+              "fromTeamTT": 9,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "dd83de8a-64da-4b19-a31f-5d143b13138a",
+              "zeitpunkt": "2026-06-15T11:58:53.158Z",
+              "overallPickNumber": 3,
+              "fromTeamEspn": 8,
+              "toTeamEspn": 1,
+              "fromTeamTT": 7,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "e70d6078-319b-434a-82ce-b674571a72c4",
+              "zeitpunkt": "2026-06-15T11:58:26.685Z",
+              "overallPickNumber": 4,
+              "fromTeamEspn": 7,
+              "toTeamEspn": 1,
+              "fromTeamTT": 4,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "a121957f-b3ab-41df-85fb-a54e9216bcdf",
+              "zeitpunkt": "2026-06-15T11:59:44.915Z",
+              "overallPickNumber": 5,
+              "fromTeamEspn": 9,
+              "toTeamEspn": 8,
+              "fromTeamTT": 12,
+              "toTeamTT": 7
+            },
+            {
+              "transaktionId": "636e1f6b-d234-4994-bc41-18e7d3332936",
+              "zeitpunkt": "2026-06-15T12:00:02.565Z",
+              "overallPickNumber": 6,
+              "fromTeamEspn": 14,
+              "toTeamEspn": 1,
+              "fromTeamTT": 10,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "0edc6411-fee7-44a7-b670-e762e436147c",
+              "zeitpunkt": "2026-06-15T11:57:41.870Z",
+              "overallPickNumber": 9,
+              "fromTeamEspn": 11,
+              "toTeamEspn": 1,
+              "fromTeamTT": 6,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "362073e3-f2d7-4cdf-9db3-2d75212d432c",
+              "zeitpunkt": "2026-08-05T12:40:04.537Z",
+              "overallPickNumber": 9,
+              "fromTeamEspn": 1,
+              "toTeamEspn": 11,
+              "fromTeamTT": 1,
+              "toTeamTT": 6
+            },
+            {
+              "transaktionId": "03add6ac-f0c0-4149-9d2b-733f401b4d20",
+              "zeitpunkt": "2026-06-15T11:56:50.256Z",
+              "overallPickNumber": 10,
+              "fromTeamEspn": 4,
+              "toTeamEspn": 1,
+              "fromTeamTT": 3,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "5f9a2c51-ce1f-419f-b031-c2999202c5bc",
+              "zeitpunkt": "2026-06-15T12:18:23.843Z",
+              "overallPickNumber": 11,
+              "fromTeamEspn": 2,
+              "toTeamEspn": 3,
+              "fromTeamTT": 2,
+              "toTeamTT": 11
+            },
+            {
+              "transaktionId": "a6359ea1-9eb4-4d34-8586-834a3e14f7ce",
+              "zeitpunkt": "2026-08-11T08:16:41.209Z",
+              "overallPickNumber": 13,
+              "fromTeamEspn": 3,
+              "toTeamEspn": 1,
+              "fromTeamTT": 11,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "b3181c44-6c4c-4ffa-bd2e-36f18a4c0c6f",
+              "zeitpunkt": "2026-08-11T08:16:39.794Z",
+              "overallPickNumber": 13,
+              "fromTeamEspn": 3,
+              "toTeamEspn": 1,
+              "fromTeamTT": 11,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "89842a8f-edac-432b-a57b-346d6a26cc54",
+              "zeitpunkt": "2026-08-11T11:37:33.057Z",
+              "overallPickNumber": 13,
+              "fromTeamEspn": 3,
+              "toTeamEspn": 1,
+              "fromTeamTT": 11,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "457b49b6-8cf3-44e1-9fc2-649d7b56d72a",
+              "zeitpunkt": "2026-08-11T09:28:19.876Z",
+              "overallPickNumber": 24,
+              "fromTeamEspn": 1,
+              "toTeamEspn": 9,
+              "fromTeamTT": 1,
+              "toTeamTT": 12
+            },
+            {
+              "transaktionId": "ab6da814-fc4d-4d32-bc1e-3759c0de08f5",
+              "zeitpunkt": "2026-06-15T11:59:25.676Z",
+              "overallPickNumber": 27,
+              "fromTeamEspn": 8,
+              "toTeamEspn": 9,
+              "fromTeamTT": 7,
+              "toTeamTT": 12
+            },
+            {
+              "transaktionId": "ab6da814-fc4d-4d32-bc1e-3759c0de08f5",
+              "zeitpunkt": "2026-06-15T11:59:25.676Z",
+              "overallPickNumber": 29,
+              "fromTeamEspn": 9,
+              "toTeamEspn": 8,
+              "fromTeamTT": 12,
+              "toTeamTT": 7
+            },
+            {
+              "transaktionId": "457b49b6-8cf3-44e1-9fc2-649d7b56d72a",
+              "zeitpunkt": "2026-08-11T09:28:19.876Z",
+              "overallPickNumber": 33,
+              "fromTeamEspn": 1,
+              "toTeamEspn": 9,
+              "fromTeamTT": 1,
+              "toTeamTT": 12
+            },
+            {
+              "transaktionId": "0edc6411-fee7-44a7-b670-e762e436147c",
+              "zeitpunkt": "2026-06-15T11:57:41.870Z",
+              "overallPickNumber": 33,
+              "fromTeamEspn": 11,
+              "toTeamEspn": 1,
+              "fromTeamTT": 6,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "c3635958-a71a-490a-973a-e19bdaa1fa44",
+              "zeitpunkt": "2026-06-15T12:02:19.955Z",
+              "overallPickNumber": 35,
+              "fromTeamEspn": 2,
+              "toTeamEspn": 6,
+              "fromTeamTT": 2,
+              "toTeamTT": 9
+            },
+            {
+              "transaktionId": "457b49b6-8cf3-44e1-9fc2-649d7b56d72a",
+              "zeitpunkt": "2026-08-11T09:28:19.876Z",
+              "overallPickNumber": 36,
+              "fromTeamEspn": 1,
+              "toTeamEspn": 9,
+              "fromTeamTT": 1,
+              "toTeamTT": 12
+            },
+            {
+              "transaktionId": "c37a6b7c-83b8-4b9e-9be5-66fd1c093e56",
+              "zeitpunkt": "2026-06-15T11:55:00.798Z",
+              "overallPickNumber": 36,
+              "fromTeamEspn": 6,
+              "toTeamEspn": 1,
+              "fromTeamTT": 9,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "c7fc3e68-835f-41da-afb5-3c9bd61ff44b",
+              "zeitpunkt": "2026-06-15T11:53:59.351Z",
+              "overallPickNumber": 36,
+              "fromTeamEspn": 1,
+              "toTeamEspn": 6,
+              "fromTeamTT": 1,
+              "toTeamTT": 9
+            },
+            {
+              "transaktionId": "c6c97d20-d9bb-41cb-b674-7ab88233ea6d",
+              "zeitpunkt": "2026-06-15T12:16:01.543Z",
+              "overallPickNumber": 47,
+              "fromTeamEspn": 14,
+              "toTeamEspn": 6,
+              "fromTeamTT": 10,
+              "toTeamTT": 9
+            },
+            {
+              "transaktionId": "cf3c9c02-2a72-4ce6-b7aa-b0fb7a07ac41",
+              "zeitpunkt": "2026-06-15T11:55:40.832Z",
+              "overallPickNumber": 47,
+              "fromTeamEspn": 2,
+              "toTeamEspn": 1,
+              "fromTeamTT": 2,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "b95b3059-5ef4-4678-9d37-c1367e3c4a70",
+              "zeitpunkt": "2026-06-15T12:14:28.369Z",
+              "overallPickNumber": 47,
+              "fromTeamEspn": 1,
+              "toTeamEspn": 14,
+              "fromTeamTT": 1,
+              "toTeamTT": 10
+            },
+            {
+              "transaktionId": "ce630e92-a043-498b-929c-cac01b306f0e",
+              "zeitpunkt": "2026-06-15T12:17:53.407Z",
+              "overallPickNumber": 48,
+              "fromTeamEspn": 1,
+              "toTeamEspn": 2,
+              "fromTeamTT": 1,
+              "toTeamTT": 2
+            },
+            {
+              "transaktionId": "c37a6b7c-83b8-4b9e-9be5-66fd1c093e56",
+              "zeitpunkt": "2026-06-15T11:55:00.798Z",
+              "overallPickNumber": 48,
+              "fromTeamEspn": 6,
+              "toTeamEspn": 1,
+              "fromTeamTT": 9,
+              "toTeamTT": 1
+            },
+            {
+              "transaktionId": "c7fc3e68-835f-41da-afb5-3c9bd61ff44b",
+              "zeitpunkt": "2026-06-15T11:53:59.351Z",
+              "overallPickNumber": 48,
+              "fromTeamEspn": 1,
+              "toTeamEspn": 6,
+              "fromTeamTT": 1,
+              "toTeamTT": 9
+            }
+          ]
+        },
+        "mPendingTransactions": {
+          "ok": true,
+          "vorhanden": false,
+          "hinweis": "Keine transactions in der Antwort."
+        }
+      },
+      "kreuzabgleich": [
+        {
+          "overallPickNumber": 1,
+          "ausTransaktionen_finalToTeamTT": 1,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 1,
+            "teamId": 1,
+            "teamIdTT": 1,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              3
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 2,
+          "ausTransaktionen_finalToTeamTT": 1,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 2,
+            "teamId": 1,
+            "teamIdTT": 1,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              6
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 3,
+          "ausTransaktionen_finalToTeamTT": 1,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 3,
+            "teamId": 1,
+            "teamIdTT": 1,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              8
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 4,
+          "ausTransaktionen_finalToTeamTT": 1,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 4,
+            "teamId": 1,
+            "teamIdTT": 1,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              7
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 5,
+          "ausTransaktionen_finalToTeamTT": 7,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 5,
+            "teamId": 8,
+            "teamIdTT": 7,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              9
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 6,
+          "ausTransaktionen_finalToTeamTT": 1,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 6,
+            "teamId": 1,
+            "teamIdTT": 1,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              14
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 9,
+          "ausTransaktionen_finalToTeamTT": 6,
+          "anzahlEventsFuerDiesenPick": 2,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 9,
+            "teamId": 11,
+            "teamIdTT": 6,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              11,
+              1
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 10,
+          "ausTransaktionen_finalToTeamTT": 1,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 10,
+            "teamId": 1,
+            "teamIdTT": 1,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              4
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 11,
+          "ausTransaktionen_finalToTeamTT": 11,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 1,
+            "roundPickNumber": 11,
+            "teamId": 3,
+            "teamIdTT": 11,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              2
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 13,
+          "ausTransaktionen_finalToTeamTT": 1,
+          "anzahlEventsFuerDiesenPick": 3,
+          "draftDetailRoh": {
+            "roundId": 2,
+            "roundPickNumber": 1,
+            "teamId": 1,
+            "teamIdTT": 1,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              3
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 24,
+          "ausTransaktionen_finalToTeamTT": 12,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 2,
+            "roundPickNumber": 12,
+            "teamId": 9,
+            "teamIdTT": 12,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              1
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 27,
+          "ausTransaktionen_finalToTeamTT": 12,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 3,
+            "roundPickNumber": 3,
+            "teamId": 9,
+            "teamIdTT": 12,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              8
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 29,
+          "ausTransaktionen_finalToTeamTT": 7,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 3,
+            "roundPickNumber": 5,
+            "teamId": 8,
+            "teamIdTT": 7,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              9
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 33,
+          "ausTransaktionen_finalToTeamTT": 12,
+          "anzahlEventsFuerDiesenPick": 2,
+          "draftDetailRoh": {
+            "roundId": 3,
+            "roundPickNumber": 9,
+            "teamId": 9,
+            "teamIdTT": 12,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              11,
+              1
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 35,
+          "ausTransaktionen_finalToTeamTT": 9,
+          "anzahlEventsFuerDiesenPick": 1,
+          "draftDetailRoh": {
+            "roundId": 3,
+            "roundPickNumber": 11,
+            "teamId": 6,
+            "teamIdTT": 9,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              2
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 36,
+          "ausTransaktionen_finalToTeamTT": 12,
+          "anzahlEventsFuerDiesenPick": 3,
+          "draftDetailRoh": {
+            "roundId": 3,
+            "roundPickNumber": 12,
+            "teamId": 9,
+            "teamIdTT": 12,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              1,
+              6,
+              1
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 47,
+          "ausTransaktionen_finalToTeamTT": 9,
+          "anzahlEventsFuerDiesenPick": 3,
+          "draftDetailRoh": {
+            "roundId": 4,
+            "roundPickNumber": 11,
+            "teamId": 6,
+            "teamIdTT": 9,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              2,
+              1,
+              14
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        },
+        {
+          "overallPickNumber": 48,
+          "ausTransaktionen_finalToTeamTT": 2,
+          "anzahlEventsFuerDiesenPick": 3,
+          "draftDetailRoh": {
+            "roundId": 4,
+            "roundPickNumber": 12,
+            "teamId": 2,
+            "teamIdTT": 2,
+            "nominatingTeamId": 0,
+            "nominatingTeamIdTT": null,
+            "owningTeamIds": [
+              1,
+              6,
+              1
+            ],
+            "teamIdStimmtMitTransaktionUeberein": true
+          }
+        }
+      ],
+      "bewertung": "JA: mTransactions2 enthält 28 DRAFT_TRADE-Einträge für 2027, jeder mit eindeutigem fromTeamId/toTeamId/overallPickNumber. Das ist eine gerichtete, unzweideutige Aufzeichnung -- der verlässlichere Fund gegenüber draftDetail.owningTeamIds. Siehe \"draftTrades\" im Bericht."
+    },
+    {
+      "saison": 2026,
+      "abgefragt": {
+        "mDraftDetail": {
+          "ok": true,
+          "vorhanden": true,
+          "draftAbgeschlossen": true,
+          "anzahlPicks": 406,
+          "felderJePick": [
+            "autoDraftTypeId",
+            "bidAmount",
+            "id",
+            "keeper",
+            "lineupSlotId",
+            "memberId",
+            "nominatingTeamId",
+            "overallPickNumber",
+            "owningTeamIds",
+            "playerId",
+            "reservedForKeeper",
+            "roundId",
+            "roundPickNumber",
+            "teamId",
+            "tradeLocked"
+          ],
+          "arrayFelder": [
+            "owningTeamIds"
+          ],
+          "aufHandelPruefbar": 23,
+          "picksMitKettenlaengeUeber1": 9,
+          "erkannteGehandeltePicks": 8,
+          "laengenVerteilungOwningTeamIds": {
+            "1": 14,
+            "2": 7,
+            "3": 2
+          },
+          "beispiele": [
+            {
+              "runde": 1,
+              "pickImDurchgang": 6,
+              "overallPickNumber": 6,
+              "owningTeamIds": [
+                3,
+                1
+              ],
+              "teamId": 3,
+              "vonTeamTT": 11,
+              "anTeamTT": 1
+            },
+            {
+              "runde": 2,
+              "pickImDurchgang": 8,
+              "overallPickNumber": 22,
+              "owningTeamIds": [
+                2,
+                1
+              ],
+              "teamId": 14,
+              "vonTeamTT": 2,
+              "anTeamTT": 1
+            },
+            {
+              "runde": 3,
+              "pickImDurchgang": 13,
+              "overallPickNumber": 41,
+              "owningTeamIds": [
+                12,
+                1
+              ],
+              "teamId": 14,
+              "vonTeamTT": null,
+              "anTeamTT": 1
+            },
+            {
+              "runde": 3,
+              "pickImDurchgang": 14,
+              "overallPickNumber": 42,
+              "owningTeamIds": [
+                13,
+                1
+              ],
+              "teamId": 9,
+              "vonTeamTT": null,
+              "anTeamTT": 1
+            },
+            {
+              "runde": 4,
+              "pickImDurchgang": 3,
+              "overallPickNumber": 45,
+              "owningTeamIds": [
+                9,
+                1
+              ],
+              "teamId": 3,
+              "vonTeamTT": 12,
+              "anTeamTT": 1
+            },
+            {
+              "runde": 4,
+              "pickImDurchgang": 9,
+              "overallPickNumber": 51,
+              "owningTeamIds": [
+                3,
+                1
+              ],
+              "teamId": 2,
+              "vonTeamTT": 11,
+              "anTeamTT": 1
+            },
+            {
+              "runde": 5,
+              "pickImDurchgang": 6,
+              "overallPickNumber": 62,
+              "owningTeamIds": [
+                3,
+                1,
+                2
+              ],
+              "teamId": 1,
+              "vonTeamTT": 11,
+              "anTeamTT": 2
+            },
+            {
+              "runde": 6,
+              "pickImDurchgang": 11,
+              "overallPickNumber": 81,
+              "owningTeamIds": [
+                14,
+                1
+              ],
+              "teamId": 13,
+              "vonTeamTT": 10,
+              "anTeamTT": 1
+            }
+          ]
+        },
+        "mSettings": {
+          "ok": true,
+          "vorhanden": true,
+          "ligaName": "The Taco Tuesday League",
+          "tradeSettingsFelder": [
+            "allowOutOfUniverse",
+            "max",
+            "revisionHours",
+            "vetoVotesRequired"
+          ],
+          "draftSettingsFelder": [
+            "auctionBudget",
+            "availableDate",
+            "date",
+            "isTradingEnabled",
+            "keeperCount",
+            "keeperCountFuture",
+            "keeperDeadlineDate",
+            "keeperDeadlineFutureDate",
+            "keeperOrderType",
+            "leagueSubType",
+            "orderType",
+            "pickOrder",
+            "timePerSelection",
+            "type"
+          ],
+          "draftType": "SNAKE",
+          "pickHandelHinweis": [
+            "pickOrder"
+          ]
+        },
+        "mTransactions2": {
+          "ok": true,
+          "vorhanden": true,
+          "anzahl": 29,
+          "typen": {
+            "TRADE_UPHOLD": 3,
+            "ROSTER": 15,
+            "TRADE_PROPOSAL": 1,
+            "TRADE_ACCEPT": 6,
+            "FREEAGENT": 1,
+            "TRADE_DECLINE": 3
+          },
+          "mitItems": 21,
+          "itemTypWerte": [
+            "DROP",
+            "LINEUP",
+            "TRADE",
+            "ADD"
+          ],
+          "draftTradeAnzahl": 0,
+          "draftTrades": []
+        },
+        "mPendingTransactions": {
+          "ok": true,
+          "vorhanden": false,
+          "hinweis": "Keine transactions in der Antwort."
+        }
+      },
+      "kreuzabgleich": [],
+      "bewertung": "JA (schwächer): draftDetail.owningTeamIds zeigt für 2026 8 Pick(s) mit abweichender Kette, aber keine DRAFT_TRADE-Einträge im Transaktionsprotokoll gefunden. Vorsicht: teamId und der letzte Ketteneintrag stimmten in Stichproben nicht immer überein."
+    }
+  ]
+}

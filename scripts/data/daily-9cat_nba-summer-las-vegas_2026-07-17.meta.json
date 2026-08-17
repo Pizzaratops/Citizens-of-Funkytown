@@ -1,0 +1,16 @@
+{
+  "league": "nba-summer-las-vegas",
+  "date": "2026-07-17",
+  "games": [
+    "Sacramento Kings 92 @ Charlotte Hornets 90 (Final)",
+    "Chicago Bulls 91 @ Cleveland Cavaliers 100 (Final)",
+    "Dallas Mavericks 110 @ New York Knicks 88 (Final)",
+    "Detroit Pistons 87 @ Miami Heat 101 (Final)",
+    "Portland Trail Blazers 79 @ Utah Jazz 83 (Final)",
+    "Minnesota Timberwolves 120 @ LA Clippers 128 (Final/OT)"
+  ],
+  "leagueAvg": {
+    "fg": 44.4,
+    "ft": 72.2
+  }
+}

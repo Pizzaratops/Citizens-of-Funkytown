@@ -1,0 +1,13 @@
+{
+  "league": "nba-summer-las-vegas",
+  "date": "2026-07-19",
+  "games": [
+    "Brooklyn Nets 108 @ Oklahoma City Thunder 90 (Final)",
+    "Denver Nuggets 96 @ Toronto Raptors 89 (Final)",
+    "Golden State Warriors 94 @ Memphis Grizzlies 90 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 45.2,
+    "ft": 67.5
+  }
+}

@@ -1,0 +1,34 @@
+# ============================================================
+#  PICK-TRADE-JOURNAL — nur fuer Picks, die ESPN NIE sieht
+# ============================================================
+#  ESPN modelliert immer nur den unmittelbar bevorstehenden Draft
+#  (aktuell TTHQ-Jahr 2026, automatisch abgeglichen von
+#  scripts/sync-espn-picks.js). Ein Trade, der einen Pick fuer den
+#  Draft DANACH bewegt (TTHQ-Jahr 2027 und spaeter), taucht bei ESPN
+#  in keiner API auf -- dafuer ist diese Datei da.
+#
+#  EINE ZEILE PRO GEHANDELTEM PICK. Format, mit Komma getrennt:
+#    datum, jahr, runde, originalOwner, neuerBesitzer, notiz
+#
+#  - datum:        wann eingetragen (nur zur Nachvollziehbarkeit)
+#  - jahr:         TTHQ-Jahr des Drafts (2027, 2028, 2029 ...)
+#  - runde:        1-4
+#  - originalOwner: TT-Team-ID, der das (year,round,originalOwner)-Tripel
+#                   in data/picks.js bereits zugeordnet ist -- NICHT wer
+#                   den Pick gerade abgibt. Im Zweifel im Admin unter
+#                   "Pick uebertragen" nachsehen, welches Tripel gemeint ist.
+#  - neuerBesitzer: TT-Team-ID, die den Pick jetzt haelt
+#  - notiz:         frei, taucht im Diff/Log auf
+#
+#  Anwenden: node scripts/apply-pick-journal.js
+#  Laeuft NICHT automatisch taeglich (anders als der ESPN-Pick-Sync),
+#  weil hier ein Mensch den Trade erst eintragen muss -- das Script
+#  wendet nur an, was hier steht. Am einfachsten nach jeder neuen Zeile
+#  einmal von Hand laufen lassen, oder ueber GitHub Actions "Run workflow"
+#  (falls als eigener Schritt eingerichtet).
+#
+#  Team-IDs siehe data/teams-rosters.js (TEAMS-Array).
+# ============================================================
+
+2026-08-11, 2027, 2, 12, 1, Vancouver Curry-Wurst (Andreas) 2027 R2 an Fighting Illini -- Gegenzug zum 11.08. Trade (2x 2026 R3 + 2026 R2 gingen im ESPN-Pick-Sync automatisch an Vancouver)
+2026-08-12, 2028, 1, 6, 1, 3-Point Mafia 2028 R1 an Fighting Illini -- Gegenzug: FI gibt 2026 R1 Slot 9 (originalOwner 6, urspruenglich von 3PM erworben) zurueck an 3-Point Mafia. Diese Seite laeuft automatisch ueber den ESPN Pick-Sync (Trade ist bereits in ESPN eingetragen), hier nur der weit-voraus-Leg.

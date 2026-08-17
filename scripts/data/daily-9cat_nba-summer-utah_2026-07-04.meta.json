@@ -1,0 +1,12 @@
+{
+  "league": "nba-summer-utah",
+  "date": "2026-07-04",
+  "games": [
+    "Memphis Grizzlies 111 @ Oklahoma City Thunder 74 (Final)",
+    "Atlanta Hawks 102 @ Utah Jazz 103 (Final/OT)"
+  ],
+  "leagueAvg": {
+    "fg": 47.4,
+    "ft": 67.9
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "league": "nba-summer-california",
+  "date": "2026-07-06",
+  "games": [
+    "Los Angeles Lakers 88 @ San Antonio Spurs 84 (Final)",
+    "Golden State Warriors Blue 79 @ Brooklyn Nets 100 (Final)",
+    "Miami Heat 95 @ Golden State Warriors Gold 85 (Final)",
+    "Milwaukee Bucks 89 @ Sacramento Kings 95 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 43.6,
+    "ft": 69.1
+  }
+}
