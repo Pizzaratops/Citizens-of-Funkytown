@@ -1,0 +1,61 @@
+name: Backfill 9cat Live Scores (manuell)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'all-summer-2026 (California + SLC + Vegas laut Zeitplan) oder custom'
+        required: true
+        default: 'all-summer-2026'
+        type: choice
+        options:
+          - all-summer-2026
+          - custom
+      league:
+        description: 'Nur bei mode=custom: ESPN League-Slug (z.B. nba-summer-california)'
+        required: false
+      from:
+        description: 'Nur bei mode=custom: Startdatum YYYY-MM-DD'
+        required: false
+      to:
+        description: 'Nur bei mode=custom: Enddatum YYYY-MM-DD (leer = nur "from")'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Backfill ausführen
+        run: |
+          if [ "${{ github.event.inputs.mode }}" = "all-summer-2026" ]; then
+            node scripts/backfill-9cat.js --all-summer-2026
+          else
+            node scripts/backfill-9cat.js --league="${{ github.event.inputs.league }}" --from="${{ github.event.inputs.from }}" --to="${{ github.event.inputs.to }}"
+          fi
+
+      - name: Weekly/Monthly aktualisieren (alle Standorte kombiniert)
+        run: |
+          node scripts/update-all-aggregates.js --keep=180
+
+      - name: Änderungen committen & pushen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/livescores-daily.js data/livescores-aggregate.js scripts/data/
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen."
+          else
+            git commit -m "Live Scores: Backfill $(date -u +%Y-%m-%d)"
+            git push
+          fi

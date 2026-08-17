@@ -1,0 +1,49 @@
+name: Projections – Update ADP Data
+
+# Baut projections/adp-data.js automatisch neu, sobald neue
+# Draft-Result-CSVs nach projections/data/draft-results/ gepusht werden
+# (z.B. per GitHub-Web-Upload direkt im Browser: Ordner öffnen ->
+# "Add file" -> "Upload files"). Committet das Ergebnis automatisch
+# zurück. Kann auch manuell angestoßen werden (Actions-Tab -> "Projections
+# – Update ADP Data" -> "Run workflow").
+#
+# Übernommen 1:1 aus dem eigenständigen MFHFBs-NBA-Projections-Repo,
+# jetzt Unterordner projections/ in Taco Tuesday HQ.
+
+on:
+  push:
+    paths:
+      - "projections/data/draft-results/**.csv"
+      - "projections/data/fantrax-adp.csv"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-adp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo auschecken
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: ADP-Daten neu bauen
+        working-directory: projections
+        run: python3 scripts/build-adp-data.py
+
+      - name: Änderungen committen, falls vorhanden
+        run: |
+          git config user.name "mfhfb-adp-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add projections/adp-data.js
+          if git diff --cached --quiet; then
+            echo "Keine ADP-Änderungen."
+          else
+            git commit -m "Projections: Automatisches ADP-Update ($(date -u +%Y-%m-%d))"
+            git push
+          fi

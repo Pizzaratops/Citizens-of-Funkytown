@@ -1,0 +1,69 @@
+name: Diagnose – ESPN Pick-Trades
+
+# Prüft einmalig, ob ESPN für die Liga irgendwo gehandelte Draft-Picks
+# herausgibt (siehe scripts/probe-espn-picks.js für den Hintergrund:
+# ein Trade, der nur Picks bewegt, ändert keinen Kader und ist für die
+# tägliche Trade-Erkennung deshalb unsichtbar).
+#
+# BEWUSST rein manuell (workflow_dispatch, kein schedule): das ist eine
+# einmalige Erkundung, kein wiederkehrender Job. Läuft im Actions-Tab
+# unter "Diagnose – ESPN Pick-Trades" -> "Run workflow".
+#
+# Committet nur den Bericht unter scripts/data/espn-pick-probe.json,
+# sonst nichts. Ändert nie Roster- oder Pick-Daten.
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "Optional: nur eine Saison prüfen (z.B. 2026). Leer lassen für Standard (aktuelle + vorherige Saison)."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo auschecken
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: ESPN-Views abfragen
+        run: |
+          if [ -n "${{ github.event.inputs.season }}" ]; then
+            node scripts/probe-espn-picks.js --season "${{ github.event.inputs.season }}"
+          else
+            node scripts/probe-espn-picks.js
+          fi
+
+      - name: Bericht in der Job-Zusammenfassung anzeigen
+        if: always()
+        run: |
+          echo "## ESPN Pick-Trade Diagnose" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f scripts/data/espn-pick-probe.json ]; then
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat scripts/data/espn-pick-probe.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Kein Bericht erzeugt — das Script ist vor dem Schreiben fehlgeschlagen." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Bericht committen & pushen
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add scripts/data/espn-pick-probe.json
+          if git diff --staged --quiet; then
+            echo "Kein neuer Bericht, nichts zu committen."
+          else
+            git commit -m "ESPN Pick-Trade Diagnose ($(date -u +%Y-%m-%d))"
+            git push
+          fi

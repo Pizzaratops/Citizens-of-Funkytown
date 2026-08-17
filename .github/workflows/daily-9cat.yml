@@ -1,0 +1,242 @@
+name: Daily 9cat Live Scores
+
+on:
+  schedule:
+    # ACHTUNG (05.08.2026): Ursprünglich lief dieser Workflow nativ nur
+    # 06-08 Uhr + 22 Uhr Berlin; die Abdeckung tagsüber dazwischen sollte
+    # der externe cron-job.org-Trigger übernehmen. Der ist an diesem Tag
+    # ab ca. 08:35 Uhr ausgefallen (kein einziger Trigger mehr bis in den
+    # Abend) — ein Trade um 15:15 Uhr wurde dadurch stundenlang nicht
+    # erkannt, weil scripts/sync-espn-rosters.js (und damit die
+    # automatische Trade-Erkennung) schlicht nicht lief. Seitdem läuft
+    # dieser Workflow nativ halbstündlich 06-22 Uhr Berlin durch —
+    # braucht cron-job.org als Tagesabdeckung nicht mehr, das kostet bei
+    # einem öffentlichen Repo nichts (GitHub Actions ist dort unlimitiert).
+    # cron-job.org kann als zusätzliche Redundanz bestehen bleiben, ist
+    # aber nicht mehr die einzige Absicherung für die Tagesstunden.
+    #
+    # Minute bewusst auf :07/:37 statt :00/:30 gelegt — GitHub selbst empfiehlt das,
+    # weil Cron-Jobs exakt zur vollen (halben) Stunde am ehesten verzögert oder bei
+    # hoher Last ganz übersprungen werden. Der Zeit-Check-Step unten prüft
+    # nur die Stunde, nicht die Minute, das funktioniert also unverändert.
+    #
+    # Jede Berlin-Zeit erscheint zweimal (Sommer- und Winter-UTC-Offset),
+    # der Zeit-Check-Step unten filtert zur Laufzeit anhand der
+    # tatsächlichen Berlin-Stunde, welcher der beiden Läufe wirklich
+    # arbeitet -- der andere bricht sofort ab. Kein manuelles Umstellen
+    # zur Zeitumstellung nötig.
+    - cron: '7 4 * * *'    # 06:07 Berlin (Sommer)
+    - cron: '7 5 * * *'    # 06:07 Berlin (Winter) / 07:07 Berlin (Sommer)
+    - cron: '37 4 * * *'   # 06:37 Berlin (Sommer)
+    - cron: '37 5 * * *'   # 06:37 Berlin (Winter) / 07:37 Berlin (Sommer)
+    - cron: '7 6 * * *'    # 07:07 Berlin (Winter) / 08:07 Berlin (Sommer)
+    - cron: '37 6 * * *'   # 07:37 Berlin (Winter) / 08:37 Berlin (Sommer)
+    - cron: '7 7 * * *'    # 08:07 Berlin (Winter) / 09:07 Berlin (Sommer)
+    - cron: '37 7 * * *'   # 08:37 Berlin (Winter) / 09:37 Berlin (Sommer)
+    - cron: '7 8 * * *'    # 09:07 Berlin (Winter) / 10:07 Berlin (Sommer)
+    - cron: '37 8 * * *'   # 09:37 Berlin (Winter) / 10:37 Berlin (Sommer)
+    - cron: '7 9 * * *'    # 10:07 Berlin (Winter) / 11:07 Berlin (Sommer)
+    - cron: '37 9 * * *'   # 10:37 Berlin (Winter) / 11:37 Berlin (Sommer)
+    - cron: '7 10 * * *'   # 11:07 Berlin (Winter) / 12:07 Berlin (Sommer)
+    - cron: '37 10 * * *'  # 11:37 Berlin (Winter) / 12:37 Berlin (Sommer)
+    - cron: '7 11 * * *'   # 12:07 Berlin (Winter) / 13:07 Berlin (Sommer)
+    - cron: '37 11 * * *'  # 12:37 Berlin (Winter) / 13:37 Berlin (Sommer)
+    - cron: '7 12 * * *'   # 13:07 Berlin (Winter) / 14:07 Berlin (Sommer)
+    - cron: '37 12 * * *'  # 13:37 Berlin (Winter) / 14:37 Berlin (Sommer)
+    - cron: '7 13 * * *'   # 14:07 Berlin (Winter) / 15:07 Berlin (Sommer)
+    - cron: '37 13 * * *'  # 14:37 Berlin (Winter) / 15:37 Berlin (Sommer)
+    - cron: '7 14 * * *'   # 15:07 Berlin (Winter) / 16:07 Berlin (Sommer)
+    - cron: '37 14 * * *'  # 15:37 Berlin (Winter) / 16:37 Berlin (Sommer)
+    - cron: '7 15 * * *'   # 16:07 Berlin (Winter) / 17:07 Berlin (Sommer)
+    - cron: '37 15 * * *'  # 16:37 Berlin (Winter) / 17:37 Berlin (Sommer)
+    - cron: '7 16 * * *'   # 17:07 Berlin (Winter) / 18:07 Berlin (Sommer)
+    - cron: '37 16 * * *'  # 17:37 Berlin (Winter) / 18:37 Berlin (Sommer)
+    - cron: '7 17 * * *'   # 18:07 Berlin (Winter) / 19:07 Berlin (Sommer)
+    - cron: '37 17 * * *'  # 18:37 Berlin (Winter) / 19:37 Berlin (Sommer)
+    - cron: '7 18 * * *'   # 19:07 Berlin (Winter) / 20:07 Berlin (Sommer)
+    - cron: '37 18 * * *'  # 19:37 Berlin (Winter) / 20:37 Berlin (Sommer)
+    - cron: '7 19 * * *'   # 20:07 Berlin (Winter) / 21:07 Berlin (Sommer)
+    - cron: '37 19 * * *'  # 20:37 Berlin (Winter) / 21:37 Berlin (Sommer)
+    - cron: '7 20 * * *'   # 21:07 Berlin (Winter) / 22:07 Berlin (Sommer)
+    - cron: '37 20 * * *'  # 21:37 Berlin (Winter) / 22:37 Berlin (Sommer)
+    - cron: '7 21 * * *'   # 22:07 Berlin (Winter)
+
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Datum (YYYY-MM-DD), leer = heute'
+        required: false
+      league:
+        description: 'ESPN League-Slug'
+        required: false
+        default: 'nba-summer-las-vegas'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-9cat
+  cancel-in-progress: false
+
+jobs:
+  update-live-scores:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prüfe ob aktuelle Zeit 6-22 Uhr Berlin ist
+        id: check_time
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manueller Start, Zeit-Check wird übersprungen."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          HOUR=$(TZ=Europe/Berlin date +%H)
+          echo "hour=${HOUR}" >> "$GITHUB_OUTPUT"
+          # Zahlenvergleich statt langer OR-Kette (Grund fuer die
+          # 05.08.2026-Erweiterung siehe Kommentar beim Cron-Zeitplan oben).
+          if [ "$HOUR" -ge 6 ] && [ "$HOUR" -le 22 ]; then
+            echo "Berlin-Zeit ist ${HOUR} Uhr, Job läuft weiter."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Berlin-Zeit ist ${HOUR} Uhr, kein Zieltermin, Job wird übersprungen."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Korrekturdatum bestimmen (nur 22-Uhr-Lauf)
+        id: correction_date
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          # Der 22-Uhr-Lauf ist bewusst ein NACHTRÄGLICHER Korrektur-Check:
+          # ESPN aktualisiert Boxscore-Stats manchmal noch Stunden nach
+          # Spielende. 6-8 Uhr holen automatisch den frischen "gestrigen"
+          # Spieltag (siehe todayYYYYMMDD() in daily-9cat.js, Eastern Time).
+          # Um 22 Uhr Berlin ist es an der US-Ostküste aber erst früher
+          # Nachmittag (heutiger Tag, noch kaum gespielt) — deshalb hier
+          # explizit nochmal den GESTRIGEN Eastern-Tag anfragen, nicht den
+          # heutigen.
+          if [ "${{ steps.check_time.outputs.hour }}" = "22" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            DATE=$(TZ=America/New_York date -d "yesterday" +%F)
+            echo "22-Uhr-Korrekturlauf: verwende gestrigen Eastern-Tag ($DATE) statt heutigem."
+            echo "date=${DATE}" >> "$GITHUB_OUTPUT"
+          else
+            echo "date=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.check_time.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        if: steps.check_time.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ESPN Rosters synchronisieren
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/sync-espn-rosters.js
+
+      # Deckt AUSSCHLIESSLICH den bevorstehenden Draft ab (siehe
+      # Kommentar im Script). Muss nach dem Roster-Sync laufen, damit
+      # beide denselben ESPN-Abrufzyklus teilen, ist aber inhaltlich
+      # unabhaengig davon. Nicht fatal, siehe Script.
+      - name: ESPN Draft-Picks synchronisieren
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/sync-espn-picks.js
+
+      - name: Tagesdaten von ESPN holen
+        if: steps.check_time.outputs.skip != 'true'
+        env:
+          DATE_ARG: ${{ steps.correction_date.outputs.date || github.event.inputs.date }}
+          LEAGUE_ARG: ${{ github.event.inputs.league || 'nba-summer-las-vegas' }}
+        run: |
+          node scripts/daily-9cat.js ${DATE_ARG} --league=${LEAGUE_ARG}
+
+      - name: In livescores-daily.js konvertieren
+        if: steps.check_time.outputs.skip != 'true'
+        env:
+          DATE_ARG: ${{ steps.correction_date.outputs.date || github.event.inputs.date }}
+          LEAGUE_ARG: ${{ github.event.inputs.league || 'nba-summer-las-vegas' }}
+        run: |
+          if [ -n "$DATE_ARG" ]; then
+            node scripts/convert-to-livescores.js --league="$LEAGUE_ARG" --date="$DATE_ARG" --keep-days=120
+          else
+            node scripts/convert-to-livescores.js --league="$LEAGUE_ARG" --keep-days=120
+          fi
+
+      - name: Weekly/Monthly aktualisieren (alle Standorte kombiniert)
+        if: steps.check_time.outputs.skip != 'true'
+        env:
+          DATE_ARG: ${{ github.event.inputs.date }}
+        run: |
+          if [ -n "$DATE_ARG" ]; then
+            node scripts/update-all-aggregates.js --end="$DATE_ARG" --keep=180
+          else
+            node scripts/update-all-aggregates.js --keep=180
+          fi
+
+      - name: Live Projections neu blenden (Baseline + Saisondaten, BASELINE_WEIGHT=2)
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/build-live-projections.js --league=nba
+
+      - name: Team Analytics aus Projections + Live-Rostern bauen
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/build-team-analytics.js
+
+      - name: Off-Season-Rankings fortschreiben (Summer League + Preseason)
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/build-offseason-rankings.js
+
+      - name: Post-Draft Best Available Board fortschreiben (Big Board + Draft Capital + Off-Season + Sticky Score)
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/build-postdraft-board.js
+
+      - name: Rolling-Rankings-Archiv 2026/27 fortschreiben (Liga "nba")
+        if: steps.check_time.outputs.skip != 'true'
+        env:
+          DATE_ARG: ${{ github.event.inputs.date }}
+        run: |
+          if [ -n "$DATE_ARG" ]; then
+            node scripts/build-rolling-archive.js --date="$DATE_ARG" --league=nba
+          else
+            node scripts/build-rolling-archive.js --league=nba
+          fi
+
+      - name: Best Available Board fortschreiben (alle Spieler, alle Signale)
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/build-best-available-board.js
+
+      - name: Dynasty Live Nudge fortschreiben (nur Anzeige, verändert data/rankings.js nicht)
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/build-dynasty-live.js
+
+      # Muss NACH allen Schritten laufen, die data/ schreiben, und VOR
+      # dem Commit -- war seit dem 10.08. im Repo als Script vorhanden,
+      # aber dieser Schritt fehlte, lief also nie. Ohne ihn liefert der
+      # Browser bei data/-Dateien moeglicherweise eine veraltete Fassung
+      # aus, obwohl im Repo laengst die neue liegt.
+      - name: Cache-Buster für Datendateien setzen
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/bump-data-version.js
+
+      - name: Änderungen committen & pushen
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html data/livescores-daily.js data/livescores-aggregate.js data/rolling-rankings-2026-27.js data/offseason-rankings.js data/postdraft-board.js data/best-available-board.js data/dynasty-live.js data/rosters-live.js data/picks-live.js data/trade-history.js scripts/data/
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen (vermutlich keine Spiele an diesem Tag)."
+          else
+            git commit -m "Live Scores: Daily-Update $(date -u +%Y-%m-%d)"
+            git push
+          fi

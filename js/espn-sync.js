@@ -1,7 +1,7 @@
 // ============================================================
 //  ESPN FANTASY SYNC
 // ============================================================
-const ESPN_LEAGUE_ID = 44361109;
+const ESPN_LEAGUE_ID = 15679;
 // ESPN nutzt das END-Jahr der Saison als ID:
 // 2024/25 → 2025, 2025/26 → 2026, 2026/27 → 2027.
 // Bei Saisonwechsel hier hochzählen.
@@ -21,20 +21,18 @@ const ESPN_NBA_MAP = {
 };
 
 // ESPN-Team-IDs weichen von unseren internen Team-IDs (TEAMS in teams-rosters.js) ab.
-// Mapping: ESPN-ID → unsere TT-ID. Taxi Squads (ESPN 12, 13) sind nicht gemappt
-// und werden im Sync übersprungen.
+// Mapping: ESPN-ID → unsere TT-ID (Liga 15679, Stand 17.08.2026).
 const ESPN_TO_TT_TEAM = {
-  1: 1,   // Bear Down            → Fighting Illini
-  2: 2,   // Hospital Squad       → Seagulls
-  4: 3,   // Neukoelln Hustlers   → Neukoelln Hustlers
-  7: 4,   // Leaveland Cavaliers  → Leaveland Cavaliers
-  5: 5,   // Anadolu Ballers      → Anadolu Ballers
-  11: 6,  // 3-POINT MAFIA        → 3-POINT MAFIA
-  8: 7,   // Always Money         → Always Money In The BananaStand
-  10: 8,  // Kawhi So Serious     → Kawhi So Serious
-  6: 9,   // Cooking Show         → Cooking Show
-  14: 10, // S-Town Grizzlies     → S-Town Grizzlies
-  3: 11,  // Double Dribble Tr.   → Double Dribble Trouble
-  9: 12,  // Vancouver Curry-Wurst→ Vancouver Curry-Wurst
-  // ESPN 12 + 13 = Taxi Squads → ignorieren
+  2:  1,  // Fighting Illini            → Fighting Illini
+  3:  2,  // Team Chewbuckets           → Team Chewbuckets
+  4:  3,  // German Wunderkinder        → German Wunderkinder
+  5:  4,  // Gewürz Jürgchens           → Gewürz Jürgchens
+  6:  5,  // Team Peterson              → Team Peterson
+  8:  6,  // Cook Island Airballers     → Cook Island Airballers
+  9:  7,  // Crackpistel Baller         → Crackpistel Baller
+  10: 8,  // Isaac's Falling Fruits     → Isaac's Falling Fruits
+  11: 9,  // Greifswald SG Gerstensaft  → Greifswald SG Gerstensaft
+  13: 10, // Wedding Bobcats            → Wedding Bobcats
+  14: 11, // Juicetown Farmers          → Juicetown Farmers
+  15: 12, // Lokomotive List            → Lokomotive List
 };

@@ -1,0 +1,52 @@
+name: Draft Results abrufen
+
+# Holt, wer bei einem bereits abgeschlossenen ESPN-Draft wen gepickt hat
+# (siehe scripts/fetch-draft-results-espn.js). Rein manuell -- ein
+# abgeschlossener Draft aendert sich nicht mehr, es gibt also keinen
+# Grund fuer einen taeglichen Zeitplan.
+#
+# Laeuft im Actions-Tab unter "Draft Results abrufen" -> "Run workflow".
+# Saison optional angeben (z.B. 2026), sonst Standard ESPN_SEASON - 1.
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "ESPN-Saison des abgeschlossenen Drafts (z.B. 2026). Leer lassen für Standard."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo auschecken
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Draft Results abrufen
+        run: |
+          if [ -n "${{ github.event.inputs.season }}" ]; then
+            node scripts/fetch-draft-results-espn.js --season "${{ github.event.inputs.season }}"
+          else
+            node scripts/fetch-draft-results-espn.js
+          fi
+
+      - name: Änderungen committen & pushen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/draft-results-*.js
+          if git diff --staged --quiet; then
+            echo "Keine Änderung, nichts zu committen."
+          else
+            git commit -m "Draft Results abgerufen ($(date -u +%Y-%m-%d))"
+            git push
+          fi

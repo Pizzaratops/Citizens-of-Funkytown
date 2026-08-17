@@ -1,0 +1,43 @@
+name: Pick-Journal anwenden
+
+# Schreibt scripts/data/pick-trades-manual.txt in den "manuell"-
+# Abschnitt von data/picks-live.js (siehe scripts/apply-pick-journal.js).
+# Fuer Picks, die im Draft NACH dem bevorstehenden liegen -- die sieht
+# ESPN nie, deshalb kein Zeitplan, sondern ein Knopf: jemand traegt eine
+# Zeile im Journal ein, startet diesen Workflow, fertig.
+#
+# Laeuft im Actions-Tab unter "Pick-Journal anwenden" -> "Run workflow".
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo auschecken
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Journal anwenden
+        run: |
+          node scripts/apply-pick-journal.js
+
+      - name: Änderungen committen & pushen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/picks-live.js
+          if git diff --staged --quiet; then
+            echo "Keine Änderung am manuellen Pick-Journal, nichts zu committen."
+          else
+            git commit -m "Pick-Journal angewendet ($(date -u +%Y-%m-%d))"
+            git push
+          fi
