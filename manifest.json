@@ -1,7 +1,7 @@
 {
-  "name": "Taco Tuesday HQ",
-  "short_name": "Taco Tuesday HQ",
-  "description": "The Taco Tuesday Fantasy Basketball League",
+  "name": "Citizens of Funkytown",
+  "short_name": "Funkytown",
+  "description": "The Citizens of Funkytown Fantasy Basketball League",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

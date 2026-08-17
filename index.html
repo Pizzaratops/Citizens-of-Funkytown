@@ -6,14 +6,14 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Taco Tuesday HQ 🌮</title>
+  <title>Citizens of Funkytown 🕺</title>
   <link rel="manifest" href="manifest.json?v=6">
   <!-- iOS Safari nutzt manifest.json kaum -- fuer "Zum Home-Bildschirm" (Teilen-Menü,
        immer vorhanden, aber ohne diese Tags nur ein Screenshot-Lesezeichen statt
        eines echten App-Icons im Vollbild) braucht es diese Apple-eigenen Tags. -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Taco Tuesday HQ">
+  <meta name="apple-mobile-web-app-title" content="Citizens of Funkytown">
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="theme-color" content="#fff5ee">
   <link rel="stylesheet" href="css/style.css?v=5">
@@ -29,7 +29,7 @@
 
 <div class="header">
   <button class="back-btn" id="backBtn" onclick="goHome()">← Back</button>
-  <div class="logo">🌮 Taco Tuesday <span>HQ</span></div>
+  <div class="logo">🕺 Citizens of <span>Funkytown</span></div>
   <div class="header-right">
     <!-- App-Installieren-Button (nur Android/Chrome/Edge -- iOS hat keinen
          programmatischen Install-Trigger, dort bleibt nur "Teilen > Zum
@@ -105,7 +105,7 @@
       <div class="snav-divider"></div>
 
       <div class="snav-group">
-        <button class="snav-group-btn" id="snavTTHQBoards">🏆 TTHQ Draft Boards <span class="snav-arrow">▾</span></button>
+        <button class="snav-group-btn" id="snavFTBoards">🏆 Funkytown Draft Boards <span class="snav-arrow">▾</span></button>
         <div class="snav-dropdown">
           <button class="snav-dropdown-item" data-page="draftboard"    onclick="showDraftboard()">📋 Full Draft Board</button>
           <button class="snav-dropdown-item" data-page="draftresults" onclick="showDraftResults()">🏆 Draft Results</button>
@@ -166,7 +166,7 @@
   <!-- Mobile: hamburger -->
   <div class="subnav-mobile">
     <button class="subnav-hamburger" onclick="toggleMobileNav()">
-      <span id="mobileNavLabel">🌮 League Tools</span>
+      <span id="mobileNavLabel">🕺 League Tools</span>
       <span id="mobileNavArrow" style="transition:transform 0.2s;font-size:11px;">▾</span>
     </button>
     <div class="subnav-mobile-dropdown" id="mobileNavDropdown">
@@ -192,7 +192,7 @@
         <button class="subnav-mobile-btn" data-page="dynastyrolling" onclick="showDynastyRolling();closeMobileNav()">📈 Rolling Rankings</button>
       </div>
       <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">TTHQ Draft Boards</div>
+        <div class="subnav-mobile-label">Funkytown Draft Boards</div>
         <button class="subnav-mobile-btn" data-page="draftboard"    onclick="showDraftboard();closeMobileNav()">📋 Full Draft Board</button>
         <button class="subnav-mobile-btn" data-page="draftresults" onclick="showDraftResults();closeMobileNav()">🏆 Draft Results</button>
       </div>
@@ -236,7 +236,7 @@
 <div class="page active page-wide" id="homePage">
   <div style="max-width:1280px;margin:0 auto;">
     <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-      <div class="home-title">The Taco Tuesday League</div>
+      <div class="home-title">Citizens of Funkytown</div>
       <!-- Saison-Dropdown: baut sich aus SEASON_REGISTRY in js/navigation.js,
            neue archivierte Saison = neuer Registry-Eintrag + Datendatei,
            kein weiterer Code hier noetig. -->
@@ -423,7 +423,7 @@
 
 <!-- PLAYER PROJECTIONS — bewusst leer. War bis 2026-07-31 der Iframe-Host fuer
      den MFHFBs-Toolkit, der jetzt unter "Live Projections (Test)" laeuft
-     (siehe unten). Kuenftig vorgesehen fuer die native TTHQ-Baseline+Blend-
+     (siehe unten). Kuenftig vorgesehen fuer die native App-Baseline+Blend-
      Berechnung (scripts/build-live-projections.js + data/live-projections.js
      existieren bereits, sind aber unangebunden) — siehe README
      "Season-Start-Plan: Projections-Flow". -->
@@ -514,13 +514,13 @@
 <!-- Nativ portiert aus projections/index.html am 2026-08-01 (vorher Iframe).
      Daten+Logik werden erst beim ersten Aufruf von showLiveProjections()
      nachgeladen (siehe js/player-rankings.js), NICHT hier statisch
-     eingebunden — sonst wuerden alle TTHQ-Nutzer bei JEDEM Seitenaufruf
+     eingebunden — sonst wuerden alle Nutzer bei JEDEM Seitenaufruf
      ~2,4 MB Projections-Daten mitladen, auch wenn sie diese Seite nie
      besuchen. Markup selbst ist klein und bleibt daher statisch da. -->
 <div class="page page-wide" id="liveProjectionsPage">
   <div class="hero" style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;">
     <h1>NBA Projections</h1>
-    <button class="theme-toggle" id="adminToggle" title="Eigenes Passwort, unabhängig vom TTHQ-Admin — schaltet den Bereich für externe Quellen frei"></button>
+    <button class="theme-toggle" id="adminToggle" title="Eigenes Passwort, unabhängig vom App-Admin — schaltet den Bereich für externe Quellen frei"></button>
   </div>
 
   <div class="panel collapsed" id="weightPanel">
@@ -629,7 +629,7 @@
           <th data-k="rank">#</th>
           <th data-k="name">Name</th>
           <th data-k="team">Team</th>
-          <th data-k="owner" title="Fantasy Team in der Taco Tuesday League, FA = Free Agent">Fantasy</th>
+          <th data-k="owner" title="Fantasy Team in der Citizens of Funkytown League, FA = Free Agent">Fantasy</th>
           <th data-k="pos">Pos</th>
           <th data-k="min" class="sep-col">Min</th>
           <th data-k="pts">PTS</th>
@@ -669,7 +669,7 @@
       <h1>NBA Teams</h1>
       <p class="sub" id="teamsHeroSub">Pro Team zwei Spalten: links der aktuelle Kader mit deinen Minuten (editierbar, 9-Cat-Stats basierend auf letzter Saison), rechts zum Vergleich die tatsächliche End-Rotation der letzten Saison.</p>
     </div>
-    <button class="theme-toggle" id="adminToggleTeams" title="Eigenes Passwort, unabhängig vom TTHQ-Admin — schaltet Minuten-Bearbeitung frei"></button>
+    <button class="theme-toggle" id="adminToggleTeams" title="Eigenes Passwort, unabhängig vom App-Admin — schaltet Minuten-Bearbeitung frei"></button>
   </div>
 
   <div class="search-row">
@@ -687,14 +687,14 @@
 <!-- Nativ portiert aus projections/draft.html am 2026-08-01 (vorher Iframe,
      letzte der 3 Toolkit-Seiten). ID footerTextDraft statt
      der kollidierenden Originale, Side-Panel-Tabs als dtab/dtabs/dtabpane
-     (TTHQ definiert .tab/.tabs global fuer die Roster-Seite). Daten+Logik
+     (Die App definiert .tab/.tabs global fuer die Roster-Seite). Daten+Logik
      laden erst beim ersten Aufruf von showLiveProjDraft(), gemeinsame
      Dateien mit Projections/NBA Teams dedupliziert (js/player-rankings.js). -->
 <div class="page page-wide" id="liveProjDraftPage">
 <div class="hero">
     <div>
             <h1>Fantrax Redraft Board</h1>
-      <div class="sub">Live-Draft-Tracker für Deine Fantrax Redraft Ligen, auf Basis Deiner aktuellen Projections. Nicht zu verwechseln mit den Boards unter Draft, die den Dynasty Rookie Draft der Taco Tuesday League abbilden.</div>
+      <div class="sub">Live-Draft-Tracker für Deine Fantrax Redraft Ligen, auf Basis Deiner aktuellen Projections. Nicht zu verwechseln mit den Boards unter Draft, die den Dynasty Rookie Draft der Citizens of Funkytown League abbilden.</div>
     </div>
     <a class="settings-link" href="#" onclick="showLiveProjections();return false;">Gewichtungen &amp; Z-Basis anpassen →</a>
   </div>
@@ -1029,7 +1029,7 @@
 <!-- RULES -->
 <div class="page" id="rulesPage">
   <h2 style="margin-bottom:6px;">📜 Rules</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:28px;">Taco Tuesday League Rules & Regulations</p>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:28px;">Citizens of Funkytown League Rules & Regulations</p>
   <div id="rulesContent">
     <div class="rule-section">
       <div class="rule-section-header" onclick="toggleRule(this)"><span>🏆 General League Rules</span><span class="rule-chevron">▾</span></div>
@@ -1061,7 +1061,7 @@
       </div>
     </div>
     <div class="rule-section">
-      <div class="rule-section-header" onclick="toggleRule(this)"><span>🌮 Taco Tuesday Traditions</span><span class="rule-chevron">▾</span></div>
+      <div class="rule-section-header" onclick="toggleRule(this)"><span>🕺 Funkytown Traditions</span><span class="rule-chevron">▾</span></div>
       <div class="rule-section-body">
         <div class="rule-item"><div class="rule-number">1</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
       </div>
@@ -2020,7 +2020,7 @@
           <span class="howto-box">
             <span class="howto-title">So startest Du die Diagnose</span>
             <ol>
-              <li>Auf GitHub im Repo <code>Taco-Tuesday-HQ</code> oben auf den Tab <b>Actions</b></li>
+              <li>Auf GitHub im Repo <code>Citizens-of-Funkytown</code> oben auf den Tab <b>Actions</b></li>
               <li>In der Liste links auf <b>Diagnose – ESPN Pick-Trades</b> klicken</li>
               <li>Rechts auf <b>Run workflow</b>, das Saison-Feld leer lassen, nochmal <b>Run workflow</b> bestätigen</li>
               <li>Nach knapp einer Minute läuft ein grüner Haken auf. Draufklicken zeigt den Bericht direkt in der Job-Zusammenfassung</li>

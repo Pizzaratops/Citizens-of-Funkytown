@@ -695,7 +695,7 @@ const SNAV_GROUP = {
   playerrankings: 'snavPlayer', playerprojections: 'snavPlayer', liveprojections: 'snavPlayer', liveprojectionsteams: 'snavPlayer', liveprojectionsdraft: 'snavPlayer',
   rankings: 'snavDynasty', dynastyrolling: 'snavDynasty',
   draft26: 'snavDraft', draft27: 'snavDraft', lottery: 'snavDraft', bigBoard: 'snavDraft',
-  draftboard: 'snavTTHQBoards', draftresults: 'snavTTHQBoards',
+  draftboard: 'snavFTBoards', draftresults: 'snavFTBoards',
   duel: 'snavDuel', duelboard: 'snavDuel', duelsettings: 'snavDuel',
   bestavail: 'snavAnalytics', analytics: 'snavAnalytics', rollingrankings: 'snavAnalytics',
   trade:      'snavTrade', tradefinder: 'snavTrade', tradehistory: 'snavTrade',
@@ -728,7 +728,7 @@ function _applyPage(pageId) {
   if (groupId) { const g = document.getElementById(groupId); if (g) g.classList.add('active'); }
   const activeBtn = document.querySelector('.subnav-mobile-btn[data-page="'+pageKey+'"]');
   const label = document.getElementById('mobileNavLabel');
-  if (label) label.textContent = activeBtn ? activeBtn.textContent : '🌮 League Tools';
+  if (label) label.textContent = activeBtn ? activeBtn.textContent : '🕺 League Tools';
   window.scrollTo(0, 0);
 }
 
