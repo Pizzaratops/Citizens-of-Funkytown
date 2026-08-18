@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-17T18:56:54.730Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-18T09:23:33.611Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-08-17T18:56:54.730Z",
+ "fetchedAt": "2026-08-18T09:23:33.611Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -1808,6 +1808,15 @@ const ROSTERS_DATA = {
      "espnId": "4592965"
     },
     {
+     "name": "Sean Pedulla",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 1\"",
+     "weight": "195 lbs",
+     "age": 23,
+     "espnId": "4709131"
+    },
+    {
      "name": "Alperen Sengun",
      "jersey": "28",
      "position": "C",
@@ -3260,6 +3269,15 @@ const ROSTERS_DATA = {
      "espnId": "4869780"
     },
     {
+     "name": "Trendon Watford",
+     "jersey": null,
+     "position": "F",
+     "height": "6' 8\"",
+     "weight": "237 lbs",
+     "age": 25,
+     "espnId": "4431675"
+    },
+    {
      "name": "Zion Williamson",
      "jersey": "1",
      "position": "F",
@@ -3894,15 +3912,6 @@ const ROSTERS_DATA = {
      "weight": "237 lbs",
      "age": 24,
      "espnId": "4432446"
-    },
-    {
-     "name": "Trendon Watford",
-     "jersey": "12",
-     "position": "F",
-     "height": "6' 8\"",
-     "weight": "237 lbs",
-     "age": 25,
-     "espnId": "4431675"
     }
    ]
   },
@@ -3999,6 +4008,15 @@ const ROSTERS_DATA = {
      "weight": "186 lbs",
      "age": 24,
      "espnId": "4437244"
+    },
+    {
+     "name": "Haywood Highsmith",
+     "jersey": "7",
+     "position": "F",
+     "height": "6' 5\"",
+     "weight": "220 lbs",
+     "age": 29,
+     "espnId": "4291678"
     },
     {
      "name": "CJ Huntley",
