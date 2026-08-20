@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-19T09:24:17.213Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-20T09:24:44.377Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-08-19T09:24:17.213Z",
+ "fetchedAt": "2026-08-20T09:24:44.377Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -39,7 +39,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "RayJ Dennis",
-     "jersey": "00",
+     "jersey": "10",
      "position": "G",
      "height": "6' 2\"",
      "weight": "180 lbs",
@@ -48,7 +48,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Luguentz Dort",
-     "jersey": "5",
+     "jersey": "0",
      "position": "G",
      "height": "6' 4\"",
      "weight": "220 lbs",
@@ -57,7 +57,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Zuby Ejiofor",
-     "jersey": null,
+     "jersey": "20",
      "position": "F",
      "height": "6' 8\"",
      "weight": "245 lbs",
@@ -66,7 +66,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Kingston Flemings",
-     "jersey": null,
+     "jersey": "4",
      "position": "G",
      "height": "6' 3\"",
      "weight": "183 lbs",
@@ -75,7 +75,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Keshon Gilbert",
-     "jersey": null,
+     "jersey": "51",
      "position": "G",
      "height": "6' 4\"",
      "weight": "200 lbs",
@@ -119,15 +119,6 @@ const ROSTERS_DATA = {
      "espnId": "4280151"
     },
     {
-     "name": "Christian Koloko",
-     "jersey": "35",
-     "position": "C",
-     "height": "6' 11\"",
-     "weight": "225 lbs",
-     "age": 26,
-     "espnId": "4431778"
-    },
-    {
      "name": "Jock Landale",
      "jersey": "31",
      "position": "C",
@@ -147,7 +138,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Ryan Nembhard",
-     "jersey": "9",
+     "jersey": "19",
      "position": "G",
      "height": "5' 11\"",
      "weight": "180 lbs",
@@ -174,7 +165,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Henri Veesaar",
-     "jersey": null,
+     "jersey": "13",
      "position": "C",
      "height": "7' 0\"",
      "weight": "227 lbs",
@@ -182,17 +173,8 @@ const ROSTERS_DATA = {
      "espnId": "5105571"
     },
     {
-     "name": "Keaton Wallace",
-     "jersey": "2",
-     "position": "G",
-     "height": "6' 3\"",
-     "weight": "185 lbs",
-     "age": 27,
-     "espnId": "4279118"
-    },
-    {
      "name": "Aaron Wiggins",
-     "jersey": "21",
+     "jersey": "2",
      "position": "G",
      "height": "6' 5\"",
      "weight": "190 lbs",
@@ -201,7 +183,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Jalen Wilson",
-     "jersey": "22",
+     "jersey": "12",
      "position": "F",
      "height": "6' 6\"",
      "weight": "220 lbs",
@@ -225,7 +207,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Mike Conley",
-     "jersey": null,
+     "jersey": "45",
      "position": "G",
      "height": "6' 1\"",
      "weight": "175 lbs",
@@ -306,7 +288,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Mitchell Robinson",
-     "jersey": null,
+     "jersey": "4",
      "position": "C",
      "height": "7' 0\"",
      "weight": "240 lbs",
@@ -1750,7 +1732,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 5\"",
      "weight": "225 lbs",
-     "age": 33,
+     "age": 34,
      "espnId": "3037789"
     },
     {
@@ -3061,7 +3043,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 9\"",
      "weight": "240 lbs",
-     "age": 23,
+     "age": 24,
      "espnId": "4897438"
     },
     {
@@ -3134,13 +3116,13 @@ const ROSTERS_DATA = {
      "espnId": "4397136"
     },
     {
-     "name": "Hunter Dickinson",
-     "jersey": "4",
-     "position": "C",
-     "height": "7' 1\"",
-     "weight": "255 lbs",
-     "age": 25,
-     "espnId": "4432180"
+     "name": "Malik Dia",
+     "jersey": null,
+     "position": "F",
+     "height": "6' 9\"",
+     "weight": "250 lbs",
+     "age": 22,
+     "espnId": "4712862"
     },
     {
      "name": "Jeremiah Fears",
