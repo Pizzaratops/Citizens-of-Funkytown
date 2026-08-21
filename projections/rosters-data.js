@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-20T09:24:44.377Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-21T09:26:57.218Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-08-20T09:24:44.377Z",
+ "fetchedAt": "2026-08-21T09:26:57.218Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -896,15 +896,6 @@ const ROSTERS_DATA = {
      "espnId": "2995706"
     },
     {
-     "name": "Tre Mann",
-     "jersey": null,
-     "position": "G",
-     "height": "6' 4\"",
-     "weight": "178 lbs",
-     "age": 25,
-     "espnId": "4432819"
-    },
-    {
      "name": "Sam Merrill",
      "jersey": "5",
      "position": "G",
@@ -968,15 +959,6 @@ const ROSTERS_DATA = {
      "espnId": "4278046"
     },
     {
-     "name": "Max Strus",
-     "jersey": "2",
-     "position": "G",
-     "height": "6' 5\"",
-     "weight": "215 lbs",
-     "age": 30,
-     "espnId": "4065778"
-    },
-    {
      "name": "Meleek Thomas",
      "jersey": null,
      "position": "G",
@@ -1011,6 +993,24 @@ const ROSTERS_DATA = {
      "weight": "266 lbs",
      "age": 22,
      "espnId": "5106261"
+    },
+    {
+     "name": "Peyton Watson",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 8\"",
+     "weight": "200 lbs",
+     "age": 23,
+     "espnId": "4576087"
+    },
+    {
+     "name": "Cam Whitmore",
+     "jersey": null,
+     "position": "F",
+     "height": "6' 6\"",
+     "weight": "230 lbs",
+     "age": 22,
+     "espnId": "5105592"
     }
    ]
   },
@@ -1356,15 +1356,6 @@ const ROSTERS_DATA = {
      "weight": "205 lbs",
      "age": 27,
      "espnId": "4277890"
-    },
-    {
-     "name": "Peyton Watson",
-     "jersey": "8",
-     "position": "G",
-     "height": "6' 8\"",
-     "weight": "200 lbs",
-     "age": 23,
-     "espnId": "4576087"
     }
    ]
   },
@@ -2512,7 +2503,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 8\"",
      "weight": "218 lbs",
-     "age": 25,
+     "age": 26,
      "espnId": "4594326"
     },
     {
@@ -4342,7 +4333,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 8\"",
      "weight": "225 lbs",
-     "age": 25,
+     "age": 26,
      "espnId": "4594327"
     },
     {
@@ -5018,6 +5009,15 @@ const ROSTERS_DATA = {
      "espnId": "5238230"
     },
     {
+     "name": "Tre Mann",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 4\"",
+     "weight": "178 lbs",
+     "age": 25,
+     "espnId": "4432819"
+    },
+    {
      "name": "Khris Middleton",
      "jersey": "22",
      "position": "F",
@@ -5079,15 +5079,6 @@ const ROSTERS_DATA = {
      "weight": "210 lbs",
      "age": 25,
      "espnId": "4606840"
-    },
-    {
-     "name": "Cam Whitmore",
-     "jersey": "1",
-     "position": "F",
-     "height": "6' 6\"",
-     "weight": "230 lbs",
-     "age": 22,
-     "espnId": "5105592"
     },
     {
      "name": "Trae Young",
