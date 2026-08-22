@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-21T09:26:57.218Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-22T09:18:45.524Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-08-21T09:26:57.218Z",
+ "fetchedAt": "2026-08-22T09:18:45.524Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -1181,15 +1181,6 @@ const ROSTERS_DATA = {
      "espnId": "4432107"
     },
     {
-     "name": "Klay Thompson",
-     "jersey": "31",
-     "position": "G",
-     "height": "6' 5\"",
-     "weight": "220 lbs",
-     "age": 36,
-     "espnId": "6475"
-    },
-    {
      "name": "P.J. Washington",
      "jersey": "25",
      "position": "F",
@@ -1230,6 +1221,15 @@ const ROSTERS_DATA = {
      "weight": "220 lbs",
      "age": 23,
      "espnId": "4698719"
+    },
+    {
+     "name": "DeMar DeRozan",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 6\"",
+     "weight": "220 lbs",
+     "age": 37,
+     "espnId": "3978"
     },
     {
      "name": "Alpha Diallo",
@@ -2196,6 +2196,15 @@ const ROSTERS_DATA = {
      "weight": "235 lbs",
      "age": 24,
      "espnId": "4897696"
+    },
+    {
+     "name": "Max Strus",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 5\"",
+     "weight": "215 lbs",
+     "age": 30,
+     "espnId": "4065778"
     },
     {
      "name": "Keaton Wagler",
