@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-23T09:19:14.327Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-08-24T09:37:11.589Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-08-23T09:19:14.327Z",
+ "fetchedAt": "2026-08-24T09:37:11.589Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -1186,7 +1186,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 7\"",
      "weight": "230 lbs",
-     "age": 27,
+     "age": 28,
      "espnId": "4278078"
     }
    ]
@@ -2738,6 +2738,15 @@ const ROSTERS_DATA = {
      "espnId": "4066993"
     },
     {
+     "name": "Klay Thompson",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 5\"",
+     "weight": "220 lbs",
+     "age": 36,
+     "espnId": "6475"
+    },
+    {
      "name": "Andrew Wiggins",
      "jersey": "22",
      "position": "F",
@@ -2953,7 +2962,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 7\"",
      "weight": "180 lbs",
-     "age": 24,
+     "age": 25,
      "espnId": "4432816"
     },
     {
@@ -4891,7 +4900,7 @@ const ROSTERS_DATA = {
      "position": "C",
      "height": "6' 11\"",
      "weight": "290 lbs",
-     "age": 31,
+     "age": 32,
      "espnId": "3102530"
     },
     {
