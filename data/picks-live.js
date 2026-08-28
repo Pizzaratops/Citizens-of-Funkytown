@@ -7,7 +7,7 @@
 //    editieren, wird bei jedem Lauf komplett neu geschrieben. Deckt
 //    AUSSCHLIESSLICH den bevorstehenden ESPN-Draft ab (TTHQ-Jahr
 //    2026 = ESPN-Saison 2027).
-//    Zuletzt synchronisiert: 2026-08-28T20:20:10.998Z
+//    Zuletzt synchronisiert: 2026-08-28T20:49:24.426Z
 //
 //    "manuell" -- von scripts/apply-pick-journal.js aus
 //    scripts/data/pick-trades-manual.txt geschrieben. Deckt Picks fuer
@@ -24,7 +24,7 @@
 const PICKS_LIVE = {
   ttYear: 2026,
   espnSeason: 2027,
-  aktualisiert: "2026-08-28T20:20:10.999Z",
+  aktualisiert: "2026-08-28T20:49:24.427Z",
   automatisch: [],
   manuell: [{"datum":"2026-08-11","year":2027,"round":2,"originalOwner":12,"currentOwner":1,"notiz":"Vancouver Curry-Wurst (Andreas) 2027 R2 an Fighting Illini -- Gegenzug zum 11.08. Trade (2x 2026 R3 + 2026 R2 gingen im ESPN-Pick-Sync automatisch an Vancouver)"},{"datum":"2026-08-12","year":2028,"round":1,"originalOwner":6,"currentOwner":1,"notiz":"3-Point Mafia 2028 R1 an Fighting Illini -- Gegenzug: FI gibt 2026 R1 Slot 9 (originalOwner 6, urspruenglich von 3PM erworben) zurueck an 3-Point Mafia. Diese Seite laeuft automatisch ueber den ESPN Pick-Sync (Trade ist bereits in ESPN eingetragen), hier nur der weit-voraus-Leg."}],
   // Fuer die Hydrierung in js/admin.js zaehlt die Summe beider Listen.
