@@ -3,7 +3,7 @@
 // ============================================================
 //  AUTO-GENERIERT von scripts/build-postdraft-board.js über die
 //  "Daily 9cat Live Scores" GitHub Action. Nicht von Hand editieren.
-//  Zuletzt aktualisiert: 2026-08-29
+//  Zuletzt aktualisiert: 2026-08-30
 //
 //  Kombiniert (gewichtet, mit anteiliger Umverteilung bei fehlenden
 //  Signalen): Pre-Draft Big Board (25%) + echte Draft Capital (20%)
