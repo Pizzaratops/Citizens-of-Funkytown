@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-01T13:48:44.033Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-02T13:06:03.826Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-01T13:48:44.033Z",
+ "fetchedAt": "2026-09-02T13:06:03.826Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -16,7 +16,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 5\"",
      "weight": "205 lbs",
-     "age": 27,
+     "age": 28,
      "espnId": "4278039"
     },
     {
@@ -3860,6 +3860,15 @@ const ROSTERS_DATA = {
      "espnId": "3059318"
     },
     {
+     "name": "Tacko Fall",
+     "jersey": null,
+     "position": "C",
+     "height": "7' 6\"",
+     "weight": "250 lbs",
+     "age": 30,
+     "espnId": "3904625"
+    },
+    {
      "name": "Ariel Hukporti",
      "jersey": null,
      "position": "C",
@@ -3903,6 +3912,15 @@ const ROSTERS_DATA = {
      "weight": "180 lbs",
      "age": 24,
      "espnId": "4702049"
+    },
+    {
+     "name": "Jameer Nelson Jr.",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 1\"",
+     "weight": "190 lbs",
+     "age": 25,
+     "espnId": "4592444"
     },
     {
      "name": "Labaron Philon Jr.",
