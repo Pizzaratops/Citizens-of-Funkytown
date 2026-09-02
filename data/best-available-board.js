@@ -3,7 +3,7 @@
 // ============================================================
 //  AUTO-GENERIERT von scripts/build-best-available-board.js über die
 //  "Daily 9cat Live Scores" GitHub Action. Nicht von Hand editieren.
-//  Zuletzt aktualisiert: 2026-09-01
+//  Zuletzt aktualisiert: 2026-09-02
 //  Aktueller Saison-Modus für "currentSeason"/z7/z30: "nba-summer-las-vegas" (Off-Season)
 //
 //  js/best-available.js filtert diese Liste zur Laufzeit gegen ROSTERS
