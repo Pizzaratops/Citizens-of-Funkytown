@@ -3,7 +3,7 @@
 // ============================================================
 //  AUTO-GENERIERT von scripts/build-dynasty-live.js über die
 //  "Daily 9cat Live Scores" GitHub Action. Nicht von Hand editieren.
-//  Zuletzt aktualisiert: 2026-09-02
+//  Zuletzt aktualisiert: 2026-09-03
 //
 //  Rein informativ — zeigt auf der Dynasty-Rankings-Seite ein kleines
 //  "Live"-Badge neben dem manuellen Rang aus data/rankings.js. Verändert
