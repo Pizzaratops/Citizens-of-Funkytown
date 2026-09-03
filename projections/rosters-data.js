@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-02T13:06:03.826Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-03T13:07:39.859Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-02T13:06:03.826Z",
+ "fetchedAt": "2026-09-03T13:07:39.859Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -869,6 +869,15 @@ const ROSTERS_DATA = {
      "espnId": "3934723"
     },
     {
+     "name": "Khalifa Diop",
+     "jersey": "18",
+     "position": "C",
+     "height": "6' 11\"",
+     "weight": "231 lbs",
+     "age": 24,
+     "espnId": "4997530"
+    },
+    {
      "name": "Tristan Enaruna",
      "jersey": "21",
      "position": "F",
@@ -888,7 +897,7 @@ const ROSTERS_DATA = {
     },
     {
      "name": "Mario Hezonja",
-     "jersey": null,
+     "jersey": "33",
      "position": "F",
      "height": "6' 8\"",
      "weight": "220 lbs",
@@ -4723,7 +4732,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 8\"",
      "weight": "190 lbs",
-     "age": 28,
+     "age": 29,
      "espnId": "3913176"
     },
     {
