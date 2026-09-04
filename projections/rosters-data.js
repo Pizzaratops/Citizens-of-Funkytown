@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-03T13:07:39.859Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-04T13:01:26.270Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-03T13:07:39.859Z",
+ "fetchedAt": "2026-09-04T13:01:26.270Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -2026,7 +2026,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 7\"",
      "weight": "235 lbs",
-     "age": 22,
+     "age": 23,
      "espnId": "5106060"
     },
     {
@@ -3101,6 +3101,15 @@ const ROSTERS_DATA = {
      "espnId": "3134932"
     },
     {
+     "name": "Jonathan Kuminga",
+     "jersey": null,
+     "position": "F",
+     "height": "6' 7\"",
+     "weight": "225 lbs",
+     "age": 23,
+     "espnId": "4433247"
+    },
+    {
      "name": "Trey Lyles",
      "jersey": null,
      "position": "F",
@@ -3683,6 +3692,15 @@ const ROSTERS_DATA = {
      "espnId": "4712849"
     },
     {
+     "name": "Malaki Branham",
+     "jersey": "12",
+     "position": "F",
+     "height": "6' 4\"",
+     "weight": "180 lbs",
+     "age": 23,
+     "espnId": "4565201"
+    },
+    {
      "name": "Jamal Cain",
      "jersey": "8",
      "position": "F",
@@ -3726,6 +3744,15 @@ const ROSTERS_DATA = {
      "weight": "217 lbs",
      "age": 25,
      "espnId": "4702382"
+    },
+    {
+     "name": "JD Davison",
+     "jersey": "20",
+     "position": "G",
+     "height": "6' 1\"",
+     "weight": "195 lbs",
+     "age": 23,
+     "espnId": "4576085"
     },
     {
      "name": "Jonathan Isaac",
