@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-08T13:10:40.387Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-09T13:16:00.242Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-08T13:10:40.387Z",
+ "fetchedAt": "2026-09-09T13:16:00.242Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -99,6 +99,15 @@ const ROSTERS_DATA = {
      "weight": "220 lbs",
      "age": 33,
      "espnId": "2990984"
+    },
+    {
+     "name": "Devon Higgs",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 5\"",
+     "weight": "204 lbs",
+     "age": null,
+     "espnId": "4707776"
     },
     {
      "name": "Jalen Johnson",
@@ -460,7 +469,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 5\"",
      "weight": "195 lbs",
-     "age": 20,
+     "age": 21,
      "espnId": "5037873"
     },
     {
@@ -2453,15 +2462,6 @@ const ROSTERS_DATA = {
      "espnId": "4600663"
     },
     {
-     "name": "Taj Gibson",
-     "jersey": "67",
-     "position": "F",
-     "height": "6' 9\"",
-     "weight": "232 lbs",
-     "age": 41,
-     "espnId": "3986"
-    },
-    {
      "name": "Jerami Grant",
      "jersey": "9",
      "position": "F",
@@ -2469,6 +2469,15 @@ const ROSTERS_DATA = {
      "weight": "213 lbs",
      "age": 32,
      "espnId": "2991070"
+    },
+    {
+     "name": "Jordan Hawkins",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 5\"",
+     "weight": "190 lbs",
+     "age": 24,
+     "espnId": "4683750"
     },
     {
      "name": "Taylor Hendricks",
@@ -2498,15 +2507,6 @@ const ROSTERS_DATA = {
      "espnId": "4065733"
     },
     {
-     "name": "AJ Johnson",
-     "jersey": null,
-     "position": "G",
-     "height": "6' 5\"",
-     "weight": "160 lbs",
-     "age": 21,
-     "espnId": "5170947"
-    },
-    {
      "name": "Karim Lopez",
      "jersey": null,
      "position": "F",
@@ -2532,6 +2532,15 @@ const ROSTERS_DATA = {
      "weight": "218 lbs",
      "age": 26,
      "espnId": "4594326"
+    },
+    {
+     "name": "Micah Peavy",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 7\"",
+     "weight": "220 lbs",
+     "age": 25,
+     "espnId": "4432185"
     },
     {
      "name": "Scotty Pippen Jr.",
@@ -3206,13 +3215,22 @@ const ROSTERS_DATA = {
      "espnId": "5144091"
     },
     {
-     "name": "Jordan Hawkins",
-     "jersey": "24",
+     "name": "Taj Gibson",
+     "jersey": null,
+     "position": "F",
+     "height": "6' 9\"",
+     "weight": "232 lbs",
+     "age": 41,
+     "espnId": "3986"
+    },
+    {
+     "name": "AJ Johnson",
+     "jersey": null,
      "position": "G",
      "height": "6' 5\"",
-     "weight": "190 lbs",
-     "age": 24,
-     "espnId": "4683750"
+     "weight": "160 lbs",
+     "age": 21,
+     "espnId": "5170947"
     },
     {
      "name": "Herbert Jones",
@@ -3285,15 +3303,6 @@ const ROSTERS_DATA = {
      "weight": "240 lbs",
      "age": 25,
      "espnId": "4432068"
-    },
-    {
-     "name": "Micah Peavy",
-     "jersey": "14",
-     "position": "G",
-     "height": "6' 7\"",
-     "weight": "220 lbs",
-     "age": 25,
-     "espnId": "4432185"
     },
     {
      "name": "Jaron Pierre Jr.",
@@ -3451,7 +3460,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 2\"",
      "weight": "195 lbs",
-     "age": 25,
+     "age": 26,
      "espnId": "4431823"
     },
     {
@@ -3921,6 +3930,15 @@ const ROSTERS_DATA = {
      "weight": "250 lbs",
      "age": 41,
      "espnId": "1966"
+    },
+    {
+     "name": "Dillon Jones",
+     "jersey": null,
+     "position": "F",
+     "height": "6' 5\"",
+     "weight": "235 lbs",
+     "age": 24,
+     "espnId": "4702159"
     },
     {
      "name": "Caleb Love",
@@ -4488,6 +4506,15 @@ const ROSTERS_DATA = {
      "weight": "208 lbs",
      "age": 22,
      "espnId": "5106058"
+    },
+    {
+     "name": "Ben Simmons",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 10\"",
+     "weight": "240 lbs",
+     "age": 30,
+     "espnId": "3907387"
     }
    ]
   },
