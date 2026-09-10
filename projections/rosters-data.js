@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-09T13:16:00.242Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-10T13:13:33.688Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-09T13:16:00.242Z",
+ "fetchedAt": "2026-09-10T13:13:33.688Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -99,15 +99,6 @@ const ROSTERS_DATA = {
      "weight": "220 lbs",
      "age": 33,
      "espnId": "2990984"
-    },
-    {
-     "name": "Devon Higgs",
-     "jersey": null,
-     "position": "G",
-     "height": "6' 5\"",
-     "weight": "204 lbs",
-     "age": null,
-     "espnId": "4707776"
     },
     {
      "name": "Jalen Johnson",
@@ -1060,7 +1051,7 @@ const ROSTERS_DATA = {
      "position": "C",
      "height": "6' 11\"",
      "weight": "220 lbs",
-     "age": 23,
+     "age": 24,
      "espnId": "4701208"
     },
     {
@@ -3213,15 +3204,6 @@ const ROSTERS_DATA = {
      "weight": "190 lbs",
      "age": 19,
      "espnId": "5144091"
-    },
-    {
-     "name": "Taj Gibson",
-     "jersey": null,
-     "position": "F",
-     "height": "6' 9\"",
-     "weight": "232 lbs",
-     "age": 41,
-     "espnId": "3986"
     },
     {
      "name": "AJ Johnson",
