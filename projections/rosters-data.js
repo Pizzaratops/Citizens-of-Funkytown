@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-10T13:13:33.688Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-11T13:07:18.592Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-10T13:13:33.688Z",
+ "fetchedAt": "2026-09-11T13:07:18.592Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -18,6 +18,15 @@ const ROSTERS_DATA = {
      "weight": "205 lbs",
      "age": 28,
      "espnId": "4278039"
+    },
+    {
+     "name": "Lamont Butler",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 2\"",
+     "weight": "208 lbs",
+     "age": 24,
+     "espnId": "4433183"
     },
     {
      "name": "Devin Carter",
@@ -1009,7 +1018,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 8\"",
      "weight": "200 lbs",
-     "age": 23,
+     "age": 24,
      "espnId": "4576087"
     }
    ]
@@ -2046,7 +2055,7 @@ const ROSTERS_DATA = {
    "players": [
     {
      "name": "Bradley Beal",
-     "jersey": "0",
+     "jersey": "3",
      "position": "G",
      "height": "6' 4\"",
      "weight": "207 lbs",
@@ -2142,15 +2151,6 @@ const ROSTERS_DATA = {
      "weight": "224 lbs",
      "age": 22,
      "espnId": "5105832"
-    },
-    {
-     "name": "Bennedict Mathurin",
-     "jersey": "9",
-     "position": "G",
-     "height": "6' 5\"",
-     "weight": "210 lbs",
-     "age": 24,
-     "espnId": "4683634"
     },
     {
      "name": "Baba Miller",
@@ -2440,7 +2440,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 5\"",
      "weight": "206 lbs",
-     "age": 22,
+     "age": 23,
      "espnId": "4903027"
     },
     {
@@ -3231,6 +3231,15 @@ const ROSTERS_DATA = {
      "weight": "265 lbs",
      "age": 38,
      "espnId": "3442"
+    },
+    {
+     "name": "Bennedict Mathurin",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 5\"",
+     "weight": "210 lbs",
+     "age": 24,
+     "espnId": "4683634"
     },
     {
      "name": "Karlo Matkovic",
