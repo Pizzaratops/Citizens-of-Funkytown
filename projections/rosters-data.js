@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-11T13:07:18.592Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-12T12:31:01.154Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-11T13:07:18.592Z",
+ "fetchedAt": "2026-09-12T12:31:01.154Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -18,24 +18,6 @@ const ROSTERS_DATA = {
      "weight": "205 lbs",
      "age": 28,
      "espnId": "4278039"
-    },
-    {
-     "name": "Lamont Butler",
-     "jersey": null,
-     "position": "G",
-     "height": "6' 2\"",
-     "weight": "208 lbs",
-     "age": 24,
-     "espnId": "4433183"
-    },
-    {
-     "name": "Devin Carter",
-     "jersey": "22",
-     "position": "G",
-     "height": "6' 2\"",
-     "weight": "195 lbs",
-     "age": 24,
-     "espnId": "4433188"
     },
     {
      "name": "Dyson Daniels",
