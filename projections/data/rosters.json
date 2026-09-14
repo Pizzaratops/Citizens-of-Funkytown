@@ -1,5 +1,5 @@
 {
- "fetchedAt": "2026-09-13T13:32:44.237Z",
+ "fetchedAt": "2026-09-14T15:27:37.621Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -1076,7 +1076,7 @@
      "position": "G",
      "height": "6' 8\"",
      "weight": "215 lbs",
-     "age": 22,
+     "age": 23,
      "espnId": "5105806"
     },
     {
@@ -1403,7 +1403,7 @@
      "position": "G",
      "height": "6' 4\"",
      "weight": "210 lbs",
-     "age": 31,
+     "age": 32,
      "espnId": "2999547"
     },
     {
@@ -1856,7 +1856,7 @@
      "position": "G",
      "height": "6' 0\"",
      "weight": "223 lbs",
-     "age": 22,
+     "age": 23,
      "espnId": "5105837"
     },
     {
@@ -3695,7 +3695,7 @@
      "position": "G",
      "height": "6' 0\"",
      "weight": "200 lbs",
-     "age": 30,
+     "age": 31,
      "espnId": "3133635"
     },
     {
@@ -4139,7 +4139,7 @@
      "position": "C",
      "height": "7' 2\"",
      "weight": "250 lbs",
-     "age": 19,
+     "age": 20,
      "espnId": "5203685"
     },
     {
@@ -4721,7 +4721,7 @@
      "position": "G",
      "height": "6' 3\"",
      "weight": "205 lbs",
-     "age": 22,
+     "age": 23,
      "espnId": "4432737"
     },
     {
