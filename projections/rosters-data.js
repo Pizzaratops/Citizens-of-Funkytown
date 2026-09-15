@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-14T15:27:37.621Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-15T14:00:09.700Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-14T15:27:37.621Z",
+ "fetchedAt": "2026-09-15T14:00:09.700Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -18,6 +18,15 @@ const ROSTERS_DATA = {
      "weight": "205 lbs",
      "age": 28,
      "espnId": "4278039"
+    },
+    {
+     "name": "Will Baker",
+     "jersey": "9",
+     "position": "C",
+     "height": "7' 0\"",
+     "weight": "245 lbs",
+     "age": 25,
+     "espnId": "4431691"
     },
     {
      "name": "Dyson Daniels",
@@ -1555,7 +1564,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 6\"",
      "weight": "230 lbs",
-     "age": 36,
+     "age": 37,
      "espnId": "6430"
     },
     {
@@ -1918,7 +1927,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 4\"",
      "weight": "173 lbs",
-     "age": 27,
+     "age": 28,
      "espnId": "4592829"
     },
     {
@@ -2063,6 +2072,15 @@ const ROSTERS_DATA = {
      "espnId": "4845363"
     },
     {
+     "name": "Gradey Dick",
+     "jersey": "1",
+     "position": "G",
+     "height": "6' 7\"",
+     "weight": "200 lbs",
+     "age": 22,
+     "espnId": "5106258"
+    },
+    {
      "name": "Kris Dunn",
      "jersey": "8",
      "position": "G",
@@ -2090,6 +2108,15 @@ const ROSTERS_DATA = {
      "espnId": "4066648"
     },
     {
+     "name": "Brandon Ingram",
+     "jersey": "3",
+     "position": "F",
+     "height": "6' 8\"",
+     "weight": "190 lbs",
+     "age": 29,
+     "espnId": "3913176"
+    },
+    {
      "name": "Isaiah Jackson",
      "jersey": "23",
      "position": "F",
@@ -2106,15 +2133,6 @@ const ROSTERS_DATA = {
      "weight": "210 lbs",
      "age": 29,
      "espnId": "3936099"
-    },
-    {
-     "name": "Kawhi Leonard",
-     "jersey": "2",
-     "position": "F",
-     "height": "6' 6\"",
-     "weight": "225 lbs",
-     "age": 35,
-     "espnId": "6450"
     },
     {
      "name": "Brook Lopez",
@@ -3061,7 +3079,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 2\"",
      "weight": "169 lbs",
-     "age": 25,
+     "age": 26,
      "espnId": "4592492"
     },
     {
@@ -4727,15 +4745,6 @@ const ROSTERS_DATA = {
      "espnId": "4432737"
     },
     {
-     "name": "Gradey Dick",
-     "jersey": "1",
-     "position": "G",
-     "height": "6' 7\"",
-     "weight": "200 lbs",
-     "age": 22,
-     "espnId": "5106258"
-    },
-    {
      "name": "Allen Graves",
      "jersey": null,
      "position": "F",
@@ -4752,15 +4761,6 @@ const ROSTERS_DATA = {
      "weight": "193 lbs",
      "age": 23,
      "espnId": "4590360"
-    },
-    {
-     "name": "Brandon Ingram",
-     "jersey": "3",
-     "position": "F",
-     "height": "6' 8\"",
-     "weight": "190 lbs",
-     "age": 29,
-     "espnId": "3913176"
     },
     {
      "name": "Andre Jackson Jr.",
@@ -4797,6 +4797,15 @@ const ROSTERS_DATA = {
      "weight": "179 lbs",
      "age": 26,
      "espnId": "4067017"
+    },
+    {
+     "name": "Kawhi Leonard",
+     "jersey": "2",
+     "position": "F",
+     "height": "6' 6\"",
+     "weight": "225 lbs",
+     "age": 35,
+     "espnId": "6450"
     },
     {
      "name": "Alijah Martin",
@@ -4954,7 +4963,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 10\"",
      "weight": "242 lbs",
-     "age": 26,
+     "age": 27,
      "espnId": "4277961"
     },
     {
