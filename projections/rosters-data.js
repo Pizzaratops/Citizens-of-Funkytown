@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-15T14:00:09.700Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-16T13:54:09.008Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-15T14:00:09.700Z",
+ "fetchedAt": "2026-09-16T13:54:09.008Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -655,7 +655,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 1\"",
      "weight": "175 lbs",
-     "age": 32,
+     "age": 33,
      "espnId": "3032979"
     },
     {
@@ -1246,7 +1246,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 8\"",
      "weight": "235 lbs",
-     "age": 30,
+     "age": 31,
      "espnId": "3064290"
     },
     {
@@ -5115,6 +5115,15 @@ const ROSTERS_DATA = {
      "weight": "200 lbs",
      "age": 22,
      "espnId": "5174563"
+    },
+    {
+     "name": "Anthony Gill",
+     "jersey": "16",
+     "position": "F",
+     "height": "6' 7\"",
+     "weight": "230 lbs",
+     "age": 33,
+     "espnId": "2581184"
     },
     {
      "name": "Tre Johnson",
