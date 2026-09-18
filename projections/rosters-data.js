@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-17T13:57:41.913Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-18T13:16:07.705Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-17T13:57:41.913Z",
+ "fetchedAt": "2026-09-18T13:16:07.705Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -2400,6 +2400,15 @@ const ROSTERS_DATA = {
      "weight": "214 lbs",
      "age": 27,
      "espnId": "4278077"
+    },
+    {
+     "name": "Anton Watson",
+     "jersey": null,
+     "position": "F",
+     "height": "6' 8\"",
+     "weight": "225 lbs",
+     "age": 25,
+     "espnId": "4431705"
     },
     {
      "name": "Ziaire Williams",
