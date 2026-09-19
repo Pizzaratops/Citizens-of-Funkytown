@@ -1,7 +1,7 @@
-// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-18T13:16:07.705Z
+// Automatisch generiert von scripts/fetch-rosters.mjs — 2026-09-19T12:46:47.940Z
 // Quelle: ESPN (site.api.espn.com)
 const ROSTERS_DATA = {
- "fetchedAt": "2026-09-18T13:16:07.705Z",
+ "fetchedAt": "2026-09-19T12:46:47.940Z",
  "source": "ESPN (site.api.espn.com)",
  "teamCount": 30,
  "errors": [],
@@ -18,15 +18,6 @@ const ROSTERS_DATA = {
      "weight": "205 lbs",
      "age": 28,
      "espnId": "4278039"
-    },
-    {
-     "name": "Will Baker",
-     "jersey": "9",
-     "position": "C",
-     "height": "7' 0\"",
-     "weight": "245 lbs",
-     "age": 25,
-     "espnId": "4431691"
     },
     {
      "name": "Dyson Daniels",
@@ -133,7 +124,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 3\"",
      "weight": "190 lbs",
-     "age": 34,
+     "age": 35,
      "espnId": "2490149"
     },
     {
@@ -1356,6 +1347,15 @@ const ROSTERS_DATA = {
      "weight": "205 lbs",
      "age": 27,
      "espnId": "4277890"
+    },
+    {
+     "name": "Cam Whitmore",
+     "jersey": null,
+     "position": "F",
+     "height": "6' 6\"",
+     "weight": "230 lbs",
+     "age": 22,
+     "espnId": "5105592"
     }
    ]
   },
@@ -1477,7 +1477,7 @@ const ROSTERS_DATA = {
      "position": "F",
      "height": "6' 5\"",
      "weight": "215 lbs",
-     "age": 24,
+     "age": 25,
      "espnId": "4592187"
     },
     {
@@ -2294,6 +2294,15 @@ const ROSTERS_DATA = {
      "espnId": "4683774"
     },
     {
+     "name": "Meechie Johnson",
+     "jersey": null,
+     "position": "G",
+     "height": "6' 1\"",
+     "weight": "200 lbs",
+     "age": 23,
+     "espnId": "4710770"
+    },
+    {
      "name": "Walker Kessler",
      "jersey": null,
      "position": "C",
@@ -2366,6 +2375,15 @@ const ROSTERS_DATA = {
      "espnId": "4066457"
     },
     {
+     "name": "Chase Ross",
+     "jersey": "29",
+     "position": "G",
+     "height": "6' 5\"",
+     "weight": "210 lbs",
+     "age": 23,
+     "espnId": "5105598"
+    },
+    {
      "name": "Collin Sexton",
      "jersey": null,
      "position": "G",
@@ -2400,15 +2418,6 @@ const ROSTERS_DATA = {
      "weight": "214 lbs",
      "age": 27,
      "espnId": "4278077"
-    },
-    {
-     "name": "Anton Watson",
-     "jersey": null,
-     "position": "F",
-     "height": "6' 8\"",
-     "weight": "225 lbs",
-     "age": 25,
-     "espnId": "4431705"
     },
     {
      "name": "Ziaire Williams",
@@ -2830,7 +2839,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 4\"",
      "weight": "215 lbs",
-     "age": 20,
+     "age": 21,
      "espnId": "5082206"
     },
     {
@@ -4387,7 +4396,7 @@ const ROSTERS_DATA = {
      "position": "PF",
      "height": "6' 8\"",
      "weight": "243 lbs",
-     "age": 26,
+     "age": 27,
      "espnId": "4431679"
     },
     {
@@ -5221,7 +5230,7 @@ const ROSTERS_DATA = {
      "position": "G",
      "height": "6' 2\"",
      "weight": "164 lbs",
-     "age": 27,
+     "age": 28,
      "espnId": "4277905"
     }
    ]
