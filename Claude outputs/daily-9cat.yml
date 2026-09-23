@@ -137,6 +137,13 @@ jobs:
           node scripts/sync-espn-rosters.js
 
 
+      # Wochen-Ergebnisse der laufenden Saison fuer die Team Rolling
+      # Rankings (data/season-matchups.js). Nicht fatal, siehe Script.
+      - name: ESPN Wochen-Matchups synchronisieren
+        if: steps.check_time.outputs.skip != 'true'
+        run: |
+          node scripts/sync-espn-matchups.js
+
       - name: Tagesdaten von ESPN holen
         if: steps.check_time.outputs.skip != 'true'
         env:
@@ -216,7 +223,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html data/livescores-daily.js data/livescores-aggregate.js data/rolling-rankings-2026-27.js data/offseason-rankings.js data/best-available-board.js data/rosters-live.js scripts/data/
+          git add index.html data/livescores-daily.js data/livescores-aggregate.js data/rolling-rankings-2026-27.js data/offseason-rankings.js data/best-available-board.js data/rosters-live.js data/season-matchups.js scripts/data/
           if git diff --cached --quiet; then
             echo "Keine Änderungen (vermutlich keine Spiele an diesem Tag)."
           else
