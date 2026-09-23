@@ -43,34 +43,6 @@
          Button mit den 3 manuellen Schritten (Teilen > Zum Home-Bildschirm).
          Sichtbarkeit wird rein per JS gesteuert (pwaShowIosHint in init.js). -->
     <button id="pwaIosHintBtn" onclick="pwaShowIosSteps()" style="display:none;background:rgba(108,99,255,0.12);border:1.5px solid rgba(108,99,255,0.35);color:var(--accent);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.2s;white-space:nowrap;margin-right:6px;">📲 Zum Home-Bildschirm</button>
-    <!-- ESPN Sync Button -->
-    <button id="espnSyncBtn" onclick="if(isAdmin)espnSync();else toast('⛔ Nur für Admins')" title="Nur Admins können manuell syncen" style="background:rgba(128,128,128,0.08);border:1.5px solid rgba(128,128,128,0.2);color:var(--muted);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:default;font-family:DM Sans,sans-serif;transition:all 0.2s;white-space:nowrap;margin-right:6px;">🔄 ESPN Sync</button>
-    <!-- Admin Settings link (visible only when logged in) -->
-    <button id="adminSettingsBtn" onclick="showAdminSettings()" style="display:none;background:rgba(245,200,66,0.12);border:1.5px solid rgba(245,200,66,0.35);color:#f5c842;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.2s;white-space:nowrap;margin-right:2px;">⚙️ Admin</button>
-    <!-- Global Admin Button -->
-    <div class="global-admin-btn" id="globalAdminBtn" onclick="toggleAdminDropdown(event)">
-      <span id="globalAdminIcon">&#128274;</span>
-      <span id="globalAdminLabel">Admin</span>
-      <div class="admin-dropdown" id="adminDropdown" onclick="event.stopPropagation()">
-        <div class="admin-dropdown-title">&#128272; Admin Login</div>
-        <div id="adminLoginForm">
-          <div class="admin-pin-row">
-            <input type="password" class="admin-pin-input" id="globalPinInput"
-              placeholder="PIN eingeben…" maxlength="8"
-              onkeydown="if(event.key==='Enter')globalCheckPin()"/>
-            <button class="admin-pin-btn" onclick="globalCheckPin()">OK</button>
-          </div>
-        </div>
-        <div class="admin-status-row" id="adminStatusRow" style="display:none;">
-          <span style="color:#f5c842;font-weight:700;">&#11088; Admin aktiv</span>
-          <button class="admin-logout-btn" onclick="globalLogout()">Logout</button>
-        </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5;">
-          Draft Duel: 3&#215; Vote-Gewicht<br>
-          Trade: Speichern &amp; Roster-Update
-        </div>
-      </div>
-    </div>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">&#9728;&#65039; Light</button>
   </div>
 </div>
@@ -78,6 +50,10 @@
 <!-- SUB-NAV BAR -->
 <div class="subnav" id="subNav">
 
+  <!-- Navigation, neu geordnet am 2026-09-23:
+       Liga    = alles rund um Teams und Tabelle
+       Spieler = alles rund um einzelne NBA-Spieler
+       Dazu die zwei Werkzeuge fuer den Wochenalltag direkt sichtbar. -->
   <!-- Desktop: grouped dropdowns, one row -->
   <div class="subnav-desktop">
     <div class="subnav-inner">
@@ -86,93 +62,67 @@
       <div class="snav-divider"></div>
 
       <div class="snav-group">
-        <button class="snav-group-btn" id="snavPlayer">🧍 Player <span class="snav-arrow">▾</span></button>
+        <button class="snav-group-btn" id="snavLiga">🏆 Liga <span class="snav-arrow">▾</span></button>
         <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="playerrankings"    onclick="showPlayerRankings()">🏅 2026/27 Rankings</button>
-          <button class="snav-dropdown-item" data-page="playerprojections" onclick="showPlayerProjections()">🔮 2026/27 Projections</button>
-          <button class="snav-dropdown-item" data-page="playershape" onclick="showPlayerShape()">🕸️ Cat Web</button>
-        </div>
-      </div>
-
-      <div class="snav-divider"></div>
-
-      <div class="snav-group">
-        <button class="snav-group-btn" id="snavFTBoards">🏆 Liga <span class="snav-arrow">▾</span></button>
-        <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="draftresults" onclick="showDraftResults()">📋 Draft Board</button>
-          <button class="snav-dropdown-item" data-page="dues" onclick="showDues()">💰 Liga-Beiträge</button>
-        </div>
-      </div>
-
-      <div class="snav-group">
-        <button class="snav-group-btn" id="snavAnalytics">📊 Analytics <span class="snav-arrow">▾</span></button>
-        <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="bestavail" onclick="showBestAvail()">🆓 Best Available</button>
+          <div class="snav-dropdown-label">Tabelle</div>
+          <button class="snav-dropdown-item" data-page="tabellenverlauf" onclick="showRollingStandings()">📈 Tabellenverlauf</button>
+          <button class="snav-dropdown-item" data-page="historie" onclick="showStandings()">🏛️ Historie</button>
           <button class="snav-dropdown-item" data-page="analytics" onclick="showAnalytics()">📊 Team Analytics</button>
-          <button class="snav-dropdown-item" data-page="rollingrankings" onclick="showRollingRankings()">📈 Rolling Rankings</button>
+          <div class="snav-dropdown-label">Organisation</div>
+          <button class="snav-dropdown-item" data-page="draftboard" onclick="showDraftResults()">📋 Draft Board</button>
+          <button class="snav-dropdown-item" data-page="beitraege" onclick="showDues()">💰 Beiträge</button>
+          <button class="snav-dropdown-item" data-page="regeln" onclick="showRules()">📜 Regeln</button>
         </div>
       </div>
 
       <div class="snav-group">
-        <button class="snav-group-btn" id="snavTrade">⚖️ Trade <span class="snav-arrow">▾</span></button>
+        <button class="snav-group-btn" id="snavSpieler">🧍 Spieler <span class="snav-arrow">▾</span></button>
         <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="trade"       onclick="showTrade()">⚖️ Trade Analyzer</button>
-          <button class="snav-dropdown-item" data-page="tradefinder" onclick="showTradeFinder()">🔍 Trade Finder</button>
+          <div class="snav-dropdown-label">Saison 2026/27</div>
+          <button class="snav-dropdown-item" data-page="rankings" onclick="showPlayerRankings()">🏅 Rankings</button>
+          <button class="snav-dropdown-item" data-page="projections" onclick="showPlayerProjections()">🔮 Projections</button>
+          <div class="snav-dropdown-label">Form &amp; Profil</div>
+          <button class="snav-dropdown-item" data-page="livescores" onclick="showLiveScores()">🔴 Live Scores</button>
+          <button class="snav-dropdown-item" data-page="spielerverlauf" onclick="showRollingRankings()">📉 Spielerverlauf</button>
+          <button class="snav-dropdown-item" data-page="catweb" onclick="showPlayerShape()">🕸️ Cat Web</button>
         </div>
       </div>
 
       <div class="snav-divider"></div>
       <button class="snav-single" data-page="matchup" onclick="showMatchupPlanner()">⚔️ Matchup Planer</button>
-      <button class="snav-single" data-page="livescores" onclick="showLiveScores()">🔴 Live Scores</button>
-      <div class="snav-group">
-        <button class="snav-group-btn" id="snavStandings">📈 Standings <span class="snav-arrow">▾</span></button>
-        <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="standings" onclick="showStandings()">🏛️ Standings History</button>
-          <button class="snav-dropdown-item" data-page="rollingstandings" onclick="showRollingStandings()">📈 Team Rolling Rankings</button>
-        </div>
-      </div>
-      <button class="snav-single" data-page="rules"     onclick="showRules()">📜 Rules</button>
-      <div class="snav-divider"></div>
+      <button class="snav-single" data-page="waiver" onclick="showBestAvail()">🆓 Waiver</button>
     </div>
   </div>
 
   <!-- Mobile: hamburger -->
   <div class="subnav-mobile">
     <button class="subnav-hamburger" onclick="toggleMobileNav()">
-      <span id="mobileNavLabel">🕺 League Tools</span>
+      <span id="mobileNavLabel">🕺 Menü</span>
       <span id="mobileNavArrow" style="transition:transform 0.2s;font-size:11px;">▾</span>
     </button>
     <div class="subnav-mobile-dropdown" id="mobileNavDropdown">
       <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Navigation</div>
-        <button class="subnav-mobile-btn" data-page="home"      onclick="goHome();closeMobileNav()">🏠 Home</button>
-        <button class="subnav-mobile-btn" data-page="matchup"    onclick="showMatchupPlanner();closeMobileNav()">⚔️ Matchup Planer</button>
-        <button class="subnav-mobile-btn" data-page="livescores" onclick="showLiveScores();closeMobileNav()">🔴 Live Scores</button>
-        <button class="subnav-mobile-btn" data-page="standings" onclick="showStandings();closeMobileNav()">🏛️ Standings History</button>
-        <button class="subnav-mobile-btn" data-page="rollingstandings" onclick="showRollingStandings();closeMobileNav()">📈 Team Rolling Rankings</button>
-        <button class="subnav-mobile-btn" data-page="rules"     onclick="showRules();closeMobileNav()">📜 Rules</button>
-      </div>
-      <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Player</div>
-        <button class="subnav-mobile-btn" data-page="playerrankings"    onclick="showPlayerRankings();closeMobileNav()">🏅 2026/27 Rankings</button>
-        <button class="subnav-mobile-btn" data-page="playerprojections" onclick="showPlayerProjections();closeMobileNav()">🔮 2026/27 Projections</button>
-        <button class="subnav-mobile-btn" data-page="playershape" onclick="showPlayerShape();closeMobileNav()">🕸️ Cat Web</button>
+        <div class="subnav-mobile-label">Diese Woche</div>
+        <button class="subnav-mobile-btn" data-page="home" onclick="goHome();closeMobileNav()">🏠 Home</button>
+        <button class="subnav-mobile-btn" data-page="matchup" onclick="showMatchupPlanner();closeMobileNav()">⚔️ Matchup Planer</button>
+        <button class="subnav-mobile-btn" data-page="waiver" onclick="showBestAvail();closeMobileNav()">🆓 Waiver</button>
       </div>
       <div class="subnav-mobile-group">
         <div class="subnav-mobile-label">Liga</div>
-        <button class="subnav-mobile-btn" data-page="draftresults" onclick="showDraftResults();closeMobileNav()">📋 Draft Board</button>
-        <button class="subnav-mobile-btn" data-page="dues" onclick="showDues();closeMobileNav()">💰 Liga-Beiträge</button>
-      </div>
-      <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Rankings & Analytics</div>
-        <button class="subnav-mobile-btn" data-page="bestavail" onclick="showBestAvail();closeMobileNav()">🆓 Best Available</button>
+        <button class="subnav-mobile-btn" data-page="tabellenverlauf" onclick="showRollingStandings();closeMobileNav()">📈 Tabellenverlauf</button>
+        <button class="subnav-mobile-btn" data-page="historie" onclick="showStandings();closeMobileNav()">🏛️ Historie</button>
         <button class="subnav-mobile-btn" data-page="analytics" onclick="showAnalytics();closeMobileNav()">📊 Team Analytics</button>
-        <button class="subnav-mobile-btn" data-page="rollingrankings" onclick="showRollingRankings();closeMobileNav()">📈 Rolling Rankings</button>
+        <button class="subnav-mobile-btn" data-page="draftboard" onclick="showDraftResults();closeMobileNav()">📋 Draft Board</button>
+        <button class="subnav-mobile-btn" data-page="beitraege" onclick="showDues();closeMobileNav()">💰 Beiträge</button>
+        <button class="subnav-mobile-btn" data-page="regeln" onclick="showRules();closeMobileNav()">📜 Regeln</button>
       </div>
       <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Trade Tools</div>
-        <button class="subnav-mobile-btn" data-page="trade"       onclick="showTrade();closeMobileNav()">⚖️ Trade Analyzer</button>
-        <button class="subnav-mobile-btn" data-page="tradefinder" onclick="showTradeFinder();closeMobileNav()">🔍 Trade Finder</button>
+        <div class="subnav-mobile-label">Spieler</div>
+        <button class="subnav-mobile-btn" data-page="rankings" onclick="showPlayerRankings();closeMobileNav()">🏅 Rankings 2026/27</button>
+        <button class="subnav-mobile-btn" data-page="projections" onclick="showPlayerProjections();closeMobileNav()">🔮 Projections 2026/27</button>
+        <button class="subnav-mobile-btn" data-page="livescores" onclick="showLiveScores();closeMobileNav()">🔴 Live Scores</button>
+        <button class="subnav-mobile-btn" data-page="spielerverlauf" onclick="showRollingRankings();closeMobileNav()">📉 Spielerverlauf</button>
+        <button class="subnav-mobile-btn" data-page="catweb" onclick="showPlayerShape();closeMobileNav()">🕸️ Cat Web</button>
       </div>
     </div>
   </div>
@@ -218,7 +168,7 @@
         <div class="flow-sub">
           Jede Zahl auf dieser Seite läuft denselben Weg: von den ESPN Boxscores über die tägliche
           Aggregation und die Z-Score Normierung bis in die Rankings, Projections und Werkzeuge.
-          Nichts davon wird von Hand gepflegt, bis auf die Preseason Baseline.
+          Von Hand kommt nur, was vor der Saison einmal festgelegt wird: die Preseason Baseline und der Consensus der drei Projection-Quellen.
         </div>
         <div class="flow-toggle">
           <button class="flow-toggle-btn active" data-mode="compact"   onclick="flowSetMode('compact')">Kompakt</button>
@@ -248,10 +198,6 @@
     <div class="tabs" style="flex:1;margin-bottom:0;">
       <div class="tab active">🏀 Roster</div>
     </div>
-    <button onclick="showTrade()" style="background:linear-gradient(135deg,#4caf81,#6c63ff);border:none;color:white;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;"
-      onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
-      ⚖️ Trade
-    </button>
   </div>
   <div id="tabContent"></div>
 </div>
@@ -340,21 +286,21 @@
 
 <!-- STANDINGS HISTORY. Logik: js/standings.js, Daten: data/season-history.js -->
 <div class="page page-wide" id="standingsPage">
-  <h2 style="margin-bottom:6px;">🏛️ Standings History</h2>
+  <h2 style="margin-bottom:6px;">🏛️ Historie</h2>
   <p class="lg-sub">Endplatzierung jeder Funkytown-Saison, direkt von ESPN · Klick auf ein Team in der Legende blendet es aus</p>
   <div id="standingsHistoryContent"></div>
 </div>
 
 <!-- TEAM ROLLING RANKINGS. Logik: js/standings.js, Daten: data/season-matchups.js -->
 <div class="page page-wide" id="rollingStandingsPage">
-  <h2 style="margin-bottom:6px;">📈 Team Rolling Rankings</h2>
+  <h2 style="margin-bottom:6px;">📈 Tabellenverlauf</h2>
   <p class="lg-sub">Tabellenplatz nach jeder Woche, Verlauf aller Teams und Wochen-Tabelle</p>
   <div id="rollingStandingsContent"></div>
 </div>
 
 <!-- LIGA-BEITRÄGE. Logik: js/league-dues.js, Daten: data/league-dues.js -->
 <div class="page page-wide" id="duesPage">
-  <h2 style="margin-bottom:6px;">💰 Liga-Beiträge</h2>
+  <h2 style="margin-bottom:6px;">💰 Beiträge</h2>
   <p class="lg-sub">Wer hat für welche Saison bezahlt</p>
   <div id="duesContent"></div>
 </div>
@@ -416,7 +362,7 @@
 
 <!-- PLAYER RANKINGS -->
 <div class="page page-wide" id="playerRankingsPage">
-  <h2 style="margin-bottom:6px;">🏅 2026/27 Rankings</h2>
+  <h2 style="margin-bottom:6px;">🏅 Rankings 2026/27</h2>
   <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">9-Cat Z-Score Rankings · automatisch aus Live Score Stats</p>
 
   <div class="ls-subtabs">
@@ -447,7 +393,7 @@
      Daten werden erst beim ersten Aufruf nachgeladen (~360 KB), siehe
      js/consensus-projections.js. -->
 <div class="page page-wide" id="playerProjectionsPage">
-  <h2 style="margin-bottom:6px;">🔮 2026/27 Projections</h2>
+  <h2 style="margin-bottom:6px;">🔮 Projections 2026/27</h2>
   <p style="color:var(--muted);font-size:13px;margin-bottom:4px;">
     Mittelwert aus <b>Beyaz' eigenen Projections</b> und <b>Josh Lloyd</b> (Basketball Monster, August-Stand).
     Zählstats werden gemittelt, FG%/FT% über die Wurfversuche gewichtet zurückgerechnet.
@@ -580,7 +526,7 @@
 
 <!-- RULES -->
 <div class="page" id="rulesPage">
-  <h2 style="margin-bottom:6px;">📜 Rules</h2>
+  <h2 style="margin-bottom:6px;">📜 Regeln</h2>
   <p style="color:var(--muted);font-size:13px;margin-bottom:28px;">Citizens of Funkytown League Rules & Regulations</p>
   <div id="rulesContent">
     <div class="rule-section">
@@ -593,13 +539,6 @@
     </div>
     <div class="rule-section">
       <div class="rule-section-header" onclick="toggleRule(this)"><span>📅 Draft Rules</span><span class="rule-chevron">▾</span></div>
-      <div class="rule-section-body">
-        <div class="rule-item"><div class="rule-number">1</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
-        <div class="rule-item"><div class="rule-number">2</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
-      </div>
-    </div>
-    <div class="rule-section">
-      <div class="rule-section-header" onclick="toggleRule(this)"><span>🔄 Trade Rules</span><span class="rule-chevron">▾</span></div>
       <div class="rule-section-body">
         <div class="rule-item"><div class="rule-number">1</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
         <div class="rule-item"><div class="rule-number">2</div><div class="rule-text">Rule goes here — edit this text to add your actual rule.</div></div>
@@ -629,7 +568,7 @@
 	
 <!-- BEST AVAILABLE -->
 <div class="page page-wide" id="bestAvailPage">
-  <h2 style="margin-bottom:6px;">🆓 Best Available</h2>
+  <h2 style="margin-bottom:6px;">🆓 Waiver</h2>
   <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Spieler die in keinem Roster stehen — sortiert nach einem gewichteten Gesamtscore aus BBM-Rang, letzter Saison, Off-Season/Preseason und laufender Saison (sobald verfügbar). MIN, Beste/Schwächste Kategorie und 2026/27 Rankings/Projections fehlen bei Spielern, für die noch keine Daten vorliegen.</p>
   <div class="rankings-search" style="display:flex;align-items:center;gap:10px;">
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -787,112 +726,7 @@
   </div>
 </div>
 
-<!-- TRADE ANALYZER -->
-<div class="page" id="tradePage">
-  <h2 style="margin-bottom:6px;">⚖️ Trade Analyzer</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
-    Bewertet nach dem aktuellen 2026/27 Projections Rang (täglich aktualisiert). Ein Anlaufpunkt, keine letzte Wahrheit.
-  </p>
-
-  <!-- START: Screenshot wrapper -->
-  <div id="tradeCapture">
-
-    <!-- TRADE SIDES -->
-    <div class="trade-layout">
-
-      <div class="trade-side" id="tradeSideA">
-        <div class="trade-side-title">Side A</div>
-
-        <div class="trade-dropdowns">
-          <div class="trade-dropdown-wrap">
-            <select id="tradeNbaFilterA" onchange="applyTradeDropdown('A')">
-              <option value="">🏀 NBA Team</option>
-            </select>
-          </div>
-          <div class="trade-dropdown-wrap">
-            <select id="tradeTTFilterA" onchange="applyTradeDropdown('A')">
-              <option value="">🌮 TT Team</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="trade-search-wrap">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input type="text" id="tradeSearchA" placeholder="Search player…" oninput="filterTradePlayers('A')"/>
-        </div>
-
-<div class="trade-player-list" id="tradeListA"></div>
-
-        <div class="trade-selected-wrap">
-          <div class="trade-selected-label">Selected</div>
-          <div id="tradeSelectedA">
-            <span style="color:var(--muted);font-size:12px;">None yet</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="trade-vs">vs</div>
-
-      <div class="trade-side" id="tradeSideB">
-        <div class="trade-side-title">Side B</div>
-
-        <div class="trade-dropdowns">
-          <div class="trade-dropdown-wrap">
-            <select id="tradeNbaFilterB" onchange="applyTradeDropdown('B')">
-              <option value="">🏀 NBA Team</option>
-            </select>
-          </div>
-          <div class="trade-dropdown-wrap">
-            <select id="tradeTTFilterB" onchange="applyTradeDropdown('B')">
-              <option value="">🌮 TT Team</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="trade-search-wrap">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input type="text" id="tradeSearchB" placeholder="Search player…" oninput="filterTradePlayers('B')"/>
-        </div>
-
-<div class="trade-player-list" id="tradeListB"></div>
-
-        <div class="trade-selected-wrap">
-          <div class="trade-selected-label">Selected</div>
-          <div id="tradeSelectedB">
-            <span style="color:var(--muted);font-size:12px;">None yet</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- RESULT -->
-    <div class="trade-result-wrap" id="tradeResult">
-      <div class="trade-empty-state">
-        Select at least one player on each side to analyze the trade.
-      </div>
-    </div>
-
-    <!-- BUTTON -->
-    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
-      <button id="tradeScreenshotBtn" class="draftboard-btn" style="flex:1;background:linear-gradient(135deg,#6c63ff,#ff6584);box-shadow:0 4px 14px rgba(108,99,255,0.3);">
-        📤 Share Trade
-      </button>
-
-    </div>
-
-  </div> <!-- END tradeCapture -->
-</div>
-
-<!-- REQUIRED SCRIPT -->
-
-<!-- SHARE MODAL -->
+<!-- Share-Modal- und Rolling-Rankings-Styles (vorher beim Trade Analyzer, 2026-09-23 hierher verschoben) -->
 <style>
   #shareModalOverlay {
     display: none;
@@ -1042,233 +876,12 @@
 
 </style>
 
-<style>
-  /* ===== PICK POOL IN TRADE ANALYZER ===== */
-  .pick-pool-btn {
-    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
-    padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 700;
-    font-family: 'DM Sans', sans-serif; transition: all 0.15s; margin-bottom: 10px;
-  }
-  .pick-pool-btn:hover { border-color: #c58f32; color: #c58f32; }
-  .pick-pool-btn.active { background: rgba(197,143,50,0.15); border-color: #c58f32; color: #c58f32; }
-  body.light .pick-pool-btn { }
-  body.light .pick-pool-btn.active { background: rgba(154,110,16,0.12); border-color: #9a6e10; color: #9a6e10; }
-  /* Trennt Picks- und Spieler-Abschnitt in der vereinheitlichten Liste
-     (16.08.2026: ersetzt den frueheren "Picks anzeigen"-Umschalter). */
-  .trade-section-head {
-    padding: 8px 12px 5px;
-    font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
-    color: var(--muted); background: var(--surface2); border-bottom: 1px solid var(--border);
-  }
-  .pick-item {
-    display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px;
-    cursor: pointer; transition: background 0.1s; border-bottom: 1px solid var(--border); font-size: 13px;
-  }
-  .pick-item:last-child { border-bottom: none; }
-  .pick-item:hover { background: var(--surface2); }
-  .pick-item.selected { background: rgba(197,143,50,0.08); }
-  .pick-round-pos {
-    font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 5px;
-    letter-spacing: 0.05em; white-space: nowrap;
-    background: rgba(197,143,50,0.15); color: #c58f32;
-  }
-  body.light .pick-round-pos { background: rgba(154,110,16,0.12); color: #9a6e10; }
-  .pick-owner-chip {
-    display: inline-flex; align-items: center; gap: 3px;
-    font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--muted); margin: 1px 2px 1px 0;
-  }
-  .pick-owner-chip.traded { border-color: rgba(255,101,132,0.4); color: #ff8fa3; background: rgba(255,101,132,0.08); }
-  body.light .pick-owner-chip.traded { border-color: rgba(180,60,100,0.3); color: #b43c64; background: rgba(180,60,100,0.06); }
-  .pick-value-badge {
-    font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px;
-    background: rgba(197,143,50,0.15); color: #c58f32; white-space: nowrap;
-  }
-  body.light .pick-value-badge { background: rgba(154,110,16,0.12); color: #9a6e10; }
-</style>
-
-<div id="shareModalOverlay">
-  <div id="shareModalBox">
-    <div class="drag-handle"></div>
-    <button class="share-close-btn" onclick="closeShareModal()">✕</button>
-    <div class="share-modal-title">🌮 Share Trade</div>
-    <div id="shareCardContent"></div>
-    <div class="share-btn-row">
-      <button class="share-action-btn" id="copyShareBtn">📋 Copy Text</button>
-      <button class="share-action-btn primary" id="downloadShareBtn">💾 Save Image</button>
-    </div>
-  </div>
-</div>
-
-<div class="page" id="tradeFinderPage">
-  <h2 style="margin-bottom:4px;">🔍 Trade Finder</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Gib an was du abgeben willst — der Finder sucht faire Gegenleistungen</p>
-
-  <!-- TOP BAR: Mode + Target Team in one row -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
-      <div style="min-width:160px;flex:0 0 auto;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Trade mit</div>
-        <div class="trade-dropdown-wrap" style="min-width:unset;">
-          <select id="tfOwnerDropdown" onchange="setTFOwnerFromDropdown()" style="width:100%;font-size:12px;">
-            <option value="">🌮 Alle Teams</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONFIG ROW: Format -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
-    <div style="display:flex;gap:14px;flex-wrap:wrap;">
-      <div style="flex:1;min-width:160px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Trade Format</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-            <label style="font-size:10px;color:var(--muted);font-weight:600;">Ich gebe</label>
-            <input type="number" id="tfGiveNum" min="1" max="5" value="2"
-              oninput="setTFFormatFree()"
-              style="width:56px;background:var(--surface2);border:1px solid var(--border);color:var(--text);
-                     font-family:'DM Sans',sans-serif;font-size:18px;font-weight:800;text-align:center;
-                     padding:6px 4px;border-radius:9px;outline:none;-moz-appearance:textfield;"
-            />
-          </div>
-          <span style="font-size:20px;color:var(--muted);font-weight:300;padding-bottom:2px;">für</span>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-            <label style="font-size:10px;color:var(--muted);font-weight:600;">Ich bekomme</label>
-            <input type="number" id="tfGetNum" min="1" max="5" value="1"
-              oninput="setTFFormatFree()"
-              style="width:56px;background:var(--surface2);border:1px solid var(--border);color:var(--text);
-                     font-family:'DM Sans',sans-serif;font-size:18px;font-weight:800;text-align:center;
-                     padding:6px 4px;border-radius:9px;outline:none;-moz-appearance:textfield;"
-            />
-          </div>
-        </div>
-        <style>
-          #tfGiveNum:focus, #tfGetNum:focus { border-color: var(--accent); }
-          #tfGiveNum::-webkit-inner-spin-button, #tfGiveNum::-webkit-outer-spin-button,
-          #tfGetNum::-webkit-inner-spin-button,  #tfGetNum::-webkit-outer-spin-button { opacity:1; }
-        </style>
-      </div>
-    </div>
-  </div>
-
-  <!-- MAIN: Give + Results stacked on mobile, side by side on desktop -->
-  <div class="tf-main-grid">
-
-    <!-- LEFT: Du gibst ab -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Du gibst ab</div>
-        <span id="tfGiveCount" style="font-size:11px;font-weight:800;background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:10px;">0 / 2</span>
-      </div>
-      <!-- Give-side team filter -->
-      <div class="trade-dropdown-wrap" style="margin-bottom:8px;">
-        <select id="tfGiveTeamDropdown" onchange="setTFGiveTeamFromDropdown()" style="width:100%;font-size:12px;">
-          <option value="">🌮 Alle Teams</option>
-        </select>
-      </div>
-      <div class="tf-search-wrap" id="tfGiveSearchWrap">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" id="tfGiveSearch" placeholder="Spieler suchen…" oninput="renderTFGiveList()"/>
-      </div>
-      <div class="tf-give-list" id="tfGiveList">
-        <div style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">Tippe zum Suchen…</div>
-      </div>
-      <div id="tfGivePills" style="margin-top:8px;min-height:28px;">
-        <span style="color:var(--muted);font-size:12px;">Noch nichts ausgewählt</span>
-      </div>
-      <div id="tfGiveValue" style="margin-top:6px;"></div>
-      <button onclick="runTradeFinder()" id="tfFindBtn" style="
-        width:100%;margin-top:12px;
-        background:linear-gradient(135deg,var(--accent),var(--accent2));
-        border:none;color:white;padding:13px;border-radius:11px;
-        font-size:14px;font-weight:800;font-family:'DM Sans',sans-serif;
-        cursor:pointer;transition:opacity 0.15s;box-shadow:0 4px 14px rgba(108,99,255,0.28);">
-        🔍 Faire Trades finden
-      </button>
-    </div>
-
-    <!-- RIGHT: Results -->
-    <div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Ergebnisse <span id="tfResultCount" style="color:var(--accent);text-transform:none;letter-spacing:0;"></span></div>
-        <button id="tfShareBtn" onclick="openTFShareModal()" style="display:none;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)';" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)';">
-          📤 Share
-        </button>
-      </div>
-      <div id="tfResults">
-        <div class="tf-empty">Wähle Spieler aus und klicke "Faire Trades finden"</div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<div class="page" id="adminSettingsPage">
-  <div style="max-width:680px;margin:0 auto;">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
-      <div style="font-size:32px;">⚙️</div>
-      <div>
-        <h2 style="margin:0 0 2px;">Admin Settings</h2>
-        <p style="margin:0;color:var(--muted);font-size:13px;">Nur für Admins · Änderungen werden sofort gespeichert</p>
-      </div>
-    </div>
-
-    <!-- Section: Spieler -->
-    <div class="admin-section">
-      <div class="admin-section-title">👤 Spieler verwalten</div>
-
-      <div class="admin-row">
-        <label class="admin-label">Team</label>
-        <select id="as-player-team" class="admin-select">
-          <option value="">— Team wählen —</option>
-        </select>
-      </div>
-      <div class="admin-row">
-        <label class="admin-label">Spielername</label>
-        <input id="as-player-name" class="admin-input" type="text" placeholder="z.B. Andrew Nembhard" list="as-player-suggestions">
-        <datalist id="as-player-suggestions"></datalist>
-      </div>
-      <div class="admin-row">
-        <label class="admin-label">Position</label>
-        <select id="as-player-pos" class="admin-select" style="width:100px;">
-          <option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option>
-        </select>
-        <label class="admin-label" style="margin-left:16px;">NBA Team</label>
-        <input id="as-player-nba" class="admin-input" type="text" placeholder="z.B. IND" maxlength="4" style="width:80px;">
-      </div>
-      <div class="admin-row" style="gap:8px;">
-        <button class="admin-btn green" onclick="asAddPlayer()">➕ Hinzufügen</button>
-        <button class="admin-btn red"   onclick="asRemovePlayer()">➖ Entfernen</button>
-      </div>
-    </div>
-
-    <!-- Section: ESPN Sync -->
-    <div class="admin-section">
-      <div class="admin-section-title">🔄 ESPN &amp; Daten</div>
-      <div class="admin-row" style="flex-wrap:wrap;gap:10px;">
-        <button class="admin-btn green" onclick="espnSync()">🔄 ESPN Sync jetzt</button>
-        <button id="liveScoresTriggerBtn" class="admin-btn green" onclick="triggerLiveScoresWorkflow()">🚀 Live Scores jetzt aktualisieren</button>
-        <button class="admin-btn" onclick="asResetOverrides()">🧹 Roster-Overrides zurücksetzen</button>
-      </div>
-      <div id="as-sync-status" style="margin-top:10px;font-size:12px;color:var(--muted);"></div>
-    </div>
-
-  </div>
-</div>
-
-
 <div class="page page-wide" id="rollingRankingsPage">
   <div class="rr-layout">
     <div class="rr-sidebar">
       <div class="rr-sidebar-header">
         <div style="flex:1;">
-          <div style="font-size:15px;font-weight:800;color:var(--text);">📈 Rolling Rankings</div>
+          <div style="font-size:15px;font-weight:800;color:var(--text);">📉 Spielerverlauf</div>
           <div id="rrSeasonSubtitle" style="font-size:11px;color:var(--muted);margin-top:2px;">Saison 2025/26</div>
         </div>
         <div style="position:relative;">
@@ -1316,15 +929,15 @@
 <script src="data/players.js?v=6b810b7f"></script>
 <script src="data/teams-rosters.js?v=dfcd2c47"></script>
 <script src="data/season-history.js?v=24924011"></script>
-<script src="data/season-matchups.js?v=4fff6ef7"></script>
-<script src="data/league-dues.js?v=61c25e7c"></script>
+<script src="data/season-matchups.js?v=d596690d"></script>
+<script src="data/league-dues.js?v=a966648b"></script>
 <script src="data/season-rankings.js?v=51f908be"></script>
 <script src="data/rosters-live.js?v=9cdcf7c7"></script>
 <!-- Wer wen gepickt hat, fuer einen abgeschlossenen Draft. Manuell aktualisiert, siehe scripts/fetch-draft-results-espn.js. NUR diese "active"-Datei einbinden, nicht zusaetzlich data/draft-results-<jahr>.js -- beide deklarieren dieselbe Konstante. --><script src="data/draft-results-active.js?v=85ec1c76"></script>
 <script src="data/projections-baseline.js?v=c194f5ad"></script>
-<script src="data/live-projections.js?v=f378e0eb"></script>
+<script src="data/live-projections.js?v=e3f38185"></script>
 <script src="data/aliases.js?v=2cbadcff"></script>
-<script src="data/best-available-board.js?v=fc31afd2"></script>
+<script src="data/best-available-board.js?v=45234e7d"></script>
 <script src="data/stats.js?v=ce55f807"></script>
 
 <!-- App logic -->
@@ -1340,17 +953,11 @@
 <script src="js/league-dues.js?v=1"></script>
 <script src="js/player-shape.js?v=1"></script>
 <script src="js/best-available.js?v=5"></script>
-<script src="js/trade-analyzer.js?v=5"></script>
-<script src="js/trade-finder.js?v=5"></script>
-<script src="js/roster-overrides.js?v=1"></script>
-<script src="data/team-analytics.js?v=dbd9d932"></script>
+<script src="data/team-analytics.js?v=8596232e"></script>
 <script src="js/analytics.js?v=6"></script>
-<script src="js/admin.js?v=5"></script>
-<script src="js/admin-inline.js?v=5"></script>
-<script src="js/admin-settings.js?v=5"></script>
-<script src="js/admin-workflow-trigger.js?v=1"></script>
+<script src="js/rosters.js?v=1"></script>
 <script src="js/espn-sync.js?v=5"></script>
-<script src="js/espn-live-sync.js?v=6"></script>
+<script src="js/espn-live-sync.js?v=7"></script>
 <!-- Muss nach espn-live-sync.js stehen: nutzt dessen _fetchEspnViaProxy() -->
 <script src="js/matchup-planner.js?v=1"></script>
 

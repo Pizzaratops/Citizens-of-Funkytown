@@ -85,6 +85,12 @@ Was stattdessen gilt:
 - **🕸️ Cat Web** (Menü Player): aus TTHQ übernommen (`js/player-shape.js`, `css/catweb.css`, `data/last-season-stats-*.js`). Die Saison-Stats werden erst beim Öffnen der Seite geladen.
 - **Entfernt:** „Live Projections (Test)“ (Projections, NBA Teams, Fantrax Redraft) samt `projections/`-Unterordner, `draft.html`, `teams.html` und den drei `projections-*.yml`-Workflows.
 
+## 🧭 Navigation & Aufräumen (2026-09-23, dritte Runde)
+
+- **Neue Navi:** 🏠 Home · 🏆 Liga (Tabellenverlauf, Historie, Team Analytics, Draft Board, Beiträge, Regeln) · 🧍 Spieler (Rankings, Projections, Live Scores, Spielerverlauf, Cat Web) · ⚔️ Matchup Planer · 🆓 Waiver. Alte Adressen (#standings, #rollingrankings …) leiten weiter.
+- **Entfernt:** Trade Analyzer, Trade Finder, Trade-Regeln, Admin-Login samt Admin-Seite, ESPN-Sync-Knopf. Kader kommen nur noch aus dem Server-Sync (`js/rosters.js`), alte Browser-Zwischenstände werden beim ersten Besuch gelöscht.
+- **Pipeline-Fixes:** Der Daily-Workflow holte bisher fest nur die Summer League Las Vegas; jetzt `--league=auto` (Juli Summer League, sonst NBA, Preseason getrennt als `nba-preseason`). Jeder Lauf holt gestern + heute (US-Zeit). `data/live-projections.js` und `data/team-analytics.js` wurden gebaut, aber nie committet; sind jetzt im Commit-Schritt.
+
 ## 🗺️ Architektur & Datenfluss
 
 Reines Vanilla-JS + HTML/CSS, keine Build-Tools, kein Framework. Gehostet auf GitHub Pages, Datenpipeline läuft über GitHub Actions + Node.js-Scripts.
@@ -111,7 +117,6 @@ ESPN API (Rosters + Boxscores)
 | Seite | Datenquelle(n) | Automatisch? |
 |---|---|---|
 | **Best Available** | `best-available-board.js` gegen `rosters-live.js` gefiltert | komplett automatisch |
-| **Trade Analyzer** | `live-projections.js` (Projections-Rang) | komplett automatisch |
 | **Live Scores** | `livescores-daily.js` + `livescores-aggregate.js` | komplett automatisch |
 | **Draft Results** | `draft-results-active.js` (ESPN) | manuell per Workflow, einmal pro Saison |
 | **Team Analytics** | `js/analytics.js` | ⚠️ im Original-Toolkit statisch/nicht automatisiert |

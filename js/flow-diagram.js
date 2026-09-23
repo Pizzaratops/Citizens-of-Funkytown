@@ -26,20 +26,21 @@ const FLOW_STAGES = [
         icon: '🏀', kind: 'source', title: 'NBA Boxscores',
         text: 'Jeden Spieltag werden die kompletten Boxscores aller Partien abgerufen, Spieler für Spieler.',
         files: ['scripts/daily-9cat.js'],
-        badge: '3× täglich',
+        badge: 'halbstündlich',
         detail: [
-          ['Läufe', '06:00, 08:00 und 22:00 Uhr Berliner Zeit. Der späte Lauf holt Spiele nach, die zum Morgenlauf noch nicht beendet waren.'],
+          ['Läufe', 'Alle 30 Minuten zwischen 6 und 22 Uhr Berliner Zeit. Jeder Lauf holt den gestrigen und den heutigen US-Spieltag, die Spiele der Nacht sind also schon am Morgen da.'],
           ['Datum', 'ESPN katalogisiert Spieltage nach US-Zeit, nicht nach UTC. Der Abruf rechnet deshalb explizit um, sonst fehlt regelmäßig ein Tag.'],
-          ['Ausfall', 'GitHub verwirft geplante Läufe unter Last. Ein externer Trigger stößt den Workflow zusätzlich an, alle Läufe sind wiederholbar ohne Doppelzählung.'],
+          ['Saisonphase', 'Im Juli die Summer Leagues, danach die NBA. Preseason-Spiele werden getrennt abgelegt und zählen nur in die Off Season Rankings, nicht in die Saison-Projections.'],
+          ['Ausfall', 'GitHub verwirft geplante Läufe unter Last. Alle Läufe sind wiederholbar ohne Doppelzählung.'],
         ],
       },
       {
         icon: '👥', kind: 'source', title: 'Fantasy Rosters',
-        text: 'Wer aktuell wem gehört, kommt direkt aus der ESPN Liga. Trades werden automatisch erkannt.',
+        text: 'Wer aktuell wem gehört, kommt direkt aus der ESPN Liga. Bis zum Draft zeigt ESPN noch keine neuen Kader, bis dahin bleibt der letzte Stand stehen.',
         files: ['scripts/sync-espn-rosters.js'],
-        badge: 'täglich',
+        badge: 'halbstündlich',
         detail: [
-          ['Ziel', 'data/rosters-live.js. Manuelle Korrekturen im Admin bleiben erhalten und werden obendrauf gelegt.'],
+          ['Ziel', 'data/rosters-live.js. Es gibt keine manuellen Korrekturen im Browser mehr, alle sehen denselben Stand.'],
           ['Schutz', 'Liefert ESPN eine unvollständige Antwort, bricht der Sync ab statt den letzten guten Stand zu überschreiben.'],
           ['Cache', 'Nach jedem Lauf bekommt jede Datendatei in index.html eine Versionsnummer aus ihrem Inhalt. Ohne das liefern Browser die alte Fassung aus, obwohl im Repo längst die neue liegt.'],
         ],
@@ -71,9 +72,9 @@ const FLOW_STAGES = [
         text: 'Beantwortet an einer einzigen Stelle, wem ein Spieler gehört. Wer nirgends auftaucht, ist Free Agent.',
         files: ['js/fantasy-owner.js'],
         detail: [
-          ['Genutzt von', 'Projections, NBA Teams und Best Available. Vorher stand die Logik nur an einer Stelle, beim Ausweiten wäre sie sonst dreimal kopiert worden.'],
+          ['Genutzt von', 'Projections, NBA Teams, Waiver und Cat Web.'],
           ['Warum geteilt', 'Der Namensabgleich ist die empfindlichste Stelle. Drei Kopien heißen drei Orte, an denen Aliase und Umlaute auseinanderlaufen können.'],
-          ['Aktualität', 'Der Index wird bei jedem Rendern verworfen und neu gebaut, sonst zeigt die Seite nach einem Trade oder einer Adminänderung noch den Besitz von vorher.'],
+          ['Aktualität', 'Der Index wird bei jedem Rendern verworfen und neu gebaut, sonst zeigt die Seite nach einem Kaderwechsel noch den Besitz von vorher.'],
         ],
       },
     ],
@@ -140,16 +141,21 @@ const FLOW_STAGES = [
     cards: [
       {
         icon: '🎯', kind: 'data', title: 'Preseason Baseline',
-        text: 'Die vor Saisonstart einmal festgelegte Erwartung je Spieler. Der einzige Teil der Pipeline, der von Hand kommt.',
+        text: 'Die vor Saisonstart einmal festgelegte Erwartung je Spieler. Kommt zusammen mit dem Consensus von Hand.',
         files: ['data/projections-baseline.js'],
+      },
+      {
+        icon: '🤝', kind: 'data', title: 'Consensus Projections',
+        text: 'Mittelwert aus drei Preseason-Quellen (Beyaz, Josh Lloyd/BBM, Hashtag Basketball). Einmal vor der Saison importiert, speist die Seite 2026/27 Projections und den Live Blend.',
+        files: ['data/projections-consensus.js'],
       },
       {
         icon: '🔮', kind: 'script', title: 'Live Blend',
         text: 'Baseline und tatsächliche Saisonstatistik werden gemischt. Am Saisonanfang dominiert die Baseline, später die echten Zahlen.',
         files: ['scripts/build-live-projections.js', 'data/live-projections.js'],
         detail: [
-          ['Formel', 'Die Baseline zählt wie eine feste Anzahl fiktiver Spiele. Kommen echte Spiele dazu, verschiebt sich das Gewicht automatisch Richtung Realität.'],
-          ['Effekt', 'Ein starker Saisonstart hebt die Projection sofort spürbar, aber nicht sprunghaft. Nach etwa zwanzig Spielen ist die Baseline weitgehend verdrängt.'],
+          ['Formel', 'Die Baseline zählt wie zwei fiktive Spiele. Kommen echte Spiele dazu, verschiebt sich das Gewicht automatisch Richtung Realität.'],
+          ['Effekt', 'Nach zwei echten Spielen zählen Baseline und Realität je zur Hälfte, nach zwanzig Spielen hat die Baseline nur noch knapp ein Zehntel Gewicht. Nur reguläre Saisonspiele zählen, keine Preseason.'],
         ],
       },
     ],
@@ -195,19 +201,14 @@ const FLOW_STAGES = [
         page: 'showPlayerRankings',
       },
       {
-        icon: '📈', kind: 'view', title: 'Rolling Rankings',
+        icon: '📉', kind: 'view', title: 'Spielerverlauf',
         text: 'Der Rangverlauf über die Saison hinweg, Woche für Woche aus dem Archiv gezeichnet.',
         page: 'showRollingRankings',
       },
       {
-        icon: '🆓', kind: 'view', title: 'Best Available',
+        icon: '🆓', kind: 'view', title: 'Waiver',
         text: 'Freie Spieler nach einem zusammengesetzten Wert aus Projection, letzter Saison, Preseason und aktueller Form. Filterbar nach NBA Team.',
         page: 'showBestAvail',
-      },
-      {
-        icon: '⚖️', kind: 'view', title: 'Trade Analyzer',
-        text: 'Bewertet beide Seiten eines Trades über den aktuellen 2026/27 Projections Rang.',
-        page: 'showTrade',
       },
       {
         icon: '⚔️', kind: 'new', title: 'Matchup Planer',

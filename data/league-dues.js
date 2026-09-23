@@ -24,7 +24,10 @@ const CURRENT_DUES_SEASON = '2026/27';
 const DUES_AMOUNT = null;
 
 const LEAGUE_DUES_PAID = [
-  // { teamId: 1, season: '2026/27', date: '2026-10-01' },
+  { teamId: 1, season: '2026/27' },  // Fighting Illini (Kong Power)
+  { teamId: 3, season: '2026/27' },  // German Wunderkinder (Stefan Buchholz)
+  { teamId: 8, season: '2026/27' },  // Isaac's Falling Fruits (White Schröder)
+  { teamId: 9, season: '2026/27' },  // Greifswald SG Gerstensaft (Sven Kosanke)
 ];
 
 // Rückgabe: "paid" | "owes" | "not-relevant"

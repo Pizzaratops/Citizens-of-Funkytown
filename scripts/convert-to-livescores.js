@@ -12,7 +12,7 @@
 //
 //  Usage:
 //    node scripts/convert-to-livescores.js
-//      → heutiges Datum, Liga nba-summer-las-vegas
+//      → gestern + heute (US-Ostküste), alle Ligen mit CSV (Auto-Modus)
 //    node scripts/convert-to-livescores.js --date=2026-07-14 --league=nba
 //    node scripts/convert-to-livescores.js --dir=scripts/data --out=data/livescores-daily.js
 //    node scripts/convert-to-livescores.js --keep-days=60
@@ -30,11 +30,40 @@ const arg = (name, fallback) => {
   return found ? found.split('=').slice(1).join('=') : fallback;
 };
 
-const dateStr = arg('date', new Date().toISOString().slice(0, 10));
-const LEAGUE = arg('league', 'nba-summer-las-vegas');
 const DIR = arg('dir', path.join(__dirname, 'data'));
 const OUT = arg('out', path.join(__dirname, '..', 'data', 'livescores-daily.js'));
 const keepDaysArg = arg('keep-days', null);
+
+// ── AUTO-MODUS (Standard seit 2026-09-23) ───────────────────────
+// Ohne --date: gestern UND heute (US-Ostkuestenzeit), passend zu
+// scripts/daily-9cat.js. Ohne --league bzw. mit --league=auto: jede
+// Liga, fuer die an diesem Tag eine CSV existiert (z.B. "nba" und
+// "nba-preseason" am selben Tag). Jede Kombination laeuft als eigener
+// Aufruf dieses Scripts, die Einzel-Logik darunter bleibt unveraendert.
+const dateArgRaw = arg('date', null);
+const leagueArgRaw = arg('league', 'auto');
+if (!dateArgRaw || leagueArgRaw === 'auto') {
+  const { execFileSync } = require('child_process');
+  const et = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  const shift = (d, n) => { const x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+  const dates = dateArgRaw ? [dateArgRaw] : [shift(et, -1), et];
+  const passthrough = args.filter(a => !a.startsWith('--date=') && !a.startsWith('--league='));
+  let runs = 0;
+  for (const d of dates) {
+    const leagues = leagueArgRaw !== 'auto' ? [leagueArgRaw]
+      : (fs.existsSync(DIR) ? fs.readdirSync(DIR) : [])
+          .map(f => f.match(new RegExp(`^daily-9cat_(.+)_${d}\\.csv$`)))
+          .filter(Boolean).map(m => m[1]);
+    for (const lg of leagues) {
+      execFileSync(process.execPath, [__filename, ...passthrough, `--date=${d}`, `--league=${lg}`], { stdio: 'inherit' });
+      runs++;
+    }
+  }
+  if (!runs) console.log(`Keine Tages-CSVs für ${dates.join(' / ')} gefunden, livescores-daily.js bleibt unverändert.`);
+  process.exit(0);
+}
+const dateStr = dateArgRaw;
+const LEAGUE = leagueArgRaw;
 
 // ------------------------------------------------------------
 // Minimaler CSV-Parser (identisch zu aggregate-9cat.js)

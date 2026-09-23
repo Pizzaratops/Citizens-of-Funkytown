@@ -1,12 +1,7 @@
 // ============================================================
 //  TOAST (kurze Statusmeldung unten am Bildschirmrand)
 // ============================================================
-//  Wird von admin-settings.js, admin-workflow-trigger.js, admin-inline.js,
-//  admin.js, espn-live-sync.js und index.html aufgerufen. Bis 2026-08-04 existierte diese Funktion nirgends
-//  im Repo -- jeder Aufruf war ein ReferenceError, der die jeweils
-//  laufende Funktion abgebrochen hat (z.B. Team speichern, Pick anlegen,
-//  Trade History leeren -- die Aktion selbst lief, aber die Erfolgs-
-//  Meldung crashte den Rest der Funktion).
+//  Kurze Statusmeldung, z.B. aus js/init.js (PWA-Hinweis).
 let _toastTimer = null;
 function toast(msg) {
   let el = document.getElementById('ttToast');
@@ -52,14 +47,14 @@ function toggleTheme() {
   if (standingsPage && standingsPage.classList.contains('active')) {
     setTimeout(renderStandingsChart, 50);
   }
-  // Re-render trade analyzer if visible so rank badges & value colors update
-  const tradePage = document.getElementById('tradePage');
-  if (tradePage && tradePage.classList.contains('active')) {
-    setTimeout(() => {
-      renderTradeList('A');
-      renderTradeList('B');
-      renderTradeResult();
-    }, 50);
+  // Tabellenverlauf und Beitraege ebenfalls neu zeichnen (Teamfarben)
+  const rsPage = document.getElementById('rollingStandingsPage');
+  if (rsPage && rsPage.classList.contains('active') && typeof renderRollingStandings === 'function') {
+    setTimeout(renderRollingStandings, 50);
+  }
+  const duesPage = document.getElementById('duesPage');
+  if (duesPage && duesPage.classList.contains('active') && typeof renderDues === 'function') {
+    setTimeout(renderDues, 50);
   }
   // Re-render home team grid so team colors update
   const homePage = document.getElementById('homePage');

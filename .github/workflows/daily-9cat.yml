@@ -66,9 +66,9 @@ on:
         description: 'Datum (YYYY-MM-DD), leer = heute'
         required: false
       league:
-        description: 'ESPN League-Slug'
+        description: 'ESPN League-Slug (auto = Juli Summer League, sonst nba inkl. Preseason)'
         required: false
-        default: 'nba-summer-las-vegas'
+        default: 'auto'
 
 permissions:
   contents: write
@@ -148,7 +148,7 @@ jobs:
         if: steps.check_time.outputs.skip != 'true'
         env:
           DATE_ARG: ${{ steps.correction_date.outputs.date || github.event.inputs.date }}
-          LEAGUE_ARG: ${{ github.event.inputs.league || 'nba-summer-las-vegas' }}
+          LEAGUE_ARG: ${{ github.event.inputs.league || 'auto' }}
         run: |
           node scripts/daily-9cat.js ${DATE_ARG} --league=${LEAGUE_ARG}
 
@@ -156,7 +156,7 @@ jobs:
         if: steps.check_time.outputs.skip != 'true'
         env:
           DATE_ARG: ${{ steps.correction_date.outputs.date || github.event.inputs.date }}
-          LEAGUE_ARG: ${{ github.event.inputs.league || 'nba-summer-las-vegas' }}
+          LEAGUE_ARG: ${{ github.event.inputs.league || 'auto' }}
         run: |
           if [ -n "$DATE_ARG" ]; then
             node scripts/convert-to-livescores.js --league="$LEAGUE_ARG" --date="$DATE_ARG" --keep-days=120
@@ -223,7 +223,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html data/livescores-daily.js data/livescores-aggregate.js data/rolling-rankings-2026-27.js data/offseason-rankings.js data/best-available-board.js data/rosters-live.js data/season-matchups.js scripts/data/
+          git add index.html data/livescores-daily.js data/livescores-aggregate.js data/rolling-rankings-2026-27.js data/offseason-rankings.js data/best-available-board.js data/live-projections.js data/team-analytics.js data/rosters-live.js data/season-matchups.js scripts/data/
           if git diff --cached --quiet; then
             echo "Keine Änderungen (vermutlich keine Spiele an diesem Tag)."
           else

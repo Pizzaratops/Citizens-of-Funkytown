@@ -7,7 +7,20 @@
 //    node daily-9cat.js               → heutiges Datum
 //    node daily-9cat.js 2026-04-12    → bestimmtes Datum
 //    node daily-9cat.js 2026-04-12 -v → verbose (alle Kategorien + Z-Scores)
-//    node daily-9cat.js --league=nba  → reguläre Saison statt Summer League
+//    node daily-9cat.js --league=nba  → nur NBA (Preseason + reguläre Saison)
+//    node daily-9cat.js --league=auto → Standard, siehe AUTO-MODUS unten
+//
+//  AUTO-MODUS (Standard seit 2026-09-23):
+//   - Liga: im Juli die drei Summer Leagues, sonst "nba".
+//   - Datum: ohne Datumsangabe gestern UND heute (US-Ostküstenzeit).
+//     Vorher wurde nur "heute" abgefragt; da NBA-Spiele erst nach
+//     Mitternacht deutscher Zeit enden, kamen die Spiele der Nacht
+//     erst mit dem 22-Uhr-Korrekturlauf am naechsten Abend rein.
+//     Beide Tage sind idempotent, ein erneuter Abruf ueberschreibt nur.
+//   - Preseason: ESPN fuehrt Preseason-Spiele unter "nba" (season.type 1).
+//     Sie landen als eigene Liga "nba-preseason" in den CSVs, damit sie in
+//     die Off-Season-Rankings zaehlen und NICHT in die Saison-Projections.
+//     Playoffs/Play-In (type 3/5) zaehlen zur regulaeren Liga "nba".
 //
 //  Speichert zusätzlich eine CSV im selben Ordner wie das Script:
 //    daily-9cat_<liga>_<datum>.csv
@@ -27,7 +40,8 @@ const dateArg = args.find(a => /^\d{4}-\d{2}-\d{2}$/.test(a));
 //   nba-summer-las-vegas    -> NBA Summer League Las Vegas (Hauptevent, 9.–19. Juli)
 // Per Flag wählbar: --league=nba-summer-las-vegas (Default) oder --league=nba (reguläre Saison)
 const leagueArg = args.find(a => a.startsWith('--league='));
-const LEAGUE = leagueArg ? leagueArg.split('=')[1] : 'nba-summer-las-vegas';
+const LEAGUE_ARG = leagueArg ? leagueArg.split('=')[1] : 'auto';
+const SUMMER_SLUGS = ['nba-summer-california', 'nba-summer-utah', 'nba-summer-las-vegas'];
 
 // Wo CSV + Meta-JSON landen. Default: scripts/data/ (das ist der Ordner, den
 // aggregate-9cat.js und convert-to-livescores.js ebenfalls per Default lesen,
@@ -51,16 +65,32 @@ function todayYYYYMMDD() {
   return fmt.format(new Date()); // en-CA liefert direkt YYYY-MM-DD
 }
 
+function shiftDate(dateStr, days) {
+  const d = new Date(dateStr + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 function toEspnDate(dateStr) {
   // "2026-04-12" -> "20260412"
   return dateStr.replaceAll('-', '');
 }
 
-const dateStr = dateArg || todayYYYYMMDD();
-const espnDate = toEspnDate(dateStr);
+const DATES = dateArg ? [dateArg] : [shiftDate(todayYYYYMMDD(), -1), todayYYYYMMDD()];
 
-const SCOREBOARD_URL = `https://site.api.espn.com/apis/site/v2/sports/basketball/${LEAGUE}/scoreboard?dates=${espnDate}`;
-const SUMMARY_URL = eventId => `https://site.api.espn.com/apis/site/v2/sports/basketball/${LEAGUE}/summary?event=${eventId}`;
+function slugsFor(dateStr) {
+  if (LEAGUE_ARG !== 'auto') return [LEAGUE_ARG];
+  return dateStr.slice(5, 7) === '07' ? SUMMER_SLUGS : ['nba'];
+}
+
+const SCOREBOARD_URL = (slug, dateStr) => `https://site.api.espn.com/apis/site/v2/sports/basketball/${slug}/scoreboard?dates=${toEspnDate(dateStr)}`;
+const SUMMARY_URL = (slug, eventId) => `https://site.api.espn.com/apis/site/v2/sports/basketball/${slug}/summary?event=${eventId}`;
+
+// Unter welchem Liga-Schluessel ein Spiel gespeichert wird (siehe Kopf).
+function outputLeague(slug, event) {
+  if (slug === 'nba' && event.season && Number(event.season.type) === 1) return 'nba-preseason';
+  return slug;
+}
 
 // 9cat Kategorien, in der Reihenfolge wie sie im Composite gewichtet werden.
 // 'invert: true' bedeutet: niedriger ist besser (Turnovers).
@@ -79,8 +109,8 @@ const CATEGORIES = [
 // ------------------------------------------------------------
 // 1) Spiele des Tages holen
 // ------------------------------------------------------------
-async function fetchGames(dateStr) {
-  const res = await fetch(SCOREBOARD_URL);
+async function fetchGames(slug, dateStr) {
+  const res = await fetch(SCOREBOARD_URL(slug, dateStr));
   if (!res.ok) throw new Error(`Scoreboard fetch fehlgeschlagen: HTTP ${res.status}`);
   const data = await res.json();
   const events = data.events || [];
@@ -96,7 +126,7 @@ async function fetchGames(dateStr) {
       const line = (home && away)
         ? `${teamLabel(away)} ${away.score ?? '?'} @ ${teamLabel(home)} ${home.score ?? '?'} (${statusText})`
         : (e.shortName || e.name);
-      return { id: e.id, name: e.shortName || e.name, line };
+      return { id: e.id, name: e.shortName || e.name, line, slug, league: outputLeague(slug, e) };
     });
 }
 
@@ -115,8 +145,8 @@ function parseMinutes(str) {
   return Number.isFinite(n) ? n : 0;
 }
 
-async function fetchGamePlayers(gameId) {
-  const res = await fetch(SUMMARY_URL(gameId));
+async function fetchGamePlayers(slug, gameId) {
+  const res = await fetch(SUMMARY_URL(slug, gameId));
   if (!res.ok) {
     console.warn(`  ! Boxscore fehlgeschlagen für Spiel ${gameId}: HTTP ${res.status}`);
     return [];
@@ -236,21 +266,14 @@ function computeZScores(players) {
 // ------------------------------------------------------------
 // 5) Main
 // ------------------------------------------------------------
-async function main() {
+async function processDay(LEAGUE, dateStr, games) {
   console.log(`\n=== Daily 9cat Ranking — ${dateStr} (Liga: ${LEAGUE}) ===\n`);
-
-  console.log('Lade Spielplan...');
-  const games = await fetchGames(dateStr);
-  if (!games.length) {
-    console.log('Keine abgeschlossenen Spiele für dieses Datum gefunden.');
-    return;
-  }
   console.log(`${games.length} Spiel(e) gefunden: ${games.map(g => g.name).join(', ')}\n`);
 
   console.log('Lade Boxscores...');
   let allPlayers = [];
   for (const game of games) {
-    const players = await fetchGamePlayers(game.id);
+    const players = await fetchGamePlayers(game.slug, game.id);
     allPlayers = allPlayers.concat(players);
   }
   console.log(`${allPlayers.length} Spieler mit Einsatzzeit gefunden.\n`);
@@ -353,6 +376,25 @@ async function main() {
   };
   fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2), 'utf8');
   console.log(`Meta gespeichert: ${metaPath}\n`);
+}
+
+async function main() {
+  for (const dateStr of DATES) {
+    for (const slug of slugsFor(dateStr)) {
+      let games;
+      try {
+        console.log(`Lade Spielplan ${slug} ${dateStr}...`);
+        games = await fetchGames(slug, dateStr);
+      } catch (e) {
+        console.warn(`  ! ${slug} ${dateStr}: ${e.message}`);
+        continue;
+      }
+      if (!games.length) { console.log(`  Keine abgeschlossenen Spiele (${slug}, ${dateStr}).`); continue; }
+      const byLeague = new Map();
+      games.forEach(g => { if (!byLeague.has(g.league)) byLeague.set(g.league, []); byLeague.get(g.league).push(g); });
+      for (const [league, list] of byLeague) await processDay(league, dateStr, list);
+    }
+  }
 }
 
 main().catch(err => {

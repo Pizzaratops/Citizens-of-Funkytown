@@ -193,8 +193,6 @@ function renderHome() {
 
 function showTeam(id){
   currentTeamId=id; currentTab='roster';
-  // Apply localStorage roster overrides
-  _applyRosterOverrides();
   currentRosterSort = 'pos';
   const sortBtn = document.getElementById('rosterSortBtn');
   if (sortBtn) {
@@ -288,7 +286,7 @@ function renderArchivedRoster(teamId) {
 }
 // ── Projection-Rang eines Spielers (1 = bester) ─────────────
 //  Einheitlicher Redraft-Rang fuer Roster, Best Available, NBA Teams
-//  und die Trade-Tools. Quelle: _getProjRankMap() (LIVE_PROJECTIONS).
+//  und Cat Web. Quelle: _getProjRankMap() (LIVE_PROJECTIONS).
 function getProjRank(name) {
   return _getProjRankMap().get(normalizeName(name).toLowerCase()) ?? null;
 }
@@ -373,22 +371,16 @@ function renderRoster(id) {
         : '';
       const projBadge = projRankBadge(rank);
 
-      const _isAdm = typeof isAdmin !== 'undefined' && isAdmin;
       const _posKey = p.pos ? p.pos.split('/')[0] : 'PG';
-      const _posStyle = _isAdm ? 'cursor:pointer;outline:2px dashed var(--accent);outline-offset:2px;border-radius:4px;' : '';
-      const _teamStyle = _isAdm ? 'font-size:12px;width:42px;text-align:center;cursor:pointer;text-decoration:underline dotted var(--accent);' : 'font-size:12px;width:42px;text-align:center;';
       html += `<div class="player-row">
-        <div class="pos-badge pos-${_posKey}"
-          onclick="if(window.isAdmin)adminEditPlayerField(event,this,'${p.name}',${id},'pos','${_posKey}')"
-          style="${_posStyle}"
-        >${_posKey}</div>
+        <div class="pos-badge pos-${_posKey}">${_posKey}</div>
         <div style="flex:1;min-width:0;">
           <!-- Desktop: single line -->
           <div class="roster-desktop-row">
             <div class="player-name" style="flex:1;cursor:pointer;" onclick="showRollingRankings('${p.name}')" title="📈 Rolling Rankings ansehen">${p.name}${ageStr}${injuryBadge(p.inj)}</div>
             <span class="roster-col-nba player-team r-team-link"
-              onclick="window.isAdmin?adminEditPlayerField(event,this,'${p.name}',${id},'team','${p.team}'):showNBATeam('${p.team}')"
-              style="${_teamStyle}"
+              onclick="showNBATeam('${p.team}')"
+              style="font-size:12px;width:42px;text-align:center;"
             >${p.team}</span>
             <span class="roster-col-rank">${projBadge}</span>
           </div>
@@ -473,20 +465,22 @@ function showDraftResults(){
 
 // Which group each page belongs to (for group-button highlighting)
 const SUBNAV_PAGES = {
-  homePage:'home', draftResultsPage:'draftresults', duesPage:'dues', rollingStandingsPage:'rollingstandings', playerShapePage:'playershape',
-  bestAvailPage:'bestavail', analyticsPage:'analytics', rollingRankingsPage:'rollingrankings', tradePage:'trade',
-  tradeFinderPage:'tradefinder', adminSettingsPage:'adminsettings', standingsPage:'standings', rulesPage:'rules',
-  liveScoresPage:'livescores', playerRankingsPage:'playerrankings', playerProjectionsPage:'playerprojections',
-  matchupPage:'matchup',
+  homePage:'home',
+  // Liga
+  rollingStandingsPage:'tabellenverlauf', standingsPage:'historie', analyticsPage:'analytics',
+  draftResultsPage:'draftboard', duesPage:'beitraege', rulesPage:'regeln',
+  // Spieler
+  playerRankingsPage:'rankings', playerProjectionsPage:'projections', rollingRankingsPage:'spielerverlauf',
+  liveScoresPage:'livescores', playerShapePage:'catweb',
+  // Einzelne Werkzeuge
+  matchupPage:'matchup', bestAvailPage:'waiver',
 };
 
 const SNAV_GROUP = {
-  playerrankings: 'snavPlayer', playerprojections: 'snavPlayer',
-  draftresults: 'snavFTBoards', dues: 'snavFTBoards',
-  standings: 'snavStandings', rollingstandings: 'snavStandings',
-  playershape: 'snavPlayer',
-  bestavail: 'snavAnalytics', analytics: 'snavAnalytics', rollingrankings: 'snavAnalytics',
-  trade:      'snavTrade', tradefinder: 'snavTrade',
+  tabellenverlauf: 'snavLiga', historie: 'snavLiga', analytics: 'snavLiga',
+  draftboard: 'snavLiga', beitraege: 'snavLiga', regeln: 'snavLiga',
+  rankings: 'snavSpieler', projections: 'snavSpieler', spielerverlauf: 'snavSpieler',
+  livescores: 'snavSpieler', catweb: 'snavSpieler',
 };
 
 // Reverse map: hash value → pageId
@@ -496,7 +490,13 @@ const HASH_TO_PAGE = Object.fromEntries(
 // Pages not in SUBNAV_PAGES that still need hash routing
 const EXTRA_HASH_TO_PAGE = {
   'home': 'homePage',
-  'adminsettings': 'adminSettingsPage',
+  // Alte Adressen (vor der Navi-Neuordnung am 2026-09-23), damit
+  // Lesezeichen weiter funktionieren.
+  'standings': 'standingsPage', 'rollingstandings': 'rollingStandingsPage',
+  'draftresults': 'draftResultsPage', 'dues': 'duesPage', 'rules': 'rulesPage',
+  'playerrankings': 'playerRankingsPage', 'playerprojections': 'playerProjectionsPage',
+  'rollingrankings': 'rollingRankingsPage', 'playershape': 'playerShapePage',
+  'bestavail': 'bestAvailPage',
 };
 
 function _applyPage(pageId) {
@@ -515,7 +515,7 @@ function _applyPage(pageId) {
   if (groupId) { const g = document.getElementById(groupId); if (g) g.classList.add('active'); }
   const activeBtn = document.querySelector('.subnav-mobile-btn[data-page="'+pageKey+'"]');
   const label = document.getElementById('mobileNavLabel');
-  if (label) label.textContent = activeBtn ? activeBtn.textContent : '🕺 League Tools';
+  if (label) label.textContent = activeBtn ? activeBtn.textContent : '🕺 Menü';
   window.scrollTo(0, 0);
 }
 
@@ -611,13 +611,10 @@ function _rerenderPage(pageId) {
   if (pageId === 'rollingStandingsPage') renderRollingStandings();
   if (pageId === 'duesPage')             renderDues();
   if (pageId === 'playerShapePage')      showPlayerShape();
-  if (pageId === 'adminSettingsPage')    _asInit();
   if (pageId === 'draftResultsPage')     showDraftResults();
   if (pageId === 'bestAvailPage')        showBestAvail();
   if (pageId === 'analyticsPage')        showAnalytics();
   if (pageId === 'rollingRankingsPage')  showRollingRankings();
-  if (pageId === 'tradePage')            typeof showTrade === 'function' && showTrade();
-  if (pageId === 'tradeFinderPage')      typeof showTradeFinder === 'function' && showTradeFinder();
   if (pageId === 'rulesPage')            showRules();
   if (pageId === 'liveScoresPage')       typeof lsInit === 'function' && lsInit();
   if (pageId === 'matchupPage')          typeof _mpEnsureData === 'function' && _mpEnsureData(mpInit);

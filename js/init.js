@@ -22,8 +22,6 @@
     _rerenderPage(initPageId);
   }
 })();
-initEspnSyncBtn();
-espnSync(true);
 
 // ============================================================
 //  PWA-INSTALL-BUTTON (Android/Chrome/Edge)

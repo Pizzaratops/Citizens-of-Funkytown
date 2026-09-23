@@ -39,7 +39,7 @@
 //  antreten, als aufgestellt werden duerfen. Wer das abbilden will,
 //  waehlt die ueberzaehligen Spiele selbst ab.
 //
-//  Genutzt wird _fetchEspnViaProxy() aus js/espn-trade-detect.js —
+//  Genutzt wird _fetchEspnViaProxy() aus js/espn-live-sync.js —
 //  dieses Script muss deshalb vorher geladen sein.
 // ============================================================
 
