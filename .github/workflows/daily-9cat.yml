@@ -6,9 +6,8 @@ on:
     # 06-08 Uhr + 22 Uhr Berlin; die Abdeckung tagsüber dazwischen sollte
     # der externe cron-job.org-Trigger übernehmen. Der ist an diesem Tag
     # ab ca. 08:35 Uhr ausgefallen (kein einziger Trigger mehr bis in den
-    # Abend) — ein Trade um 15:15 Uhr wurde dadurch stundenlang nicht
-    # erkannt, weil scripts/sync-espn-rosters.js (und damit die
-    # automatische Trade-Erkennung) schlicht nicht lief. Seitdem läuft
+    # Abend) — Roster-Änderungen wurden dadurch stundenlang nicht
+    # übernommen, weil scripts/sync-espn-rosters.js schlicht nicht lief. Seitdem läuft
     # dieser Workflow nativ halbstündlich 06-22 Uhr Berlin durch —
     # braucht cron-job.org als Tagesabdeckung nicht mehr, das kostet bei
     # einem öffentlichen Repo nichts (GitHub Actions ist dort unlimitiert).
@@ -137,14 +136,6 @@ jobs:
         run: |
           node scripts/sync-espn-rosters.js
 
-      # Deckt AUSSCHLIESSLICH den bevorstehenden Draft ab (siehe
-      # Kommentar im Script). Muss nach dem Roster-Sync laufen, damit
-      # beide denselben ESPN-Abrufzyklus teilen, ist aber inhaltlich
-      # unabhaengig davon. Nicht fatal, siehe Script.
-      - name: ESPN Draft-Picks synchronisieren
-        if: steps.check_time.outputs.skip != 'true'
-        run: |
-          node scripts/sync-espn-picks.js
 
       - name: Tagesdaten von ESPN holen
         if: steps.check_time.outputs.skip != 'true'
@@ -192,10 +183,6 @@ jobs:
         run: |
           node scripts/build-offseason-rankings.js
 
-      - name: Post-Draft Best Available Board fortschreiben (Big Board + Draft Capital + Off-Season + Sticky Score)
-        if: steps.check_time.outputs.skip != 'true'
-        run: |
-          node scripts/build-postdraft-board.js
 
       - name: Rolling-Rankings-Archiv 2026/27 fortschreiben (Liga "nba")
         if: steps.check_time.outputs.skip != 'true'
@@ -213,10 +200,6 @@ jobs:
         run: |
           node scripts/build-best-available-board.js
 
-      - name: Dynasty Live Nudge fortschreiben (nur Anzeige, verändert data/rankings.js nicht)
-        if: steps.check_time.outputs.skip != 'true'
-        run: |
-          node scripts/build-dynasty-live.js
 
       # Muss NACH allen Schritten laufen, die data/ schreiben, und VOR
       # dem Commit -- war seit dem 10.08. im Repo als Script vorhanden,
@@ -233,7 +216,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html data/livescores-daily.js data/livescores-aggregate.js data/rolling-rankings-2026-27.js data/offseason-rankings.js data/postdraft-board.js data/best-available-board.js data/dynasty-live.js data/rosters-live.js data/picks-live.js data/trade-history.js scripts/data/
+          git add index.html data/livescores-daily.js data/livescores-aggregate.js data/rolling-rankings-2026-27.js data/offseason-rankings.js data/best-available-board.js data/rosters-live.js scripts/data/
           if git diff --cached --quiet; then
             echo "Keine Änderungen (vermutlich keine Spiele an diesem Tag)."
           else
