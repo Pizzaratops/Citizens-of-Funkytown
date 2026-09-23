@@ -1,0 +1,131 @@
+/* ============================================================
+   CAT WEB (js/player-shape.js)
+   ============================================================
+   Uebernommen aus Taco Tuesday HQ (css/style.css, Abschnitt
+   "PLAYER SHAPE STUDIO") am 2026-09-23, unveraendert bis auf die
+   Seiten-Kopfzeile. --accent3 gibt es hier nicht, der Fallback auf
+   --accent greift.
+   ============================================================ */
+.ps-controls {
+  padding: 16px; margin: 18px 0; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+}
+.ps-controls-toggle {
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+  background: transparent; border: 0; cursor: pointer; padding: 0;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--muted);
+}
+.ps-controls-toggle-icon { font-size: 11px; }
+.ps-controls-body {
+  display: flex; flex-wrap: wrap; gap: 14px 16px; align-items: flex-end; margin-top: 14px;
+}
+.ps-controls.ps-controls-collapsed .ps-controls-body { display: none; }
+.ps-controls.ps-controls-collapsed .ps-controls-toggle { color: var(--text); }
+.ps-field { display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; min-width: 160px; }
+.ps-field-grow { flex: 1 1 260px; }
+.ps-field-auto { flex: 0 0 auto; }
+.ps-field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.ps-field select {
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; cursor: pointer;
+}
+.ps-field input[type="text"] {
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 12px; min-width: 180px;
+}
+.ps-field input[type="text"]::placeholder { color: var(--muted); }
+.ps-checkbox-wrap {
+  display: flex; align-items: center; height: 38px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 9px; padding: 0 12px; cursor: pointer;
+}
+.ps-checkbox-wrap input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent); }
+.ps-seg { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 3px; gap: 2px; }
+.ps-seg button {
+  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--muted); background: transparent; border: 0;
+  border-radius: 7px; padding: 7px 13px; cursor: pointer; white-space: nowrap;
+}
+.ps-seg button[aria-pressed="true"] { background: var(--accent); color: #fff; font-weight: 700; }
+.ps-export-btn {
+  font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; color: #fff; background: var(--accent);
+  border: 0; border-radius: 9px; padding: 10px 16px; cursor: pointer; white-space: nowrap;
+}
+.ps-export-btn:hover { filter: brightness(1.08); }
+.ps-export-btn:disabled { opacity: .6; cursor: default; }
+
+#psCard { padding: 22px clamp(14px, 3vw, 30px) 26px; position: relative; overflow: hidden; }
+.ps-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; }
+.ps-id-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 6px; }
+.ps-id-tag b { color: var(--accent); }
+.ps-name { font-family: 'Playfair Display', serif; font-weight: 800; font-size: clamp(24px, 3.6vw, 34px); margin: 0; }
+.ps-team-tag {
+  align-self: flex-start; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+  border: 1px solid var(--border); border-radius: 100px; padding: 6px 12px; white-space: nowrap;
+}
+.ps-body { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(220px, 300px); gap: 20px 28px; margin-top: 20px; }
+@media (max-width: 640px) { .ps-body { grid-template-columns: 1fr; } }
+.ps-radar-box { position: relative; }
+.ps-cat-label { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; fill: var(--text); }
+.ps-cat-pctl { font-family: 'DM Sans', sans-serif; font-size: 9px; fill: var(--muted); }
+.ps-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.ps-hero { display: flex; align-items: baseline; gap: 10px; margin: 0; }
+.ps-hero .ps-num { font-family: 'Playfair Display', serif; font-weight: 800; font-size: 44px; line-height: 1; color: var(--accent); }
+.ps-hero-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0; }
+.ps-alt-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 19px; margin: 0; }
+.ps-meta { font-size: 12px; color: var(--muted); margin: 4px 0 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ps-kv-list { display: flex; flex-direction: column; border-top: 1px solid var(--border); }
+.ps-kv-row { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+.ps-kv-k { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.ps-kv-v { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.ps-good { color: #2fb865; }
+.ps-warn { color: #d98c1f; }
+.ps-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 4px; }
+.ps-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--muted); }
+.ps-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.ps-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
+.ps-note-translate { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); color: var(--text); }
+.ps-note-translate b { color: var(--accent3, var(--accent)); }
+.ps-rank-tag { cursor: help; border-bottom: 1px dotted var(--muted); }
+.ps-empty { padding: 20px; color: var(--muted); font-size: 13px; }
+#psPoolNote { font-size: 11px; color: var(--muted); margin-top: 10px; text-align: right; }
+
+/* Vergleichs-Modus (3 Spieler): zwei zusaetzliche Picker oben in der
+   Card, dritte Radar-Farbe ueber --accent3. */
+.ps-compare-picks { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.ps-compare-picks select {
+  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 8px 11px; cursor: pointer;
+  flex: 1 1 200px; min-width: 160px;
+}
+.ps-compare-row { display: flex; align-items: center; gap: 8px; flex: 1 1 200px; min-width: 200px; }
+.ps-compare-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; margin-top: 9px; align-self: flex-start; }
+/* 22.09.2026: Namens-Suche vor den zwei Vergleichs-Selects (vorher zeigten
+   die immer den vollen, ungefilterten Spielerpool -- siehe _psFilteredComparePool
+   in player-shape.js). Swatch + Suchfeld + Select stehen jetzt als Spalte
+   uebereinander statt in einer Reihe, damit das Suchfeld genug Breite hat. */
+.ps-compare-field { display: flex; flex-direction: column; gap: 6px; flex: 1 1 200px; min-width: 200px; }
+/* .ps-compare-picks select hat flex:1 1 200px fuer die vorherige flache
+   Reihen-Anordnung -- innerhalb der neuen Spalte (.ps-compare-field, s.o.)
+   wuerde das den Select in der Hoehe strecken, deshalb hier ueberschrieben. */
+.ps-compare-field select, .ps-compare-field .ps-compare-search { flex: 0 0 auto; width: 100%; }
+.ps-compare-search {
+  font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 7px 10px;
+}
+.ps-compare-search::placeholder { color: var(--muted); }
+/* Screenshot-Button direkt an der Karte (ps-top), NICHT im einklappbaren
+   ps-controls-body -- der ist beim "Auswahl ausblenden" nicht mehr erreichbar,
+   genau dann will man aber typischerweise eine saubere Ansicht exportieren. */
+.ps-card-export-btn {
+  font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px; color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; cursor: pointer; white-space: nowrap;
+  align-self: flex-start;
+}
+.ps-card-export-btn:hover { filter: brightness(1.1); border-color: var(--accent); }
+.ps-card-export-btn:disabled { opacity: .6; cursor: default; }
+
+/* Funkytown: Karten-Rahmen fuer die Radar-Karte (in TTHQ kam der aus
+   einer globalen .panel-Regel, die es hier nicht gibt). */
+#playerShapePage #psCard {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+}
+#playerShapePage #psCard:empty { display: none; }

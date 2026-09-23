@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="css/projections.css?v=1">
   <link rel="stylesheet" href="css/flow.css?v=1">
   <link rel="stylesheet" href="css/countdown.css?v=1">
+  <link rel="stylesheet" href="css/league.css?v=1">
+  <link rel="stylesheet" href="css/catweb.css?v=1">
   <link rel="stylesheet" href="css/matchup.css?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -88,19 +90,17 @@
         <div class="snav-dropdown">
           <button class="snav-dropdown-item" data-page="playerrankings"    onclick="showPlayerRankings()">🏅 2026/27 Rankings</button>
           <button class="snav-dropdown-item" data-page="playerprojections" onclick="showPlayerProjections()">🔮 2026/27 Projections</button>
-          <div class="snav-dropdown-label">Live Projections (Test)</div>
-          <button class="snav-dropdown-item" data-page="liveprojections"     onclick="showLiveProjections()">🧪 Projections</button>
-          <button class="snav-dropdown-item" data-page="liveprojectionsteams" onclick="showLiveProjTeams()">🏀 NBA Teams</button>
-          <button class="snav-dropdown-item" data-page="liveprojectionsdraft" onclick="showLiveProjDraft()">🏆 Fantrax Redraft</button>
+          <button class="snav-dropdown-item" data-page="playershape" onclick="showPlayerShape()">🕸️ Cat Web</button>
         </div>
       </div>
 
       <div class="snav-divider"></div>
 
       <div class="snav-group">
-        <button class="snav-group-btn" id="snavFTBoards">🏆 Funkytown Draft Boards <span class="snav-arrow">▾</span></button>
+        <button class="snav-group-btn" id="snavFTBoards">🏆 Liga <span class="snav-arrow">▾</span></button>
         <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="draftresults" onclick="showDraftResults()">🏆 Draft Results</button>
+          <button class="snav-dropdown-item" data-page="draftresults" onclick="showDraftResults()">📋 Draft Board</button>
+          <button class="snav-dropdown-item" data-page="dues" onclick="showDues()">💰 Liga-Beiträge</button>
         </div>
       </div>
 
@@ -124,7 +124,13 @@
       <div class="snav-divider"></div>
       <button class="snav-single" data-page="matchup" onclick="showMatchupPlanner()">⚔️ Matchup Planer</button>
       <button class="snav-single" data-page="livescores" onclick="showLiveScores()">🔴 Live Scores</button>
-      <button class="snav-single" data-page="standings" onclick="showStandings()">📈 Standings</button>
+      <div class="snav-group">
+        <button class="snav-group-btn" id="snavStandings">📈 Standings <span class="snav-arrow">▾</span></button>
+        <div class="snav-dropdown">
+          <button class="snav-dropdown-item" data-page="standings" onclick="showStandings()">🏛️ Standings History</button>
+          <button class="snav-dropdown-item" data-page="rollingstandings" onclick="showRollingStandings()">📈 Team Rolling Rankings</button>
+        </div>
+      </div>
       <button class="snav-single" data-page="rules"     onclick="showRules()">📜 Rules</button>
       <div class="snav-divider"></div>
     </div>
@@ -142,20 +148,20 @@
         <button class="subnav-mobile-btn" data-page="home"      onclick="goHome();closeMobileNav()">🏠 Home</button>
         <button class="subnav-mobile-btn" data-page="matchup"    onclick="showMatchupPlanner();closeMobileNav()">⚔️ Matchup Planer</button>
         <button class="subnav-mobile-btn" data-page="livescores" onclick="showLiveScores();closeMobileNav()">🔴 Live Scores</button>
-        <button class="subnav-mobile-btn" data-page="standings" onclick="showStandings();closeMobileNav()">📈 Standings</button>
+        <button class="subnav-mobile-btn" data-page="standings" onclick="showStandings();closeMobileNav()">🏛️ Standings History</button>
+        <button class="subnav-mobile-btn" data-page="rollingstandings" onclick="showRollingStandings();closeMobileNav()">📈 Team Rolling Rankings</button>
         <button class="subnav-mobile-btn" data-page="rules"     onclick="showRules();closeMobileNav()">📜 Rules</button>
       </div>
       <div class="subnav-mobile-group">
         <div class="subnav-mobile-label">Player</div>
         <button class="subnav-mobile-btn" data-page="playerrankings"    onclick="showPlayerRankings();closeMobileNav()">🏅 2026/27 Rankings</button>
         <button class="subnav-mobile-btn" data-page="playerprojections" onclick="showPlayerProjections();closeMobileNav()">🔮 2026/27 Projections</button>
-        <button class="subnav-mobile-btn" data-page="liveprojections"      onclick="showLiveProjections();closeMobileNav()">🧪 Live Projections (Test): Projections</button>
-        <button class="subnav-mobile-btn" data-page="liveprojectionsteams" onclick="showLiveProjTeams();closeMobileNav()">🏀 Live Projections (Test): NBA Teams</button>
-        <button class="subnav-mobile-btn" data-page="liveprojectionsdraft" onclick="showLiveProjDraft();closeMobileNav()">🏆 Live Projections (Test): Fantrax Redraft</button>
+        <button class="subnav-mobile-btn" data-page="playershape" onclick="showPlayerShape();closeMobileNav()">🕸️ Cat Web</button>
       </div>
       <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Funkytown Draft Boards</div>
-        <button class="subnav-mobile-btn" data-page="draftresults" onclick="showDraftResults();closeMobileNav()">🏆 Draft Results</button>
+        <div class="subnav-mobile-label">Liga</div>
+        <button class="subnav-mobile-btn" data-page="draftresults" onclick="showDraftResults();closeMobileNav()">📋 Draft Board</button>
+        <button class="subnav-mobile-btn" data-page="dues" onclick="showDues();closeMobileNav()">💰 Liga-Beiträge</button>
       </div>
       <div class="subnav-mobile-group">
         <div class="subnav-mobile-label">Rankings & Analytics</div>
@@ -259,7 +265,7 @@
      taeglicher Job -- ein abgeschlossener Draft aendert sich nicht mehr).
      Logik: js/navigation.js (showDraftResults). -->
 <div class="page page-wide" id="draftResultsPage">
-  <h2 style="margin-bottom:6px;">🏆 Draft Results</h2>
+  <h2 style="margin-bottom:6px;">📋 Draft Board</h2>
   <p id="draftResultsSub" style="color:var(--muted);font-size:13px;margin-bottom:20px;">Wer hat wen gepickt</p>
   <div id="draftResultsContent"></div>
 </div>
@@ -332,17 +338,81 @@
   <div id="mpResult"></div>
 </div>
 
-<!-- STANDINGS -->
-<div class="page" id="standingsPage">
-  <h2 style="margin-bottom:6px;">📈 Standings History</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:24px;">Final standings per season — click teams in the legend to show/hide</p>
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-    <div style="position:relative;height:420px;min-height:320px;">
-      <canvas id="standingsChart"></canvas>
+<!-- STANDINGS HISTORY. Logik: js/standings.js, Daten: data/season-history.js -->
+<div class="page page-wide" id="standingsPage">
+  <h2 style="margin-bottom:6px;">🏛️ Standings History</h2>
+  <p class="lg-sub">Endplatzierung jeder Funkytown-Saison, direkt von ESPN · Klick auf ein Team in der Legende blendet es aus</p>
+  <div id="standingsHistoryContent"></div>
+</div>
+
+<!-- TEAM ROLLING RANKINGS. Logik: js/standings.js, Daten: data/season-matchups.js -->
+<div class="page page-wide" id="rollingStandingsPage">
+  <h2 style="margin-bottom:6px;">📈 Team Rolling Rankings</h2>
+  <p class="lg-sub">Tabellenplatz nach jeder Woche, Verlauf aller Teams und Wochen-Tabelle</p>
+  <div id="rollingStandingsContent"></div>
+</div>
+
+<!-- LIGA-BEITRÄGE. Logik: js/league-dues.js, Daten: data/league-dues.js -->
+<div class="page page-wide" id="duesPage">
+  <h2 style="margin-bottom:6px;">💰 Liga-Beiträge</h2>
+  <p class="lg-sub">Wer hat für welche Saison bezahlt</p>
+  <div id="duesContent"></div>
+</div>
+
+<!-- CAT WEB. Logik: js/player-shape.js, Styling: css/catweb.css (aus TTHQ) -->
+<div class="page page-wide" id="playerShapePage">
+  <h2 style="margin-bottom:6px;">🕸️ Cat Web</h2>
+  <p class="lg-sub">9-Cat-Perzentil-Radar für jeden Spieler, mit Shape Match und Vergleich</p>
+
+  <div class="panel ps-controls" id="psControlsPanel">
+    <button type="button" class="ps-controls-toggle" id="psControlsToggle" onclick="psToggleControls()" aria-expanded="true" aria-controls="psControlsBody">
+      <span id="psControlsToggleLabel">Auswahl ausblenden</span>
+      <span class="ps-controls-toggle-icon" id="psControlsToggleIcon">▾</span>
+    </button>
+    <div class="ps-controls-body" id="psControlsBody">
+      <div class="ps-field">
+        <label for="psSeasonSelect">Saison</label>
+        <select id="psSeasonSelect"></select>
+      </div>
+      <div class="ps-field">
+        <label for="psTeamFilter">Team-Filter</label>
+        <select id="psTeamFilter"></select>
+      </div>
+      <div class="ps-field">
+        <label for="psExperienceFilter">Erfahrung</label>
+        <select id="psExperienceFilter"></select>
+      </div>
+      <div class="ps-field">
+        <label for="psSearch">Suche</label>
+        <input type="text" id="psSearch" placeholder="Name, Team, Position…" autocomplete="off"/>
+      </div>
+      <div class="ps-field ps-field-grow">
+        <label for="psPlayerSelect">Spieler</label>
+        <select id="psPlayerSelect"></select>
+      </div>
+      <div class="ps-field ps-field-auto">
+        <label>Ansicht</label>
+        <div class="ps-seg" id="psModeSeg" role="group" aria-label="Ansicht wählen">
+          <button type="button" data-mode="solo" aria-pressed="true" onclick="psSetMode('solo')">Solo Shape</button>
+          <button type="button" data-mode="match" aria-pressed="false" onclick="psSetMode('match')">Shape Match</button>
+          <button type="button" data-mode="compare" aria-pressed="false" onclick="psSetMode('compare')">Vergleich</button>
+        </div>
+      </div>
+      <div class="ps-field ps-field-auto">
+        <label for="psSamePosOnly" title="Gilt für Shape Match &amp; Historic Match. Spieler mit mehreren eligiblen Positionen (zB PG/SG/SF/PF) zählen bei jeder ihrer Positionen als Treffer. Findet sich niemand, wird automatisch wieder über alle Positionen gesucht.">Nur gleiche Position</label>
+        <label class="ps-checkbox-wrap">
+          <input type="checkbox" id="psSamePosOnly" onchange="psToggleSamePosition(this.checked)">
+        </label>
+      </div>
+      <button class="ps-export-btn" id="psExportBtn" onclick="psDownloadShape()">📸 Als Bild exportieren</button>
     </div>
   </div>
-  <p style="color:var(--muted);font-size:12px;margin-top:12px;text-align:center;">— = did not participate that season</p>
+
+  <div class="panel" id="psCard"></div>
+
+  <footer id="psPoolNote" class="lg-foot"></footer>
 </div>
+
 
 <!-- PLAYER RANKINGS -->
 <div class="page page-wide" id="playerRankingsPage">
@@ -453,468 +523,6 @@
     <span><b>Δ Rang</b> = Streuung zwischen den drei Quellen · niedrig heißt einig, hoch heißt uneinig</span>
   </div>
   <div id="cpTableWrap"></div>
-</div>
-
-<!-- Nativ portiert aus projections/index.html am 2026-08-01 (vorher Iframe).
-     Daten+Logik werden erst beim ersten Aufruf von showLiveProjections()
-     nachgeladen (siehe js/player-rankings.js), NICHT hier statisch
-     eingebunden — sonst wuerden alle Nutzer bei JEDEM Seitenaufruf
-     ~2,4 MB Projections-Daten mitladen, auch wenn sie diese Seite nie
-     besuchen. Markup selbst ist klein und bleibt daher statisch da. -->
-<div class="page page-wide" id="liveProjectionsPage">
-  <div class="hero" style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;">
-    <h1>NBA Projections</h1>
-    <button class="theme-toggle" id="adminToggle" title="Eigenes Passwort, unabhängig vom App-Admin — schaltet den Bereich für externe Quellen frei"></button>
-  </div>
-
-  <div class="panel collapsed" id="weightPanel">
-    <div class="panel-head" id="weightPanelHead">
-      <div class="panel-title">Gewichtung</div>
-      <span class="chevron">▾</span>
-    </div>
-    <div class="panel-body">
-      <div class="pool-title">Z-Score-Basis (Ranking-Population)</div>
-      <div class="pool-toggle" id="poolToggle">
-        <button class="pool-btn" data-pool="200">Top 200</button>
-        <button class="pool-btn" data-pool="400">Top 400</button>
-        <button class="pool-btn" data-pool="all">Alle</button>
-      </div>
-      <div class="pool-hint">Bestimmt, welche Spieler in die Mittelwert-/Streuungsberechnung für den Z-Score einfließen (sortiert nach projizierten Punkten). Kleinere Basis = strengerer Maßstab, größere Basis = mehr Grundrauschen von Tiefenkader-Spielern.</div>
-
-      <div class="weight-grid">
-        <div class="weight-row">
-          <div class="weight-label"><span id="w1Label">Vorletztes Jahr</span><span class="weight-val" id="w1val">1.50×</span></div>
-          <input type="range" id="w1" min="1" max="2" step="0.25" value="1.5">
-          <div class="weight-hint">Gewicht der zweitjüngsten Saison, die für den jeweiligen Spieler vorliegt.</div>
-        </div>
-        <div class="weight-row">
-          <div class="weight-label"><span id="w2Label">Letztes Jahr</span><span class="weight-val" id="w2val">1.75×</span></div>
-          <input type="range" id="w2" min="1" max="2" step="0.25" value="1.75">
-          <div class="weight-hint">Gewicht der jüngsten Saison, die für den jeweiligen Spieler vorliegt.</div>
-        </div>
-      </div>
-
-      <div class="cat-weight-title">Kategorie-Gewichtung (fließt in den Z-Score ein)</div>
-      <div class="cat-grid" id="catGrid"></div>
-      <button class="reset-weights" onclick="resetWeights()">Alle Gewichtungen zurücksetzen</button>
-    </div>
-  </div>
-
-  <div class="panel collapsed" id="livePanel">
-    <div class="panel-head" id="livePanelHead">
-      <div class="panel-title">Live &amp; externe Quellen <span class="badge" id="liveBadge">…</span></div>
-      <span class="chevron">▾</span>
-    </div>
-    <div class="panel-body">
-      <div class="pool-hint" id="liveStatusText">Lade Live-Daten…</div>
-      <button class="reset-weights" onclick="refreshLiveData()">🔄 Live-Daten neu laden</button>
-
-      <div id="adminExtProjArea" style="display:none; margin-top:16px; border-top:1px solid var(--border); padding-top:14px;">
-        <div class="pool-title">Anzeige-Modus (nur du siehst das, Admin)</div>
-        <label style="display:flex; align-items:center; gap:7px; font-size:12.5px; margin:6px 0 14px;">
-          <input type="checkbox" id="baselineOnlyToggle">
-          Nur eigene Minuten-Baseline zeigen (externe Quellen &amp; Live-Blend ignorieren)
-        </label>
-
-        <div class="pool-title">Externe Projections — Bulk-Import</div>
-        <div class="pool-hint">Erste Zeile = Header (Name, Min, PTS, REB, AST, STL, BLK, 3PM, TOV, FG%, FT% — beliebige Reihenfolge, Komma oder Tab getrennt). Direkt aus Excel/Sheets reinkopierbar.</div>
-        <input type="text" id="extSourceName" placeholder="Quellenname (z.B. FantasyEdge, Josh Lloyd)" style="width:100%; margin:8px 0 6px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
-        <textarea id="extBulkText" rows="6" placeholder="Name,PTS,REB,AST&#10;Shai Gilgeous-Alexander,32,5.5,6.1&#10;Nikola Jokic,26,12.8,10.2" style="width:100%; padding:8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-family:'DM Mono',monospace; font-size:11.5px; resize:vertical;"></textarea>
-        <button class="reset-weights" onclick="runBulkImport()">⬆ Importieren</button>
-        <div id="bulkImportResult" class="pool-hint" style="margin-top:6px;"></div>
-
-        <div class="pool-title" style="margin-top:16px;">Einzelner Spieler</div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-          <input type="text" id="extPlayerSearch" placeholder="Spielername…" style="flex:1; min-width:160px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
-          <input type="text" id="extPlayerSource" placeholder="Quelle" style="width:140px; padding:6px 8px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12.5px;">
-        </div>
-        <div class="cat-grid" id="extSingleGrid"></div>
-        <button class="reset-weights" onclick="saveSingleExternal()">💾 Quelle speichern</button>
-        <div id="extPlayerSourcesList" class="pool-hint" style="margin-top:8px;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel" id="cmpModal" style="display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.55); padding:40px 16px;">
-    <div style="max-width:520px; margin:0 auto; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; max-height:85vh; overflow:auto;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <div class="panel-title" id="cmpTitle" style="font-size:15px;"></div>
-        <button class="reset-btn" style="font-size:16px;" onclick="closeComparison()">✕</button>
-      </div>
-      <div id="cmpBody"></div>
-    </div>
-  </div>
-
-  <div class="toolbar">
-    <div class="search-row">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="search" placeholder="Spieler, Team oder Position suchen…">
-    </div>
-    <select id="ownerFilter" class="owner-filter" title="Nach Fantasy Team, Free Agents oder NBA Team filtern"></select>
-    <div id="posFilters" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
-    <button class="tag-btn" id="statFilterToggle">Stat-Filter</button>
-    <button class="csv-btn" onclick="downloadCSV()">⬇ CSV Export</button>
-  </div>
-
-  <div id="statFilterPanel" class="panel" style="display:none; padding:12px 14px;">
-    <div class="pool-hint" style="margin-bottom:8px;">
-      Bis zu 3 Bedingungen gleichzeitig (UND-verknüpft), z.B. FG% &gt; 50 UND AST &gt; 5,5 (Position über die Filter-Buttons oben kombinieren).
-    </div>
-    <div id="statFilterRows"></div>
-    <button class="reset-weights" id="statFilterClear">Zurücksetzen</button>
-  </div>
-
-  <div class="count" id="count">Lade Projections…</div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th data-k="rank">#</th>
-          <th data-k="name">Name</th>
-          <th data-k="team">Team</th>
-          <th data-k="owner" title="Fantasy Team in der Citizens of Funkytown League, FA = Free Agent">Fantasy</th>
-          <th data-k="pos">Pos</th>
-          <th data-k="min" class="sep-col">Min</th>
-          <th data-k="pts">PTS</th>
-          <th data-k="reb">REB</th>
-          <th data-k="ast">AST</th>
-          <th data-k="stl">STL</th>
-          <th data-k="blk">BLK</th>
-          <th data-k="fg3m">3PM</th>
-          <th data-k="fga" title="Field Goals Made-Attempted">FGM-FGA</th>
-          <th data-k="fgpct">FG%</th>
-          <th data-k="fta" title="Free Throws Made-Attempted">FTM-FTA</th>
-          <th data-k="ftpct">FT%</th>
-          <th data-k="tov">TOV</th>
-          <th data-k="z">Z</th>
-          <th data-k="zFloor" title="Z ohne schlechteste Kat — Boden/Floor">Z-Floor</th>
-          <th data-k="zDepth" title="Z ohne beste Kat — Tiefe ohne Signature-Stärke">Z-Depth</th>
-          <th data-k="adpVal" title="Z ÷ ADP × 10 — grün = unterbewertet">ADP-Val</th>
-        </tr>
-      </thead>
-      <tbody id="body"></tbody>
-    </table>
-  </div>
-
-  <footer id="footerText"></footer>
-</div>
-
-<!-- Nativ portiert aus projections/teams.html am 2026-08-01 (vorher Iframe).
-     IDs mit "Teams"-Suffix, wo die Projections-Seite denselben Namen schon
-     benutzt (search/footerText/adminToggle) -- siehe js/projections-teams-native.js.
-     Daten+Logik werden erst beim ersten Aufruf von showLiveProjTeams()
-     nachgeladen, gemeinsame Dateien mit Projections (players-data.js,
-     shared.js usw.) werden dabei nicht doppelt geladen (siehe
-     js/player-rankings.js, _loadScriptOnce()). -->
-<div class="page page-wide" id="liveProjTeamsPage">
-  <div class="hero" style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;">
-    <div>
-      <h1>NBA Teams</h1>
-      <p class="sub" id="teamsHeroSub">Pro Team zwei Spalten: links der aktuelle Kader mit deinen Minuten (editierbar, 9-Cat-Stats basierend auf letzter Saison), rechts zum Vergleich die tatsächliche End-Rotation der letzten Saison.</p>
-    </div>
-    <button class="theme-toggle" id="adminToggleTeams" title="Eigenes Passwort, unabhängig vom App-Admin — schaltet Minuten-Bearbeitung frei"></button>
-  </div>
-
-  <div class="search-row">
-    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" id="searchTeams" placeholder="Team oder Spieler suchen…">
-  </div>
-
-  <div class="lock-note" id="lockNote"></div>
-
-  <div id="teamsContent">Lade NBA Teams…</div>
-
-  <footer id="footerTextTeams"></footer>
-</div>
-
-<!-- Nativ portiert aus projections/draft.html am 2026-08-01 (vorher Iframe,
-     letzte der 3 Toolkit-Seiten). ID footerTextDraft statt
-     der kollidierenden Originale, Side-Panel-Tabs als dtab/dtabs/dtabpane
-     (Die App definiert .tab/.tabs global fuer die Roster-Seite). Daten+Logik
-     laden erst beim ersten Aufruf von showLiveProjDraft(), gemeinsame
-     Dateien mit Projections/NBA Teams dedupliziert (js/player-rankings.js). -->
-<div class="page page-wide" id="liveProjDraftPage">
-<div class="hero">
-    <div>
-            <h1>Fantrax Redraft Board</h1>
-      <div class="sub">Live-Draft-Tracker für Deine Fantrax Redraft Ligen, auf Basis Deiner aktuellen Projections.</div>
-    </div>
-    <a class="settings-link" href="#" onclick="showLiveProjections();return false;">Gewichtungen &amp; Z-Basis anpassen →</a>
-  </div>
-
-  <div class="statusbar">
-    <div class="chip"><span class="num" id="pickNo">1</span><span class="lbl">Pick</span></div>
-    <div class="chip"><span class="num" id="roundNo">1</span><span class="lbl">Runde</span></div>
-    <div class="onclock" id="onClockChip">Team 1 an der Reihe</div>
-    <button class="sb-btn" id="leagueProgressBtn">🏁 Liga-Fortschritt</button>
-    <button class="sb-btn" id="myPlayersBtn">👥 Meine Spieler</button>
-    <button class="sb-btn" id="undoBtn">↩ Undo</button>
-    <span class="save-indicator" id="saveIndicator"></span>
-  </div>
-
-  <div class="modal-overlay" id="leagueProgressOverlay" style="display:none;">
-    <div class="modal-box">
-      <div class="modal-head">
-        <div class="panel-title">Fortschritt in allen Ligen</div>
-        <button class="sb-btn" id="leagueProgressClose">✕</button>
-      </div>
-      <div class="note" id="leagueProgressSummary" style="margin:0 0 10px;">lädt…</div>
-      <div id="leagueProgressList"></div>
-    </div>
-  </div>
-
-  <!-- Meine Spieler: Besitzquote und ADP ueber alle Ligen aus
-       data/fantrax-leagues.txt. Logik in js/projections-draft-native.js
-       (openMyPlayers / buildOwnershipTable). -->
-  <div class="modal-overlay" id="myPlayersOverlay" style="display:none;">
-    <div class="modal-box mp-owned-box">
-      <div class="modal-head">
-        <div class="panel-title">Meine Spieler über alle Ligen</div>
-        <button class="sb-btn" id="myPlayersClose">✕</button>
-      </div>
-
-      <div class="mp-owned-cfg">
-        <label class="mp-owned-lbl" for="myTeamNamesInput">Meine Teamnamen, mit Komma getrennt</label>
-        <div class="mp-owned-row">
-          <input type="text" id="myTeamNamesInput" class="mp-owned-input"
-                 placeholder="MFHFBs, Steakosaurus, Pizzaratops, Hawkward">
-          <button class="sb-btn" id="myPlayersReload">↻ Neu auswerten</button>
-        </div>
-        <div class="mp-owned-hits" id="myPlayersHits"></div>
-        <div class="note" style="margin:6px 0 0;">
-          Die Zuordnung läuft über den Teamnamen, weil die Fantrax Team IDs je Liga verschieden sind.
-          Groß und Kleinschreibung, Emojis und Sonderzeichen sind egal. Der Teamname muss Deine Eingabe enthalten,
-          umgekehrt gilt es nicht: für ein Team namens <b>Steak</b> gib <b>Steak</b> ein, nicht Steakosaurus.
-          Oben siehst Du, welche Teams erkannt wurden.<br>
-          ADP ist die Overall Picknummer und über Ligagrößen hinweg direkt vergleichbar.
-          Die Spalte <b>Gedraftet in</b> zeigt, auf wie vielen Ligen der Wert beruht.
-          Steht dort eine kleine Zahl, ging der Spieler in den flacheren Ligen gar nicht weg und der ADP stammt nur aus denen, in denen ihn jemand wollte.
-        </div>
-      </div>
-
-      <div class="note" id="myPlayersSummary" style="margin:12px 0 0;">lädt…</div>
-      <div class="note mp-owned-warn" id="myPlayersWarn" style="display:none;"></div>
-      <div class="note mp-owned-fail-box" id="myPlayersFailed" style="display:none;"></div>
-
-      <label class="mp-owned-toggle">
-        <input type="checkbox" id="myPlayersShowAll">
-        Auch Spieler zeigen, die ich nirgends habe
-      </label>
-
-      <div class="mp-owned-scroll"><div id="myPlayersList"></div></div>
-    </div>
-  </div>
-
-  <div class="panel" id="setupPanel">
-    <div class="panel-head" id="setupHead">
-      <div class="panel-title">Draft-Einstellungen</div>
-      <span class="chevron">▾</span>
-    </div>
-    <div class="panel-body">
-      <div class="field">
-        <label>Mein Draft-Slot (1–12)</label>
-        <select id="myTeamSel"></select>
-      </div>
-      <!-- Datenbasis: Consensus-Projections (Beyaz x Josh Lloyd) vs.
-           historische Pro-Minute-Raten. Umschaltung wirkt sofort, siehe
-           mfhfbConsensusRatesFor() in projections/assets/shared.js. -->
-      <div class="field">
-        <label>Datenbasis für die Projektion</label>
-        <select id="rateSourceSel">
-          <option value="consensus">Consensus-Projections 2026/27 (Beyaz × Josh Lloyd)</option>
-          <option value="history">Historische Raten (Saison-Gewichtung aktiv)</option>
-        </select>
-        <div class="note" id="rateSourceNote" style="margin-top:6px;font-size:11.5px;color:var(--muted);line-height:1.5;"></div>
-      </div>
-      <div class="field">
-        <label>Liga-Format (steuert die Empfehlungen)</label>
-        <select id="formatSel"></select>
-      </div>
-      <div class="field" id="puntWrap">
-        <label>Punt-Kategorien (bei Empfehlungen ignorieren)</label>
-        <div class="punt-cats" id="puntCats"></div>
-      </div>
-      <div class="field" id="pointsWeightsWrap" style="display:none;">
-        <label>Punkte je Stat</label>
-        <div class="punt-cats" id="pointsWeights"></div>
-      </div>
-      <div class="field">
-        <button class="sb-btn danger" id="resetBtn">Draft zurücksetzen</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel" id="leaguePanel">
-    <div class="panel-head" id="leagueHead">
-      <div class="panel-title">🔗 Live-Sync mit Fantrax — <span id="liveSyncStatus" class="cloud-status">nicht verbunden</span></div>
-      <span class="chevron">▾</span>
-    </div>
-    <div class="panel-body" style="flex-direction:column; align-items:stretch;">
-      <div class="note" style="margin:0 0 10px;">
-        Liga-ID eingeben (aus der Fantrax-URL: fantrax.com/fantasy/league/<b>ABC123XYZ</b>/...) und laden —
-        der aktuelle Draft-Stand kommt live direkt von Fantrax. Einmal gespeicherte Ligen tauchen unten
-        im Dropdown auf und lassen sich ohne erneute Eingabe der ID nachladen (praktisch am Handy).
-      </div>
-      <div class="field" style="margin-bottom:10px;">
-        <label>Gespeicherte Liga</label>
-        <select id="savedLeagueSelect"><option value="">— Neue Liga eingeben —</option></select>
-      </div>
-      <div class="league-sync-row">
-        <input type="text" id="liveLeagueLabel" placeholder="Name (z.B. FBI Roto 01)" style="flex:0 0 40%;">
-        <input type="text" id="liveLeagueId" placeholder="Liga-ID…">
-      </div>
-      <div class="league-sync-row" style="margin-top:8px;">
-        <button class="sb-btn" id="liveLoadBtn" style="flex:1;">🔄 Laden &amp; speichern</button>
-        <button class="sb-btn danger" id="liveDeleteBtn" style="display:none;">🗑 Entfernen</button>
-      </div>
-      <div class="field" id="liveTeamPickWrap" style="display:none; margin-top:10px;">
-        <label>Welches Team ist deins?</label>
-        <select id="liveTeamPick"></select>
-      </div>
-      <div class="note" id="liveSyncDetail" style="margin-top:8px;"></div>
-      <div class="field" id="liveAutoWrap" style="display:none; margin-top:8px; flex-direction:row; align-items:center; gap:8px;">
-        <input type="checkbox" id="liveAutoRefresh" style="width:auto;">
-        <label for="liveAutoRefresh" style="text-transform:none; font-size:12px; letter-spacing:0; cursor:pointer;">Während des Drafts alle 30s automatisch aktualisieren</label>
-      </div>
-    </div>
-  </div>
-
-  <div class="layout">
-    <div>
-      <div class="pool-toolbar">
-        <div class="search-row">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="searchInput" autocomplete="off" placeholder="Spieler, Team oder Position suchen…">
-        </div>
-        <div id="dPosFilters" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
-        <button class="tag-btn" id="dStatFilterToggle">Stat-Filter</button>
-        <button class="tag-btn" id="hideDraftedBtn">Gedraftete ausblenden</button>
-      </div>
-
-      <div id="dStatFilterPanel" class="panel" style="display:none; padding:12px 14px;">
-        <div class="note" style="margin-bottom:8px;">
-          Bis zu 3 Bedingungen gleichzeitig (UND-verknüpft), z.B. FG% &gt; 50 UND AST &gt; 5,5 UND POS = C
-          (Position über die Filter-Buttons oben kombinieren). Wirkt zusätzlich zur Text-/Positionssuche.
-        </div>
-        <div id="dStatFilterRows"></div>
-        <button class="tag-btn" id="dStatFilterClear" style="margin-top:6px;">Zurücksetzen</button>
-      </div>
-
-      <div class="table-wrap">
-        <table id="poolTable">
-          <thead>
-            <tr>
-              <th data-k="rk">#</th>
-              <th data-k="name">Spieler</th>
-              <th data-k="pos">Pos</th>
-              <th data-k="pts">PTS</th>
-              <th data-k="reb">REB</th>
-              <th data-k="ast">AST</th>
-              <th data-k="stl">STL</th>
-              <th data-k="blk">BLK</th>
-              <th data-k="fg3m">3PM</th>
-              <th data-k="fga" title="Field Goals Made-Attempted — die Basis, aus der der volumen-gewichtete FG%-Score berechnet wird (siehe Z-Spalte)">FGM-FGA</th>
-              <th data-k="fgpct">FG%</th>
-              <th data-k="fta" title="Free Throws Made-Attempted — die Basis, aus der der volumen-gewichtete FT%-Score berechnet wird (siehe Z-Spalte)">FTM-FTA</th>
-              <th data-k="ftpct">FT%</th>
-              <th data-k="tov">TOV</th>
-              <th data-k="z">Z</th>
-              <th data-k="zFloor" title="Z-Score ohne die schlechteste Kategorie des Spielers — zeigt den Boden/Floor">Z-Floor</th>
-              <th data-k="zDepth" title="Z-Score ohne die beste Kategorie — entlarvt One-Cat-Wonders; hoher Wert = gut in der Tiefe">Z-Depth</th>
-              <th data-k="zPunt" title="Z-Score mit deinen aktuellen Punt-Kategorien auf Gewicht 0 — wie Basketball Monsters 'Punt Columns': kompletter Rerank ohne die gepuntete(n) Kategorie(n), Guard-/Big-Build-Spieler steigen dadurch automatisch">Z-Punt</th>
-              <th data-k="hscore" title="H-Score (Beta) — vereinfachte Umsetzung von Rosenof (2024) H-Scoring: simuliert den kompletten Rest-Draft in echter Snake-Reihenfolge (ein gemeinsam schrumpfender Pool) über bis zu 2 gepuntete Kategorien und schätzt die Ø-Kategorie-Gewinnwahrscheinlichkeit gegen die Liga (0-9). Nur für die Top ~80 verfügbaren Spieler berechnet — Tiefenkader/Free Agents zeigen bewusst '—'.">H-Score</th>
-              <th data-k="adpVal" title="ADP-Rang minus unser Z-Rang — grün = unterbewertet, rot = überbewertet">ADP-Val</th>
-              <th data-k="adp" title="Ø Draft-Position aus deinen erfassten Fantrax Draft Results">ADP</th>
-              <th data-k="fadp" title="Fantrax' eigener aktueller ADP-Snapshot (data/fantrax-adp.csv)">F-ADP</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="poolBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div>
-      <div class="side-card">
-        <div class="dtabs">
-          <div class="dtab active" data-tab="myteam">Mein Team</div>
-          <div class="dtab" data-tab="matrix">9-Cat Ranks</div>
-          <div class="dtab" data-tab="scarcity">Scarcity</div>
-          <div class="dtab" data-tab="puntplan">Punt-Planer</div>
-          <div class="dtab" data-tab="power">Best Ball Z</div>
-          <div class="dtab" data-tab="log">Pick-Log</div>
-        </div>
-
-        <div class="dtabpane active" id="pane-myteam">
-          <h3>Slots (14 Starter, kein Bench)</h3>
-          <div class="slot-grid" id="slotGrid"></div>
-          <h3>Kategorie-Ranks (1 = beste von 12)</h3>
-          <div id="catRanks"></div>
-          <div class="note">Rang unter allen 12 Teams, live nach aktuellem Draft-Stand. Grün = stark, Rot = schwach.</div>
-        </div>
-
-        <div class="dtabpane" id="pane-matrix">
-          <h3>Team vs. Team — Rang je Kategorie</h3>
-          <div class="matrix-wrap" id="matrixWrap"></div>
-          <div class="note">1 = bestes Team, 12 = schlechtestes. Deine Spalte ist hervorgehoben.</div>
-        </div>
-
-        <div class="dtabpane" id="pane-scarcity">
-          <h3>Wann kippt eine Kategorie?</h3>
-          <div class="note" style="margin-bottom:8px;">
-            Ø Kategorie-Z der noch verfügbaren Spieler, gebündelt nach Runde (12 Picks = 1 Runde).
-            Zeigt, wo eine Kategorie im verbleibenden Pool noch Tiefe hat und wo es steil bergab geht —
-            z.B. AST/PTS konzentrieren sich früh, danach reißt die Versorgung schneller ab als bei STL/BLK.
-            In jeder Zelle der stärkste noch verfügbare Name dieser Runde/Kategorie.
-          </div>
-          <div class="matrix-wrap" id="scarcityWrap"></div>
-          <div class="note" style="margin-top:8px;" id="scarcityCliffNote"></div>
-        </div>
-
-        <div class="dtabpane" id="pane-puntplan">
-          <h3>Punt-Planer — Wochen-Matchup-Simulation</h3>
-          <div class="note" style="margin-bottom:8px;">
-            Rechnet deinen aktuellen Kader (Starter, live nach Draft-Stand) gegen jedes andere Team
-            kategorienweise durch. Punt-Kategorien werden als bewusst abgegebene Punkte behandelt,
-            nicht als Niederlage gezählt — Ziel ist die verbleibenden Kategorien möglichst breit zu gewinnen
-            (idealerweise 6-3, im Zweifel 5-4). Nutzt dieselben Punt-Kategorien wie "Empfehlungen" links.
-          </div>
-          <div class="field" style="margin-bottom:10px;">
-            <label>Punt-Kategorien (auch hier änderbar)</label>
-            <div class="punt-cats" id="puntCatsPlan"></div>
-          </div>
-          <div id="puntSummary" class="note" style="margin-bottom:10px;"></div>
-          <div class="matrix-wrap" id="puntMatchupWrap"></div>
-          <div class="note" style="margin-top:8px;">
-            ⚠ = Team liegt in einer deiner Punt-Kategorien selbst unter den schwächsten im Ligavergleich
-            (mögliche Mirror-Punt) — gegen dieses Team fällt die Kategorie faktisch weg, die "Gewinn-Marge"-Spalte
-            zeigt, in welcher deiner NICHT gepunteten Kategorien du gegen genau dieses Team am knappsten liegst
-            (dort lohnt sich zusätzliche Stärke am meisten).
-          </div>
-        </div>
-
-        <div class="dtabpane" id="pane-power">
-          <h3>Gesamtwert-Ranking (Σ Z-Score im Kader)</h3>
-          <div id="powerRank"></div>
-          <div class="note">Reine Wertsumme aller gestarteten Spieler, unabhängig von Kategorie-Balance — die Best-Ball-Sichtweise.</div>
-        </div>
-
-        <div class="dtabpane" id="pane-log">
-          <h3>Letzte Picks</h3>
-          <div class="picklog" id="pickLog"></div>
-        </div>
-      </div>
-
-      <div class="side-card">
-        <h3>Empfehlungen für dein Team</h3>
-        <div id="recoList"></div>
-        <div class="note">Gewichtet nach deinen aktuell schwächsten Kategorien (Punt-Kategorien ausgeschlossen). Kein Ersatz für eigenes Scouting.</div>
-      </div>
-    </div>
-  </div>
-
-  <footer id="footerTextDraft"></footer>
 </div>
 
 <!-- LIVE SCORES -->
@@ -1707,14 +1315,12 @@
 <!-- Data (load first — other scripts depend on these constants) -->
 <script src="data/players.js?v=6b810b7f"></script>
 <script src="data/teams-rosters.js?v=dfcd2c47"></script>
-<script src="data/season-2025-26.js?v=58ffb567"></script>
-<script src="data/season-2024-25.js?v=f1d49ae1"></script>
-<script src="data/season-2023-24.js?v=8485cec3"></script>
-<script src="data/season-2022-23.js?v=ca4beb77"></script>
-<script src="data/season-2021-22.js?v=bb837487"></script>
+<script src="data/season-history.js?v=24924011"></script>
+<script src="data/season-matchups.js?v=d596690d"></script>
+<script src="data/league-dues.js?v=61c25e7c"></script>
 <script src="data/season-rankings.js?v=51f908be"></script>
 <script src="data/rosters-live.js?v=9cdcf7c7"></script>
-<!-- Wer wen gepickt hat, fuer einen abgeschlossenen Draft. Manuell aktualisiert, siehe scripts/fetch-draft-results-espn.js. NUR diese "active"-Datei einbinden, nicht zusaetzlich data/draft-results-<jahr>.js -- beide deklarieren dieselbe Konstante. --><script src="data/draft-results-active.js?v=ecf33158"></script>
+<!-- Wer wen gepickt hat, fuer einen abgeschlossenen Draft. Manuell aktualisiert, siehe scripts/fetch-draft-results-espn.js. NUR diese "active"-Datei einbinden, nicht zusaetzlich data/draft-results-<jahr>.js -- beide deklarieren dieselbe Konstante. --><script src="data/draft-results-active.js?v=85ec1c76"></script>
 <script src="data/projections-baseline.js?v=c194f5ad"></script>
 <script src="data/live-projections.js?v=e3f38185"></script>
 <script src="data/aliases.js?v=2cbadcff"></script>
@@ -1730,14 +1336,9 @@
 <script src="js/flow-diagram.js?v=1"></script>
 <script src="js/draft-countdown.js?v=1"></script>
 <script src="js/nba-teams.js?v=5"></script>
-<script src="js/standings.js?v=5"></script>
-<!-- Seit 2026-07-31 unangebunden: "Live Projections (Test)" zeigt jetzt den
-     eingebetteten MFHFBs-Toolkit statt der nativen Baseline+Blend-Tabelle,
-     die dieses Script rendert (Details siehe index.html-Kommentar bei
-     liveProjectionsPage). Auskommentiert statt geloescht, siehe README —
-     gleiches Prinzip wie beim Draft-Duel-Block weiter oben.
-<script src="js/live-projections-ui.js?v=1"></script>
--->
+<script src="js/standings.js?v=6"></script>
+<script src="js/league-dues.js?v=1"></script>
+<script src="js/player-shape.js?v=1"></script>
 <script src="js/best-available.js?v=5"></script>
 <script src="js/trade-analyzer.js?v=5"></script>
 <script src="js/trade-finder.js?v=5"></script>
@@ -1781,4 +1382,4 @@
 </script>
 
 </body>
-</html>
+</html>

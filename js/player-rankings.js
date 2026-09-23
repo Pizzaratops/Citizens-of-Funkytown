@@ -60,43 +60,14 @@ function showPlayerRankings() {
   prInit();
 }
 
-// War bis 2026-07-31 die externe GitHub-Pages-URL des eigenstaendigen
-// MFHFBs-NBA-Projections-Repos, dann lokal per Iframe, seit 2026-08-01
-// schrittweise nativ portiert. Inzwischen sind ALLE 3 Toolkit-Seiten
-// (Projections, NBA Teams, Draft Board) echte TTHQ-Seiten — die komplette
-// Iframe-Mechanik (Resize-Observer, postMessage-Theme-Sync, ?theme=-URL-
-// Parameter) ist damit entfernt. projections/index.html, teams.html und
-// draft.html existieren als Standalone-Dateien weiter (werden von TTHQ
-// aber nicht mehr geladen); die Daten- und assets-Dateien darunter sind
-// weiterhin die aktive Quelle fuer die nativen Seiten.
-
-// showPlayerProjections() lebt jetzt in js/consensus-projections.js --
-// die Seite hat seit dem Consensus-Import (Beyaz x Josh Lloyd) eine
-// eigene Datenquelle, siehe data/projections-consensus.js.
-
-// Daten+Logik fuer die native Projections-Seite werden erst beim ersten
-// Besuch nachgeladen (~2,4 MB — players-data.js allein ist 1,9 MB), nicht
-// statisch in index.html eingebunden, sonst wuerde JEDER TTHQ-Besuch das
-// mitladen, egal ob die Seite je aufgerufen wird. Gleiche Grundidee wie
-// vorher beim Iframe (frame.src nur beim ersten Aufruf gesetzt), nur jetzt
-// als echte <script>-Injection statt Iframe-Navigation.
-const LIVE_PROJ_NATIVE_SCRIPTS = [
-  'projections/players-data.js',
-  'projections/projected-minutes.js',
-  'projections/adp-data.js',
-  'projections/rosters-data.js',
-  'projections/rookie-projections.js',
-  'projections/assets/shared.js',
-  'projections/assets/inseason-blend.js',
-  'js/projections-native.js',
-];
-let _liveProjNativeState = 'unloaded'; // 'unloaded' | 'loading' | 'ready'
-
-// Mehrere Projections-Unterseiten (Projections/NBA Teams/[Draft Board])
-// brauchen teilweise DIESELBEN Datendateien (players-data.js, shared.js,
-// ...). Die nutzen "const" auf Top-Level -- ein zweites Mal geladen wuerfe
-// "Identifier bereits deklariert". Deshalb global tracken, was schon laeuft
-// oder fertig geladen ist, und beim zweiten Aufruf einfach ueberspringen.
+// ── Script-Loader ──────────────────────────────────────────────
+// Laedt grosse Datendateien erst bei Bedarf (z.B. data/projections-
+// consensus.js fuer 2026/27 Projections, die Saison-Stats fuer Cat Web).
+// Viele davon deklarieren "const" auf Top-Level -- ein zweites Laden
+// wuerfe "Identifier bereits deklariert". Deshalb global tracken, was
+// schon laeuft oder fertig ist, und beim zweiten Aufruf ueberspringen.
+// (Die "Live Projections (Test)"-Seiten, fuer die das urspruenglich
+// gebaut wurde, sind seit 2026-09-23 entfernt.)
 const _loadedProjScripts = new Set(); // fertig geladen
 const _loadingProjScripts = new Map(); // src -> Promise, waehrend des Ladens
 
@@ -106,9 +77,8 @@ function _loadScriptOnce(src) {
   const p = new Promise((resolve) => {
     const s = document.createElement('script');
     s.src = src;
-    // onerror statt Abbruch: adp-data.js/rosters-data.js/rookie-projections.js
-    // hatten im Original schon ein onerror-Attribut (optional, Seite laeuft
-    // auch ohne sie), gleiches Verhalten hier fuer alle beibehalten.
+    // onerror statt Abbruch: eine fehlende optionale Datei soll die
+    // Seite nicht blockieren.
     s.onload = () => { _loadedProjScripts.add(src); resolve(); };
     s.onerror = () => { _loadedProjScripts.add(src); resolve(); };
     document.body.appendChild(s);
@@ -121,97 +91,6 @@ function _loadScriptsSequentially(srcs, i, onDone) {
   if (i >= srcs.length) { onDone(); return; }
   _loadScriptOnce(srcs[i]).then(() => _loadScriptsSequentially(srcs, i + 1, onDone));
 }
-
-function showLiveProjections() {
-  navigate('liveProjectionsPage');
-  if (_liveProjNativeState === 'ready') return;
-  if (_liveProjNativeState === 'loading') return;
-  _liveProjNativeState = 'loading';
-  const countEl = document.getElementById('count');
-  if (countEl) countEl.textContent = 'Lade Projections…';
-  _loadScriptsSequentially(LIVE_PROJ_NATIVE_SCRIPTS, 0, () => {
-    _liveProjNativeState = 'ready';
-    if (typeof initLiveProjectionsNative === 'function') {
-      initLiveProjectionsNative();
-    } else {
-      console.error('initLiveProjectionsNative() nicht gefunden — js/projections-native.js korrekt geladen?');
-      if (countEl) countEl.textContent = 'Fehler beim Laden — siehe Browser-Konsole.';
-    }
-  });
-}
-
-// NBA Teams braucht zum Teil dieselben Dateien wie Projections
-// (players-data.js, rosters-data.js, assets/shared.js, assets/inseason-blend.js)
-// -- ueber _loadScriptOnce() global dedupliziert, egal in welcher
-// Reihenfolge die beiden Seiten zuerst besucht werden. adp-data.js wird
-// hier NICHT gebraucht (nur auf der Projections-Seite selbst).
-const LIVE_PROJ_TEAMS_SCRIPTS = [
-  'projections/players-data.js',
-  'projections/projected-minutes.js',
-  'projections/rookie-projections.js',
-  'projections/rosters-data.js',
-  'projections/assets/shared.js',
-  'projections/assets/inseason-blend.js',
-  'js/projections-teams-native.js',
-];
-let _liveProjTeamsState = 'unloaded'; // 'unloaded' | 'loading' | 'ready'
-
-function showLiveProjTeams() {
-  navigate('liveProjTeamsPage');
-  if (_liveProjTeamsState === 'ready' || _liveProjTeamsState === 'loading') return;
-  _liveProjTeamsState = 'loading';
-  const contentEl = document.getElementById('teamsContent');
-  if (contentEl) contentEl.textContent = 'Lade NBA Teams…';
-  _loadScriptsSequentially(LIVE_PROJ_TEAMS_SCRIPTS, 0, () => {
-    _liveProjTeamsState = 'ready';
-    if (typeof initLiveProjTeamsNative === 'function') {
-      initLiveProjTeamsNative();
-    } else {
-      console.error('initLiveProjTeamsNative() nicht gefunden — js/projections-teams-native.js korrekt geladen?');
-      if (contentEl) contentEl.textContent = 'Fehler beim Laden — siehe Browser-Konsole.';
-    }
-  });
-}
-
-// Draft Board braucht zusaetzlich adp-data.js und assets/fantrax-live.js
-// (Live-Sync mit Fantrax) — Rest identisch mit Projections, ueber
-// _loadScriptOnce() dedupliziert.
-const LIVE_PROJ_DRAFT_SCRIPTS = [
-  // Consensus zuerst: shared.js leitet daraus die Pro-Minute-Raten ab
-  // (siehe mfhfbConsensusRatesFor), muss also vorher geladen sein.
-  'data/projections-consensus.js',
-  'projections/players-data.js',
-  'projections/projected-minutes.js',
-  'projections/adp-data.js',
-  'projections/rosters-data.js',
-  'projections/rookie-projections.js',
-  'projections/assets/shared.js',
-  'projections/assets/inseason-blend.js',
-  'projections/assets/fantrax-live.js',
-  'js/projections-draft-native.js',
-];
-let _liveProjDraftState = 'unloaded'; // 'unloaded' | 'loading' | 'ready'
-
-function showLiveProjDraft() {
-  navigate('liveProjDraftPage');
-  if (_liveProjDraftState === 'ready' || _liveProjDraftState === 'loading') return;
-  _liveProjDraftState = 'loading';
-  const bodyEl = document.getElementById('poolBody');
-  if (bodyEl) bodyEl.innerHTML = '<tr><td colspan="22" style="padding:16px;color:var(--muted);">Lade Draft Board…</td></tr>';
-  _loadScriptsSequentially(LIVE_PROJ_DRAFT_SCRIPTS, 0, () => {
-    _liveProjDraftState = 'ready';
-    if (typeof initLiveProjDraftNative === 'function') {
-      initLiveProjDraftNative();
-    } else {
-      console.error('initLiveProjDraftNative() nicht gefunden — js/projections-draft-native.js korrekt geladen?');
-      if (bodyEl) bodyEl.innerHTML = '<tr><td colspan="22" style="padding:16px;color:var(--bad);">Fehler beim Laden — siehe Browser-Konsole.</td></tr>';
-    }
-  });
-}
-
-
-
-
 
 function prInit() {
   document.getElementById('prSubtabOffSeason').classList.toggle('active', prCurrentTab === 'offseason');

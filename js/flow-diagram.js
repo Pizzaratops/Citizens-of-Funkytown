@@ -210,23 +210,6 @@ const FLOW_STAGES = [
         page: 'showTrade',
       },
       {
-        icon: '🏀', kind: 'view', title: 'NBA Teams',
-        text: 'Rotation und Minuten je NBA Team, daneben die tatsächliche End-Rotation der Vorsaison zum Vergleich.',
-        page: 'showLiveProjTeams',
-        detail: [
-          ['Fund-Hinweis', 'Freie Spieler ab einer wählbaren Minutenschwelle werden markiert. Viel Rolle in der NBA, aber in keinem Kader der Liga, ist der interessanteste Fall auf dieser Seite.'],
-          ['Schwelle', 'Standard 24 Minuten, umstellbar auf 18 oder 30 oder ganz aus.'],
-        ],
-      },
-      {
-        icon: '🏆', kind: 'view', title: 'Fantrax Redraft',
-        text: 'Live-Draft-Tracker für die Fantrax Redraft Ligen, mit Besitzquote und ADP über alle Ligen hinweg.',
-        page: 'showLiveProjDraft',
-        detail: [
-          ['Meine Spieler', 'Zeigt je Spieler, in wie vielen Ligen er mir gehört, wie früh er im Schnitt ging und wie früh ich ihn geholt habe.'],
-        ],
-      },
-      {
         icon: '⚔️', kind: 'new', title: 'Matchup Planer',
         text: 'Stellt zwei Kader über alle neun Kategorien gegenüber, auf Basis der real angesetzten NBA Spiele der Woche.',
         page: 'showMatchupPlanner',

@@ -66,22 +66,6 @@ function toggleTheme() {
   if (homePage && homePage.classList.contains('active')) {
     setTimeout(renderHome, 50);
   }
-  // Native Projections-/NBA-Teams-Tabellen neu rendern, falls sichtbar UND
-  // schon geladen — Heatmap-Zellfarben sind fixe Inline-Styles, ziehen
-  // sonst nicht automatisch nach (siehe js/projections-native.js bzw.
-  // js/projections-teams-native.js).
-  const liveProjectionsPage = document.getElementById('liveProjectionsPage');
-  if (liveProjectionsPage && liveProjectionsPage.classList.contains('active') && typeof window.reRenderLiveProjections === 'function') {
-    setTimeout(window.reRenderLiveProjections, 50);
-  }
-  const liveProjTeamsPage = document.getElementById('liveProjTeamsPage');
-  if (liveProjTeamsPage && liveProjTeamsPage.classList.contains('active') && typeof window.reRenderLiveProjTeams === 'function') {
-    setTimeout(window.reRenderLiveProjTeams, 50);
-  }
-  const liveProjDraftPage = document.getElementById('liveProjDraftPage');
-  if (liveProjDraftPage && liveProjDraftPage.classList.contains('active') && typeof window.reRenderLiveProjDraft === 'function') {
-    setTimeout(window.reRenderLiveProjDraft, 50);
-  }
 }
 if (localStorage.getItem('theme') === 'light') {
   document.body.classList.add('light');

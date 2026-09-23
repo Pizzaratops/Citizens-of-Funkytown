@@ -76,6 +76,15 @@ Was stattdessen gilt:
 
 ---
 
+## 🆕 Liga-Seiten (2026-09-23, zweite Runde)
+
+- **💰 Liga-Beiträge** (Menü Liga): wer für welche Saison bezahlt hat. Zahlungen von Hand in `data/league-dues.js` eintragen (`{ teamId, season }`), optional `DUES_AMOUNT` für die Summe. Aufbau wie bei Bear Witch Project HQ.
+- **📋 Draft Board** (Menü Liga): bis zum Draft am 11.10.2026 bewusst leer (`data/draft-results-active.js`). Danach „Draft Results abrufen“ in Actions starten.
+- **🏛️ Standings History** (Menü Standings): Endplatzierungen aller Funkytown-Saisons aus `data/season-history.js`. Befüllt über Actions → „Saison-Standings abrufen“ (Felder leer = alle Saisons ab 2018). Ersetzt die fest eingetippte TTHQ-Tabelle und die TTHQ-Archivdateien `data/season-20xx-xx.js`; auch das Saison-Dropdown auf Home liest jetzt diese Datei.
+- **📈 Team Rolling Rankings** (Menü Standings): Tabellenplatz nach jeder Woche, wie die Season Rolling Rankings bei Bear Witch Project. Daten in `data/season-matchups.js`: laufende Saison täglich über `scripts/sync-espn-matchups.js` (Schritt im Daily-Workflow), Vorjahre im selben Lauf wie die Standings History. Wertung umschaltbar zwischen Kategorien und Matchups.
+- **🕸️ Cat Web** (Menü Player): aus TTHQ übernommen (`js/player-shape.js`, `css/catweb.css`, `data/last-season-stats-*.js`). Die Saison-Stats werden erst beim Öffnen der Seite geladen.
+- **Entfernt:** „Live Projections (Test)“ (Projections, NBA Teams, Fantrax Redraft) samt `projections/`-Unterordner, `draft.html`, `teams.html` und den drei `projections-*.yml`-Workflows.
+
 ## 🗺️ Architektur & Datenfluss
 
 Reines Vanilla-JS + HTML/CSS, keine Build-Tools, kein Framework. Gehostet auf GitHub Pages, Datenpipeline läuft über GitHub Actions + Node.js-Scripts.

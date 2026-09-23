@@ -421,11 +421,12 @@ function showDraftResults(){
   const sub = document.getElementById('draftResultsSub');
   if (!host) return;
 
-  if (typeof DRAFT_RESULTS === 'undefined' || !DRAFT_RESULTS.picks || !DRAFT_RESULTS.picks.length) {
+  if (typeof DRAFT_RESULTS === 'undefined' || !DRAFT_RESULTS || !DRAFT_RESULTS.picks || !DRAFT_RESULTS.picks.length) {
     host.innerHTML = `<div style="background:var(--surface);border:1px dashed var(--border);border-radius:12px;padding:32px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6;">
-      Noch keine Draft Results geladen.<br><br>
-      Läuft über <b>Actions → "Draft Results abrufen" → Run workflow</b> für eine bereits abgeschlossene ESPN-Saison.
-      Aktualisiert sich nicht automatisch, weil ein abgeschlossener Draft sich nicht mehr ändert.
+      <div style="font-size:32px;margin-bottom:8px;">📋</div>
+      <b style="color:var(--text);">Der Draft 2026/27 steht noch aus.</b><br>
+      Sonntag, 11. Oktober 2026 · 20:30 Uhr. Danach füllt sich das Board über
+      <b>Actions → "Draft Results abrufen" → Run workflow</b>.
     </div>`;
     if (sub) sub.textContent = 'Wer hat wen gepickt';
     return;
@@ -472,17 +473,18 @@ function showDraftResults(){
 
 // Which group each page belongs to (for group-button highlighting)
 const SUBNAV_PAGES = {
-  homePage:'home', draftResultsPage:'draftresults',
+  homePage:'home', draftResultsPage:'draftresults', duesPage:'dues', rollingStandingsPage:'rollingstandings', playerShapePage:'playershape',
   bestAvailPage:'bestavail', analyticsPage:'analytics', rollingRankingsPage:'rollingrankings', tradePage:'trade',
   tradeFinderPage:'tradefinder', adminSettingsPage:'adminsettings', standingsPage:'standings', rulesPage:'rules',
   liveScoresPage:'livescores', playerRankingsPage:'playerrankings', playerProjectionsPage:'playerprojections',
   matchupPage:'matchup',
-  liveProjectionsPage:'liveprojections', liveProjTeamsPage:'liveprojectionsteams', liveProjDraftPage:'liveprojectionsdraft',
 };
 
 const SNAV_GROUP = {
-  playerrankings: 'snavPlayer', playerprojections: 'snavPlayer', liveprojections: 'snavPlayer', liveprojectionsteams: 'snavPlayer', liveprojectionsdraft: 'snavPlayer',
-  draftresults: 'snavFTBoards',
+  playerrankings: 'snavPlayer', playerprojections: 'snavPlayer',
+  draftresults: 'snavFTBoards', dues: 'snavFTBoards',
+  standings: 'snavStandings', rollingstandings: 'snavStandings',
+  playershape: 'snavPlayer',
   bestavail: 'snavAnalytics', analytics: 'snavAnalytics', rollingrankings: 'snavAnalytics',
   trade:      'snavTrade', tradefinder: 'snavTrade',
 };
@@ -562,35 +564,26 @@ function closeMobileNav() {
 // ── Saison-Auswahl (Dropdown auf der Home-Seite) ────────────
 //  Aendert, welche Saison auf Home-Grid und Team-Detailseite gezeigt
 //  wird. "current" = live (ROSTERS/TEAM_RECORDS_LIVE/Projections wie
-//  gehabt). Alles andere kommt aus einer statischen data/season-*.js.
-//  Neue Saison hinzufuegen = neuer Eintrag hier + neue Datendatei +
-//  ein Fall in _getSeasonData() weiter unten (dort auch der Grund
-//  dafuer erklaert -- kurz: const wird nie zu window.X).
+//  gehabt). Alle anderen Saisons kommen aus SEASON_HISTORY
+//  (data/season-history.js, per GitHub Actions "Saison-Standings
+//  abrufen" direkt aus ESPN geholt). Neue Saison = Workflow erneut
+//  laufen lassen, hier ist nichts von Hand einzutragen.
+//  Bis 2026-09-23 standen hier die Archiv-Saisons der TTHQ-Liga
+//  (data/season-20xx-xx.js), die fuer Funkytown falsch waren.
 //  Reset bei jedem Seitenaufruf auf "current" (kein localStorage) --
 //  bewusst so gewuenscht, damit man nie versehentlich in einer alten
 //  Saison "haengen bleibt".
+function _seasonHistory() {
+  return (typeof SEASON_HISTORY !== 'undefined' && Array.isArray(SEASON_HISTORY)) ? SEASON_HISTORY : [];
+}
 const SEASON_REGISTRY = [
   { key: 'current', label: 'Saison 2026/27 (aktuell)' },
-  { key: '2025-26', label: 'Saison 2025/26', varName: 'SEASON_2025_26' },
-  { key: '2024-25', label: 'Saison 2024/25', varName: 'SEASON_2024_25' },
-  { key: '2023-24', label: 'Saison 2023/24', varName: 'SEASON_2023_24' },
-  { key: '2022-23', label: 'Saison 2022/23', varName: 'SEASON_2022_23' },
-  { key: '2021-22', label: 'Saison 2021/22 (Gründung)', varName: 'SEASON_2021_22' },
+  ..._seasonHistory().map(s => ({ key: s.key, label: s.label })),
 ];
 let _viewSeason = 'current';
 
 function _getSeasonData(key) {
-  // WICHTIG: `const X = {...}` in einer Script-Datei erzeugt NIE ein
-  // window.X (anders als `var` oder implizite Globals) -- das gilt in
-  // jedem Browser, nicht nur hier. Deshalb bewusst keine dynamische
-  // window[varName]-Aufloesung, sondern explizite Referenzen. Neue
-  // archivierte Saison = neuer Fall hier + neue Datendatei.
-  if (key === '2025-26') return typeof SEASON_2025_26 !== 'undefined' ? SEASON_2025_26 : null;
-  if (key === '2024-25') return typeof SEASON_2024_25 !== 'undefined' ? SEASON_2024_25 : null;
-  if (key === '2023-24') return typeof SEASON_2023_24 !== 'undefined' ? SEASON_2023_24 : null;
-  if (key === '2022-23') return typeof SEASON_2022_23 !== 'undefined' ? SEASON_2022_23 : null;
-  if (key === '2021-22') return typeof SEASON_2021_22 !== 'undefined' ? SEASON_2021_22 : null;
-  return null;
+  return _seasonHistory().find(s => s.key === key) || null;
 }
 
 function renderSeasonPicker() {
@@ -611,17 +604,16 @@ function setViewSeason(key) {
 
 function goHome(){navigate('homePage');}
 function showRules(){navigate('rulesPage');}
-function showStandings(){navigate('standingsPage');setTimeout(renderStandingsChart,50);}
 function showLiveScores(){navigate('liveScoresPage');typeof lsInit==='function'&&lsInit();}
 function _rerenderPage(pageId) {
   if (pageId === 'playerRankingsPage')   typeof prInit === 'function' && prInit();
   if (pageId === 'standingsPage')        setTimeout(renderStandingsChart, 50);
+  if (pageId === 'rollingStandingsPage') renderRollingStandings();
+  if (pageId === 'duesPage')             renderDues();
+  if (pageId === 'playerShapePage')      showPlayerShape();
   if (pageId === 'adminSettingsPage')    _asInit();
   if (pageId === 'draftResultsPage')     showDraftResults();
   if (pageId === 'bestAvailPage')        showBestAvail();
-  if (pageId === 'liveProjectionsPage')  showLiveProjections();
-  if (pageId === 'liveProjTeamsPage')    showLiveProjTeams();
-  if (pageId === 'liveProjDraftPage')    showLiveProjDraft();
   if (pageId === 'analyticsPage')        showAnalytics();
   if (pageId === 'rollingRankingsPage')  showRollingRankings();
   if (pageId === 'tradePage')            typeof showTrade === 'function' && showTrade();

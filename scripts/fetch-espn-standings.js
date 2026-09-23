@@ -36,16 +36,26 @@
 //  ein "x_"-Präfix mit dem damaligen Teamnamen, analog zum
 //  bestehenden Archiv-Format in data/season-2021-22.js.
 //
-//  OUTPUT
-//  Pro Saison eine Datei data/season-<start>-<endkurz>.js im selben
-//  Format, das js/navigation.js (_getSeasonData, SEASON_REGISTRY)
-//  bereits erwartet -- rosters bleibt hier bewusst leer ({}), dieses
-//  Script holt nur die Abschlusstabelle, keine Kader. Nach dem Lauf
-//  muss jede neue Saison noch von Hand in SEASON_REGISTRY
-//  (js/navigation.js) eingetragen werden, damit sie im Dropdown
-//  auf der Home-Seite auftaucht -- bewusst kein Auto-Edit von
-//  navigation.js, damit die Registry-Reihenfolge/Labels von Hand
-//  kontrolliert bleiben.
+//  AELTERE SAISONS
+//  Liefert der normale seasons/<jahr>-Endpoint nichts (bei ESPN typisch
+//  fuer weiter zurueckliegende Jahre), wird automatisch der
+//  leagueHistory-Endpoint derselben Liga probiert.
+//
+//  WOCHEN-ERGEBNISSE
+//  Pro Saison werden ausserdem die Matchups je Woche geholt und nach
+//  data/season-matchups.js geschrieben (Rolling Rankings unter
+//  Standings). Der Workflow committet data/season-*.js, beide Dateien
+//  fallen darunter.
+//
+//  OUTPUT (seit 2026-09-23)
+//  Eine einzige Datei data/season-history.js mit SEASON_HISTORY, einer
+//  nach Saison absteigend sortierten Liste. Neue Laeufe werden mit dem
+//  bestehenden Inhalt zusammengefuehrt (gleiche Saison = ersetzt), es
+//  geht also nichts verloren, wenn nur eine einzelne Saison abgerufen
+//  wird. js/navigation.js (Saison-Dropdown auf Home) und
+//  js/standings.js (Standings History) lesen die Liste direkt, von
+//  Hand muss nichts mehr eingetragen werden. rosters bleibt leer ({}),
+//  dieses Script holt nur die Abschlusstabelle, keine Kader.
 //
 //  Usage:
 //    node scripts/fetch-espn-standings.js --season 2022
@@ -65,6 +75,7 @@ const https = require('https');
 const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
+const matchupsLib = require('./lib/espn-matchups');
 
 function loadConfig() {
   const code = fs.readFileSync(path.join(ROOT, 'js', 'espn-sync.js'), 'utf8');
@@ -113,24 +124,28 @@ function seasonLabel(espnSeason) {
   return `Saison ${start}/${endShort}`;
 }
 
-function seasonVarSuffix(espnSeason) {
-  // 2022 -> "2021_22"
-  const start = espnSeason - 1;
-  const endShort = String(espnSeason).slice(-2);
-  return `${start}_${endShort}`;
-}
-
 // Holt die Abschlusstabelle für EINE ESPN-Saison. Gibt null zurück
 // (statt zu werfen), wenn die Liga für diese Saison offensichtlich
 // nicht existiert -- damit ein --from/--to-Lauf über Jahre ohne Liga
 // einfach weiterlaufen kann.
 async function fetchSeasonStandings(cfg, espnSeason) {
-  const url = `https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/${espnSeason}/segments/0/leagues/${cfg.ESPN_LEAGUE_ID}?view=mTeam`;
-  let data;
-  try {
-    data = await httpsGetJson(url);
-  } catch (e) {
-    console.warn(`  Saison ${espnSeason}: Abruf fehlgeschlagen (${e.message}) -- übersprungen.`);
+  const base = 'https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba';
+  const urls = [
+    `${base}/seasons/${espnSeason}/segments/0/leagues/${cfg.ESPN_LEAGUE_ID}?view=mTeam`,
+    `${base}/leagueHistory/${cfg.ESPN_LEAGUE_ID}?seasonId=${espnSeason}&view=mTeam`,
+  ];
+  let data = null;
+  for (const url of urls) {
+    try {
+      const res = await httpsGetJson(url);
+      const obj = Array.isArray(res) ? res[0] : res;
+      if (obj && Array.isArray(obj.teams) && obj.teams.length) { data = obj; break; }
+    } catch (e) {
+      console.warn(`  Saison ${espnSeason}: ${url.includes('leagueHistory') ? 'leagueHistory' : 'seasons'}-Abruf fehlgeschlagen (${e.message}).`);
+    }
+  }
+  if (!data) {
+    console.warn(`  Saison ${espnSeason}: keine Daten -- übersprungen.`);
     return null;
   }
   const teams = data.teams || [];
@@ -188,30 +203,50 @@ async function fetchSeasonStandings(cfg, espnSeason) {
   return { espnSeason, label: seasonLabel(espnSeason), standings };
 }
 
-function writeSeasonFile(season) {
-  const varName = `SEASON_${seasonVarSuffix(season.espnSeason)}`;
+const HISTORY_PATH = path.join(ROOT, 'data', 'season-history.js');
+
+function loadExistingHistory() {
+  if (!fs.existsSync(HISTORY_PATH)) return [];
+  try {
+    const sandbox = {};
+    vm.createContext(sandbox);
+    vm.runInContext(fs.readFileSync(HISTORY_PATH, 'utf8') + '\nthis.__H__ = SEASON_HISTORY;', sandbox);
+    return Array.isArray(sandbox.__H__) ? sandbox.__H__ : [];
+  } catch (e) {
+    console.warn('Bestehende data/season-history.js nicht lesbar, wird neu aufgebaut:', e.message);
+    return [];
+  }
+}
+
+function writeHistory(fetched) {
+  const byYear = new Map(loadExistingHistory().map(s => [s.espnSeason, s]));
+  fetched.forEach(s => byYear.set(s.espnSeason, {
+    key: `${s.espnSeason - 1}-${String(s.espnSeason).slice(-2)}`,
+    espnSeason: s.espnSeason,
+    label: s.label,
+    standings: s.standings,
+    rosters: {},
+  }));
+  const list = [...byYear.values()].sort((a, b) => b.espnSeason - a.espnSeason);
   const out = `// ============================================================
-//  SAISON-ARCHIV ${season.label} — Abschlusstabelle
+//  SEASON_HISTORY — Abschlusstabellen aller Funkytown-Saisons
 // ============================================================
 //  AUTO-GENERIERT von scripts/fetch-espn-standings.js gegen die ESPN
-//  API (view=mTeam, rankCalculatedFinal). "estimated:true" bei einem
-//  Team bedeutet: ESPN hat für diese Saison keine offizielle
-//  Endplatzierung berechnet, die Reihenfolge wurde ersatzweise aus
-//  dem Sieg-Prozentsatz abgeleitet -- keine offizielle ESPN-Angabe.
-//  rosters bleibt hier leer -- dieses Script holt nur die Tabelle,
-//  keine Kader. Neue Saison muss zusätzlich von Hand in
-//  SEASON_REGISTRY (js/navigation.js) eingetragen werden, damit sie
-//  im Saison-Dropdown auf der Home-Seite erscheint.
+//  API (view=mTeam, rankCalculatedFinal), GitHub Actions "Saison-
+//  Standings abrufen". Nicht von Hand editieren, neue Laeufe werden
+//  mit dem bestehenden Inhalt zusammengefuehrt.
+//  "estimated:true" bei einem Team: ESPN hat fuer diese Saison keine
+//  offizielle Endplatzierung berechnet, die Reihenfolge stammt aus dem
+//  Sieg-Prozentsatz. teamId null = Team existiert heute nicht mehr.
+//  Gelesen von js/navigation.js (Saison-Dropdown) und js/standings.js.
 //  Zuletzt abgerufen: ${new Date().toISOString()}
 // ============================================================
 
-const ${varName} = ${JSON.stringify({ label: season.label, standings: season.standings, rosters: {} }, null, 1)};
+const SEASON_HISTORY = ${JSON.stringify(list, null, 1)};
 `;
-  const outPath = path.join(ROOT, 'data', `season-${seasonVarSuffix(season.espnSeason).replace('_', '-')}.js`);
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  fs.writeFileSync(outPath, out, 'utf8');
-  console.log(`  ${path.relative(ROOT, outPath)} geschrieben (${season.standings.length} Teams).`);
-  return outPath;
+  fs.mkdirSync(path.dirname(HISTORY_PATH), { recursive: true });
+  fs.writeFileSync(HISTORY_PATH, out, 'utf8');
+  console.log(`  ${path.relative(ROOT, HISTORY_PATH)} geschrieben (${list.length} Saisons insgesamt).`);
 }
 
 async function main() {
@@ -233,29 +268,38 @@ async function main() {
     seasons = [];
     for (let s = from; s <= to; s++) seasons.push(s);
   } else {
-    // Standard: alle abgeschlossenen Saisons ab 2019 (frühestes Jahr,
-    // für das ESPNs Fantasy-Basketball-API überhaupt zuverlässig
-    // Daten liefert) bis zur laufenden Saison minus eins.
+    // Standard: alle abgeschlossenen Saisons ab 2018 (Liga existiert
+    // seit 2018; aeltere Jahre laufen notfalls ueber leagueHistory)
+    // bis zur laufenden Saison minus eins.
     seasons = [];
-    for (let s = 2019; s < cfg.ESPN_SEASON; s++) seasons.push(s);
+    for (let s = 2018; s < cfg.ESPN_SEASON; s++) seasons.push(s);
   }
 
   console.log(`Standings-Abruf für ESPN-Liga ${cfg.ESPN_LEAGUE_ID}, Saisons: ${seasons.join(', ')}`);
 
-  const written = [];
+  const fetched = [];
   const skipped = [];
+  const matchups = [];
   for (const espnSeason of seasons) {
     console.log(`Saison ${espnSeason} (${seasonLabel(espnSeason)})...`);
     const season = await fetchSeasonStandings(cfg, espnSeason);
     if (!season) { skipped.push(espnSeason); continue; }
-    written.push(writeSeasonFile(season));
+    fetched.push(season);
+    // Im selben Lauf die Wochen-Ergebnisse fuer die Rolling Rankings
+    // mitnehmen (data/season-matchups.js, siehe scripts/lib/espn-matchups.js).
+    // Nicht fatal: fehlen sie, bleibt nur der Rolling-Verlauf dieser Saison leer.
+    try {
+      const m = await matchupsLib.fetchSeasonMatchups(cfg, espnSeason);
+      if (m) { matchups.push(m); console.log(`  ${Object.keys(m.weeks).length} Wochen-Ergebnisse.`); }
+    } catch (e) {
+      console.warn(`  Wochen-Ergebnisse ${espnSeason} fehlgeschlagen: ${e.message}`);
+    }
   }
+  if (fetched.length) writeHistory(fetched);
+  if (matchups.length) matchupsLib.writeMatchups(matchups);
 
   console.log('');
-  console.log(`Fertig: ${written.length} Saison-Datei(en) geschrieben, ${skipped.length} übersprungen${skipped.length ? ' (' + skipped.join(', ') + ')' : ''}.`);
-  if (written.length) {
-    console.log('Nächster Schritt: die neuen Saisons von Hand in SEASON_REGISTRY (js/navigation.js) eintragen, damit sie im Dropdown erscheinen.');
-  }
+  console.log(`Fertig: ${fetched.length} Saison(s) abgerufen, ${skipped.length} übersprungen${skipped.length ? ' (' + skipped.join(', ') + ')' : ''}.`);
 }
 
 main().catch(err => {

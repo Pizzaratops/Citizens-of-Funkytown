@@ -1,0 +1,125 @@
+/* ============================================================
+   LIGA-SEITEN — Liga-Beiträge, Standings History, Rolling Rankings
+   ============================================================
+   Logik: js/league-dues.js, js/standings.js. Nutzt nur die Theme-
+   Variablen aus css/style.css, Dark und Light ohne Sonderfall.
+   ============================================================ */
+
+/* ── Gemeinsam ─────────────────────────────────────────────── */
+.lg-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+.lg-table-wrap {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.lg-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.lg-table th {
+  padding: 10px 12px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--muted); background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  text-align: center; white-space: nowrap;
+}
+.lg-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: center; white-space: nowrap;
+}
+.lg-table tbody tr:last-child td { border-bottom: none; }
+.lg-team { display: flex; align-items: center; gap: 10px; }
+.lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-right: 6px; vertical-align: middle; }
+.lg-team .lg-dot { margin-right: 0; }
+.lg-team-name { font-weight: 700; color: var(--text); }
+.lg-team-owner { font-size: 11px; color: var(--muted); }
+.lg-foot { color: var(--muted); font-size: 12px; margin: 10px 0 0; }
+.lg-foot code { font-family: 'DM Mono', monospace; font-size: 11px; }
+.lg-empty {
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  padding: 36px 22px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.lg-empty-icon { font-size: 32px; margin-bottom: 8px; }
+.lg-empty-title { color: var(--text); font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+
+/* ── Liga-Beiträge ─────────────────────────────────────────── */
+.dues-summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 18px 20px; margin-bottom: 14px;
+}
+.dues-summary-label {
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent2); margin-bottom: 4px;
+}
+.dues-summary-value {
+  font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; color: var(--text); line-height: 1.1;
+}
+.dues-summary-value span { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; color: var(--muted); }
+.dues-money { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.dues-progress {
+  flex: 1; min-width: 200px; max-width: 420px; height: 10px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
+}
+.dues-progress-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width .4s ease; }
+.dues-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+.dues-paid { background: rgba(76,175,129,0.14); color: var(--green); }
+.dues-owes { background: rgba(255,101,132,0.12); color: var(--accent2); }
+.dues-open { background: var(--surface2); color: var(--muted); }
+
+/* ── Standings History ─────────────────────────────────────── */
+.st-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 20px; margin-bottom: 8px;
+}
+.st-chart-box { position: relative; height: 440px; min-height: 320px; }
+.st-section-title {
+  font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 800; color: var(--text);
+  margin: 28px 0 12px;
+}
+.st-rec { color: var(--muted); font-size: 11px; margin-left: 6px; }
+
+/* ── Rolling Rankings ──────────────────────────────────────── */
+.rs-toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.rs-field { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.rs-field select {
+  background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: 9px; padding: 7px 10px; font-family: 'DM Sans', sans-serif; font-size: 13px;
+}
+.rs-seg { display: flex; gap: 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+.rs-seg button {
+  background: transparent; border: none; color: var(--muted); cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+  padding: 6px 12px; border-radius: 7px;
+}
+.rs-seg button.active { background: var(--accent); color: #fff; }
+.rs-note { font-size: 12px; color: var(--muted); }
+.rs-chart-box { position: relative; height: 520px; }
+.rs-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; }
+.rs-table { margin-top: 0; }
+.rs-table tbody tr { cursor: pointer; transition: background .12s; }
+.rs-table tbody tr:hover { background: var(--surface2); }
+.rs-table tbody tr.rs-pinned { background: var(--accent-light); box-shadow: inset 3px 0 0 var(--accent); }
+.rs-rank { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 800; color: var(--text); }
+.rs-num { font-variant-numeric: tabular-nums; font-weight: 600; }
+.rs-up { color: var(--green); font-weight: 800; font-size: 12px; }
+.rs-down { color: var(--accent2); font-weight: 800; font-size: 12px; }
+.rs-flat { color: var(--muted); }
+.rs-pills { display: flex; gap: 3px; justify-content: flex-start; }
+.rs-pill {
+  display: inline-block; min-width: 24px; padding: 3px 0; border-radius: 5px;
+  font-size: 10.5px; font-weight: 800; color: var(--text); text-align: center;
+}
+.rs-weeks-col { text-align: left !important; }
+
+@media (max-width: 640px) {
+  .st-chart-box { height: 360px; }
+  .rs-chart-box { height: 440px; }
+  .dues-summary-value { font-size: 24px; }
+  .lg-table th, .lg-table td { padding: 8px 8px; }
+}
