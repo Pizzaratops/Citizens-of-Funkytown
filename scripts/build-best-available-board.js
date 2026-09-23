@@ -5,11 +5,10 @@
 //  Kombiniert für JEDEN Spieler (Rookies UND alle Spieler mit
 //  Minuten aus der letzten Saison) so viele der folgenden Signale
 //  wie verfügbar sind, mit anteiliger Gewichts-Umverteilung bei
-//  fehlenden Signalen (identisches Prinzip wie build-postdraft-board.js):
+//  fehlenden Signalen:
 //
-//   - Dynasty-Rang (data/rankings.js, Beyaz/Matt Lawson kuratiert)  Gewicht 0.35
+//   - 2026/27 Projection (data/live-projections.js, Composite-Z)   Gewicht 0.45
 //   - BBM-Redraft-Rang (FA_PLAYERS, js/best-available.js)          Gewicht 0.15
-//   - Post-Draft-Score für Rookies (data/postdraft-board.js)       Gewicht 0.30
 //   - Letzte Saison 2025/26 (data/rolling-rankings.js, eosRank)    Gewicht 0.20
 //   - Off-Season 2026 (data/offseason-rankings.js, SL+Preseason)   Gewicht 0.15
 //   - Laufende Saison 2026/27 (data/livescores-aggregate.js,
@@ -23,6 +22,9 @@
 //  Saison-Daten anzeigen (Rookies, Spieler die Summer League/Preseason
 //  gespielt haben, bzw. alle sobald die reguläre Saison läuft) — für reine
 //  "nur letzte Saison"-Spieler bleiben diese Felder bis Saisonstart leer.
+//
+//  Spielerpool: data/players.js (PLAYER_DB) + FA_PLAYERS. Dynasty-Rang
+//  und Post-Draft-Rookie-Score wurden am 2026-09-23 entfernt (Redraft-Liga).
 //
 //  Output: data/best-available-board.js — BEST_AVAILABLE_BOARD, ein
 //  einzelnes flaches Array für js/best-available.js.
@@ -39,7 +41,7 @@ const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'data', 'best-available-board.js');
 
 // ------------------------------------------------------------
-// Helpers (identisch zu build-postdraft-board.js)
+// Helpers
 // ------------------------------------------------------------
 function extractBalanced(code, marker, openCh, closeCh) {
   const start = code.indexOf(marker);
@@ -119,7 +121,7 @@ const BA_NBA_TEAMS = new Set(['ATL', 'BOS', 'BKN', 'CHA', 'CHI', 'CLE', 'DAL', '
 // ------------------------------------------------------------
 // 1) Alle Datenquellen laden
 // ------------------------------------------------------------
-const DYNASTY_PLAYERS = loadVmArray(path.join(ROOT, 'data', 'rankings.js'), 'DYNASTY_PLAYERS') || [];
+const PLAYER_DB = loadVmArray(path.join(ROOT, 'data', 'players.js'), 'PLAYER_DB') || [];
 
 const baText = fs.readFileSync(path.join(ROOT, 'js', 'best-available.js'), 'utf8');
 const faSnippet = extractBalanced(baText, 'const FA_PLAYERS = [', '[', ']');
@@ -129,11 +131,6 @@ const FA_PLAYERS = faSnippet ? (() => {
   vm.runInContext(`${faSnippet}\nthis.__R__ = FA_PLAYERS;`, sandbox);
   return sandbox.__R__;
 })() : [];
-
-const POSTDRAFT_BOARD = (() => {
-  const p = path.join(ROOT, 'data', 'postdraft-board.js');
-  return fs.existsSync(p) ? (loadVmArray(p, 'POSTDRAFT_BOARD') || []) : [];
-})();
 
 const ROLLING_RANKINGS = (() => {
   const p = path.join(ROOT, 'data', 'rolling-rankings.js');
@@ -181,6 +178,14 @@ const DRAFT_CLASS_2025 = (() => {
 const rookieAgeByName = new Map();
 DRAFT_CLASS_2026.forEach(p => rookieAgeByName.set(normalizeName(p.name), p.age));
 const sophomoreNames = new Set(DRAFT_CLASS_2025.map(normalizeName));
+
+// Redraft-Hauptsignal seit 2026-09-23 (ersetzt den Dynasty-Rang): die
+// taeglich neu geblendete Projection. Muss deshalb im Workflow NACH
+// build-live-projections.js laufen (ist so).
+const LIVE_PROJECTIONS = (() => {
+  const p = path.join(ROOT, 'data', 'live-projections.js');
+  return fs.existsSync(p) ? (loadVmObject(p, 'LIVE_PROJECTIONS') || {}) : {};
+})();
 
 const OFFSEASON_RANKINGS = (() => {
   const p = path.join(ROOT, 'data', 'offseason-rankings.js');
@@ -230,11 +235,10 @@ const offseasonByName = new Map();
 if (OFFSEASON_RANKINGS && Array.isArray(OFFSEASON_RANKINGS.players)) {
   OFFSEASON_RANKINGS.players.forEach(p => offseasonByName.set(normalizeName(p.name), p));
 }
-const postDraftByName = byNameMap(POSTDRAFT_BOARD, 'name');
-const dynastyByName = new Map();
-DYNASTY_PLAYERS.forEach(p => dynastyByName.set(normalizeName(p[1]), p));
 const bbmByName = new Map();
 FA_PLAYERS.forEach(p => bbmByName.set(normalizeName(p.name), p));
+const projByName = new Map();
+Object.entries(LIVE_PROJECTIONS).forEach(([name, s]) => { if (typeof s.z === 'number') projByName.set(normalizeName(name), s); });
 const rollingByName = new Map();
 ROLLING_RANKINGS.forEach(p => rollingByName.set(normalizeName(p.name), p));
 const lastSeasonStatsByName = new Map();
@@ -252,15 +256,14 @@ function addCandidate(name, nbaTeam, pos, dob) {
   else if (dob && !candidates.get(key).dob) candidates.get(key).dob = dob;
 }
 
-DYNASTY_PLAYERS.forEach(p => addCandidate(p[1], p[2], p[3], p[4]));
+PLAYER_DB.forEach(p => addCandidate(p[0], p[1], p[2], p[3]));
 FA_PLAYERS.forEach(p => addCandidate(p.name, p.nba, p.pos, null));
-POSTDRAFT_BOARD.forEach(p => { if (p.drafted) addCandidate(p.name, p.nbaTeam, p.pos, null); });
 // rolling-rankings.js hat kein Team-Feld — nur aufnehmen, wenn der Name
 // bereits über eine der anderen Quellen ein gültiges Team hat (s.o.); sonst
 // wüssten wir nicht, ob der Spieler überhaupt noch in der NBA ist.
 
 // ------------------------------------------------------------
-// 3) Rang→Z-Score Hilfsfunktion (für dynasty/BBM/eosRank — alles reine
+// 3) Rang→Z-Score Hilfsfunktion (für BBM/eosRank — alles reine
 //    Rangfolgen ohne rohe Statistiken)
 // ------------------------------------------------------------
 function rankToZLookup(pairs) {
@@ -272,7 +275,6 @@ function rankToZLookup(pairs) {
   return out;
 }
 
-const dynastyZByKey = rankToZLookup(DYNASTY_PLAYERS.map(p => [normalizeName(p[1]), p[0]]));
 const bbmZByKey = rankToZLookup(FA_PLAYERS.map(p => [normalizeName(p.name), p.rank]));
 const rollingZByKey = rankToZLookup(
   ROLLING_RANKINGS.filter(p => p.eosRank != null).map(p => [normalizeName(p.name), p.eosRank])
@@ -282,15 +284,14 @@ const rollingZByKey = rankToZLookup(
 // 4) Pro Kandidat: Signale sammeln, Score berechnen, Beschreibungsfelder füllen
 // ------------------------------------------------------------
 const BASE_WEIGHTS = {
-  dynasty: 0.35, bbm: 0.15, postDraft: 0.30, lastSeason: 0.20,
+  projection: 0.45, bbm: 0.15, lastSeason: 0.20,
   offseason: 0.15, currentSeason: 0.35,
 };
 
 const players = [];
 candidates.forEach((info, key) => {
-  const dyn = dynastyByName.get(key);
   const bbm = bbmByName.get(key);
-  const pd = postDraftByName.get(key);
+  const proj = projByName.get(key);
   const off = offseasonByName.get(key);
   const week = week7ByName.get(key);
   const month = month30ByName.get(key);
@@ -299,9 +300,8 @@ candidates.forEach((info, key) => {
   const lastStats = lastSeasonStatsByName.get(key);
 
   const signals = [];
-  if (dyn) signals.push(['dynasty', dynastyZByKey.get(key) ?? 0]);
+  if (proj) signals.push(['projection', proj.z / 3]); // Composite-Z-Summe, gleiche Skalierung wie lastSeason/offseason
   if (bbm) signals.push(['bbm', bbmZByKey.get(key) ?? 0]);
-  if (pd) signals.push(['postDraft', pd.compositeScore]);
   if (lastStats) signals.push(['lastSeason', lastStats.composite / 3]); // volle Kategorie-Z-Summe, grob auf gleiche Streuung skaliert
   else if (roll && roll.eosRank != null) signals.push(['lastSeason', rollingZByKey.get(key) ?? 0]); // Fallback: nur Rang, falls kein BBM-Stat-Eintrag existiert
   if (off) signals.push(['offseason', off.composite / 3]); // grob auf ähnliche Streuung wie andere Z-Signale skaliert
@@ -331,14 +331,11 @@ candidates.forEach((info, key) => {
     age: lastStats && lastStats.age != null
       ? Math.floor(lastStats.age)
       : (rookieAgeByName.has(key) ? Math.floor(rookieAgeByName.get(key)) : null),
-    isRookie: !!pd,
-    experience: pd ? 'rookie' : (sophomoreNames.has(key) ? 'sophomore' : 'veteran'),
-    dynastyRank: dyn ? dyn[0] : null,
+    isRookie: rookieAgeByName.has(key),
+    experience: rookieAgeByName.has(key) ? 'rookie' : (sophomoreNames.has(key) ? 'sophomore' : 'veteran'),
     bbmRank: bbm ? bbm.rank : null,
     lastSeasonRank: roll ? roll.eosRank : null,
     season2627Rank: season2627RankByName.get(key) ?? null,
-    postDraftRank: pd ? pd.rank : null,
-    stickyScore: pd ? pd.stickyScore : null,
     minutesAvg,
     z7,
     z30,
@@ -360,8 +357,8 @@ players.forEach((p, i) => { p.rank = i + 1; });
 const lines = players.map(p => {
   const f = (v) => v === null || v === undefined ? 'null' : (typeof v === 'string' ? JSON.stringify(v) : v);
   return `  { rank: ${p.rank}, name: ${JSON.stringify(p.name)}, nbaTeam: ${JSON.stringify(p.nbaTeam)}, pos: ${JSON.stringify(p.pos)}, dob: ${f(p.dob)}, age: ${f(p.age)}, ` +
-    `isRookie: ${p.isRookie}, experience: ${JSON.stringify(p.experience)}, dynastyRank: ${f(p.dynastyRank)}, bbmRank: ${f(p.bbmRank)}, lastSeasonRank: ${f(p.lastSeasonRank)}, season2627Rank: ${f(p.season2627Rank)}, ` +
-    `postDraftRank: ${f(p.postDraftRank)}, stickyScore: ${f(p.stickyScore)}, minutesAvg: ${f(p.minutesAvg)}, ` +
+    `isRookie: ${p.isRookie}, experience: ${JSON.stringify(p.experience)}, bbmRank: ${f(p.bbmRank)}, lastSeasonRank: ${f(p.lastSeasonRank)}, season2627Rank: ${f(p.season2627Rank)}, ` +
+    `minutesAvg: ${f(p.minutesAvg)}, ` +
     `z7: ${f(p.z7)}, z30: ${f(p.z30)}, bestCat7: ${f(p.bestCat7)}, bestCat30: ${f(p.bestCat30)}, worstCat30: ${f(p.worstCat30)}, ` +
     `statsWindow: ${f(p.statsWindow)}, compositeScore: ${p.compositeScore}, signalsUsed: ${JSON.stringify(p.signalsUsed)} }`;
 });
@@ -381,7 +378,7 @@ const out = `// ============================================================
 //  durch manuelle Trades/Overrides zwischen den täglichen Läufen ändern kann.
 //
 //  Shape: BEST_AVAILABLE_BOARD = [ { rank, name, nbaTeam, pos, isRookie,
-//    dynastyRank, bbmRank, lastSeasonRank, season2627Rank, postDraftRank, stickyScore,
+//    bbmRank, lastSeasonRank, season2627Rank,
 //    minutesAvg, z7, z30, bestCat7, bestCat30, worstCat30, statsWindow,
 //    compositeScore, signalsUsed }, ... ]
 // ============================================================

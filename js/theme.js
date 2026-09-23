@@ -2,8 +2,7 @@
 //  TOAST (kurze Statusmeldung unten am Bildschirmrand)
 // ============================================================
 //  Wird von admin-settings.js, admin-workflow-trigger.js, admin-inline.js,
-//  admin.js, draft-duel.js, espn-trade-detect.js, trade-history.js und
-//  index.html aufgerufen. Bis 2026-08-04 existierte diese Funktion nirgends
+//  admin.js, espn-live-sync.js und index.html aufgerufen. Bis 2026-08-04 existierte diese Funktion nirgends
 //  im Repo -- jeder Aufruf war ein ReferenceError, der die jeweils
 //  laufende Funktion abgebrochen hat (z.B. Team speichern, Pick anlegen,
 //  Trade History leeren -- die Aktion selbst lief, aber die Erfolgs-

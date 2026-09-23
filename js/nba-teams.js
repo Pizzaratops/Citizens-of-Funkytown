@@ -27,15 +27,17 @@ function showNBATeam(abbr) {
   const fullName = NBA_TEAM_NAMES[abbr] || abbr;
   const fantasyOwners = buildFantasyOwnerMap();
 
-  const ranked = DYNASTY_PLAYERS
-    .filter(p => p[2] === abbr)
+  // Sortiert nach 2026/27 Projections Rang (getProjRank, js/navigation.js).
+  // Spieler ohne Projection landen ohne Rang am Ende.
+  const ranked = PLAYER_DB
+    .filter(p => p[1] === abbr)
     .map(p => {
-      const ownerId = fantasyOwners[normalizeName(p[1])] || null;
+      const ownerId = fantasyOwners[normalizeName(p[0])] || null;
       const owner = ownerId ? teamMap[ownerId] : null;
-      return { rank: p[0], name: p[1], pos: p[3], owner };
+      return { rank: getProjRank(p[0]), name: p[0], pos: p[2] || '?', owner };
     });
 
-  ranked.sort((a, b) => a.rank - b.rank);
+  ranked.sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999) || a.name.localeCompare(b.name));
 
   const isLight = document.body.classList.contains('light');
 
@@ -43,18 +45,19 @@ function showNBATeam(abbr) {
     <div class="nba-team-abbr">${abbr}</div>
     <div>
       <div class="nba-team-title">${fullName}</div>
-      <div class="nba-team-sub">${ranked.length} ranked player${ranked.length!==1?'s':''} · sorted by dynasty rank</div>
+      <div class="nba-team-sub">${ranked.length} Spieler · sortiert nach 2026/27 Projections Rang</div>
     </div>
   </div>`;
 
   let rows = '';
   if (!ranked.length) {
-    rows = '<p style="color:var(--muted);padding:20px 0;">No ranked players on this team.</p>';
+    rows = '<p style="color:var(--muted);padding:20px 0;">Keine Spieler für dieses Team.</p>';
   } else {
     ranked.forEach(p => {
       let bg, color;
       const r = p.rank;
-      if (r === 1)      { bg='rgba(245,200,66,0.15)';  color='#f5c842'; }
+      if (r === null)   { bg='rgba(123,127,158,0.12)'; color='var(--muted)'; }
+      else if (r === 1) { bg='rgba(245,200,66,0.15)';  color='#f5c842'; }
       else if (r <= 5)  { bg='rgba(108,99,255,0.15)';  color='#a89bff'; }
       else if (r <= 15) { bg='rgba(76,175,129,0.15)';  color='#6dddaa'; }
       else if (r <= 30) { bg='rgba(41,182,246,0.15)';  color='#4fc3f7'; }
@@ -68,7 +71,7 @@ function showNBATeam(abbr) {
 
       const posCls = `pos-${p.pos.split('/')[0]}`;
       rows += `<div class="nba-player-row">
-        <span class="nba-rank-badge" style="background:${bg};color:${color};border-radius:8px;padding:4px 6px;">#${r}</span>
+        <span class="nba-rank-badge" style="background:${bg};color:${color};border-radius:8px;padding:4px 6px;">${r !== null ? '#' + r : '—'}</span>
         <div class="pos-badge ${posCls}">${p.pos.split('/')[0]}</div>
         <div style="flex:1;font-weight:600;font-size:14px;color:var(--text);">${p.name}</div>
         ${ownerTag}

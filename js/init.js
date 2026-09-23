@@ -8,6 +8,7 @@
   // Flow-Diagramm gehoert zur Home-Seite und wird deshalb hier gleich
   // mitgerendert, unabhaengig davon, welche Seite gerade offen ist.
   if (typeof initFlowDiagram === 'function') initFlowDiagram();
+  if (typeof initDraftCountdown === 'function') initDraftCountdown();
   if (initPageId !== 'homePage' && initHash) {
     _applyPage(initPageId);
     // Einziger Ort fuer "welche Seite braucht welche Init-Funktion" ist

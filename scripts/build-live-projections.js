@@ -41,7 +41,7 @@ const vm = require('vm');
 const ROOT = path.join(__dirname, '..');
 const BASELINE_PATH = path.join(ROOT, 'data', 'projections-baseline.js');
 const CONSENSUS_PATH = path.join(ROOT, 'data', 'projections-consensus.js');
-const RANKINGS_PATH = path.join(ROOT, 'data', 'rankings.js');
+const PLAYERS_PATH = path.join(ROOT, 'data', 'players.js');
 const CSV_DIR = path.join(__dirname, 'data');
 const OUT = path.join(ROOT, 'data', 'live-projections.js');
 
@@ -126,8 +126,7 @@ const PROJECTIONS_BASELINE = (() => {
   console.log(`  Stats-Quelle: ${fromConsensus} aus Consensus, ${baselineOnly} nur aus Baseline, ${ratingsCarried} mit übernommenen z-Werten.`);
   return merged;
 })();
-const DYNASTY_PLAYERS = loadVmArray(RANKINGS_PATH, 'DYNASTY_PLAYERS') || [];
-const dynastyByName = new Map(DYNASTY_PLAYERS.map(p => [p[1], p]));
+const PLAYER_DB = loadVmArray(PLAYERS_PATH, 'PLAYER_DB') || [];
 
 // ── Name-Normalisierung wie in den anderen Scripts (fuer CSV-Namen,
 //    die evtl. leicht anders geschrieben sind als in der Baseline) ──
@@ -147,12 +146,12 @@ function aliasCanonical(raw) {
   const base = baseNormalize(raw).replace(/\s+/g, ' ').trim();
   return NAME_ALIASES[base] || null;
 }
-const dynastyByNorm = new Map(DYNASTY_PLAYERS.map(p => [normalizeName(p[1]), p]));
+const playerByNorm = new Map(PLAYER_DB.map(p => [normalizeName(p[0]), p]));
 function canonicalName(rawName) {
   const aliasName = aliasCanonical(rawName);
-  if (aliasName) { const m = dynastyByNorm.get(normalizeName(aliasName)); if (m) return m[1]; }
-  const m = dynastyByNorm.get(normalizeName(rawName));
-  return m ? m[1] : rawName;
+  if (aliasName) { const m = playerByNorm.get(normalizeName(aliasName)); if (m) return m[0]; }
+  const m = playerByNorm.get(normalizeName(rawName));
+  return m ? m[0] : rawName;
 }
 
 // ── Alle Tages-CSVs der gewaehlten Liga einlesen und aufsummieren ──

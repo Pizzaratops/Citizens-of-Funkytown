@@ -8,33 +8,7 @@ const TF_STATE = {
   targetOwner: null,
   giveTeam: null,
   sameTeam: true,
-  mode: 'dynasty',
-  pickMode: 'none', // 'none' | 'with_picks' | 'for_picks' | 'give_picks'
 };
-
-const TF_MODE_DESCRIPTIONS = {
-  dynasty: '<strong style="color:var(--text);">Dynasty:</strong> Age-adjusted for long-term value. Young players get a significant boost, veterans are discounted. Best for rebuilding teams.',
-  raw:     '<strong style="color:var(--text);">Raw:</strong> Pure rank-based value with no age adjustment. Neutral consensus view — useful as a baseline when both sides disagree.',
-  winnow:  '<strong style="color:var(--text);">Win-Now:</strong> Veterans get a bonus, unproven youngsters are discounted. Best for contending teams prioritizing the next 2–3 seasons.',
-};
-
-function setTFMode(mode) {
-  TF_STATE.mode = mode;
-  TRADE_MODE = mode; // sync global so dynastyValue() uses right multiplier
-  document.querySelectorAll('[id^="tfModeBtn-"]').forEach(b => b.classList.remove('active'));
-  document.getElementById('tfModeBtn-' + mode).classList.add('active');
-  document.getElementById('tfModeDesc').innerHTML = TF_MODE_DESCRIPTIONS[mode];
-  // Refresh give value and re-run results if already computed
-  updateTFGiveUI();
-  if (window._tfLastResults && window._tfLastResults.length) {
-    const giveTotal = (() => {
-      const sorted = [...TF_STATE.give].sort((a, b) => b.dynVal - a.dynVal);
-      return sorted.reduce((s, p, i) => s + Math.round(p.dynVal * Math.pow(0.70, i)), 0);
-    })();
-    _renderTFResults(window._tfLastResults, giveTotal);
-  }
-}
-
 
 // Free-form format: user types numbers directly
 // TF_STATE.format stores { give: N, get: M }
@@ -52,63 +26,12 @@ function setTFFormatFree() {
   document.getElementById('tfResultCount').textContent = '';
 }
 
-function setTFPickMode(mode) {
-  TF_STATE.pickMode = mode;
-  TF_STATE.give = [];
-  document.querySelectorAll('[id^="tfPickModeBtn-"]').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById('tfPickModeBtn-' + mode);
-  if (btn) btn.classList.add('active');
-  updateTFGiveUI();
-  document.getElementById('tfResults').innerHTML =
-    '<div class="tf-empty">Wähle Spieler aus und klicke "Faire Trades finden"</div>';
-  document.getElementById('tfResultCount').textContent = '';
-}
-
-// Build pick pool for Trade Finder (picks owned by each TT team)
-function buildTFPickPool() {
-  return PICKS
-    .filter(p => p.year >= 2026 && p.round <= 2) // only valuable picks
-    .map(p => {
-      const orig  = teamMap[p.originalOwner];
-      const curr  = teamMap[p.currentOwner];
-      const traded = p.originalOwner !== p.currentOwner;
-      const valKey = `${p.year}_R${p.round}_mid`;
-      const baseVal = PICK_VALUES[valKey] || 0;
-      const dynVal  = pickTradeValue({ baseValue: baseVal, year: p.year }, TF_STATE.mode);
-      return {
-        isPick:        true,
-        pickKey:       `${p.year}_R${p.round}_T${p.originalOwner}`,
-        year:          p.year,
-        round:         p.round,
-        originalOwner: p.originalOwner,
-        currentOwner:  p.currentOwner,
-        traded,
-        orig, curr,
-        name:          `${p.year} R${p.round} · ${orig.name}`,
-        displayName:   `${p.year} · Round ${p.round} (${orig.name})`,
-        baseValue:     baseVal,
-        dynVal,
-        owner:         curr,
-        ownerId:       p.currentOwner,
-        owners:        [{ orig, curr, traded, note: p.note || null }],
-        note:          p.note || null,
-        nba: '📋', rank: null, dob: null,
-      };
-    })
-    .filter(p => p.dynVal > 0)
-    .sort((a, b) => a.year - b.year || a.round - b.round || a.originalOwner - b.originalOwner);
-}
-
+// Bewertung wie im Trade Analyzer: 2026/27 Projections Rang ->
+// tradePlayerValue(). Nur die Top 300, tiefer lohnt kein Trade.
 function buildTFPlayerPool() {
-  const ownerMap = buildFantasyOwnerMap();
-  return DYNASTY_PLAYERS
-    .filter(p => p[0] <= 300)
-    .map(p => {
-      const ownerId = ownerMap[normalizeName(p[1])] || null;
-      const owner   = ownerId ? teamMap[ownerId] : null;
-      const dv      = dynastyValue(p[0], p[4] || null);
-      return { rank: p[0], name: p[1], nba: p[2], pos: p[3], dob: p[4] || null, owner, ownerId, dynVal: dv };
-    })
+  return buildTradePlayerPool()
+    .filter(p => p.rank <= 300)
+    .map(p => ({ ...p, dynVal: tradePlayerValue(p.rank) }))
     .filter(p => p.dynVal > 0);
 }
 
@@ -118,52 +41,6 @@ function renderTFGiveList() {
   const listEl = document.getElementById('tfGiveList');
   if (!listEl) return;
 
-  // give_picks mode: give section shows PICKS to trade away
-  if (TF_STATE.pickMode === 'give_picks') {
-    const pickPool = buildTFPickPool().filter(p =>
-      TF_STATE.giveTeam ? p.currentOwner === TF_STATE.giveTeam : true
-    );
-    const filtered = q
-      ? pickPool.filter(p =>
-          String(p.year).includes(q) ||
-          p.name.toLowerCase().includes(q) ||
-          (p.curr && p.curr.name.toLowerCase().includes(q)) ||
-          (p.orig && p.orig.name.toLowerCase().includes(q))
-        )
-      : pickPool;
-    const selectedKeys = new Set(TF_STATE.give.filter(p => p.isPick).map(p => p.pickKey));
-    const isMaxed = TF_STATE.give.length >= fmt.give;
-    const isLight = document.body.classList.contains('light');
-    if (!filtered.length) {
-      listEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">Keine Picks verfügbar.</div>';
-      return;
-    }
-    listEl.innerHTML = filtered.map(p => {
-      const isSel    = selectedKeys.has(p.pickKey);
-      const disabled = !isSel && isMaxed;
-      const statusColor = p.traded
-        ? (isLight ? '#b43c64' : '#ff8fa3')
-        : (isLight ? '#c0622f' : '#6c63ff');
-      const statusBg = p.traded
-        ? (isLight ? 'rgba(180,60,100,0.1)' : 'rgba(255,101,132,0.1)')
-        : (isLight ? 'rgba(192,98,47,0.1)'  : 'rgba(108,99,255,0.12)');
-      const statusTxt = p.traded ? `→ von ${p.orig.name}` : 'Eigener Pick';
-      return `<div class="tf-player-item ${isSel ? 'selected' : ''}"
-        style="${disabled ? 'opacity:0.4;cursor:default;' : ''}"
-        onclick="${disabled ? '' : `toggleTFGivePick('${p.pickKey}')`}">
-        <div class="tf-check">${isSel ? '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}</div>
-        <div style="flex:1;">
-          <div style="font-weight:600;font-size:13px;color:var(--text);">${p.year} · Round ${p.round}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:1px;">${p.curr.name}</div>
-          <div style="margin-top:3px;"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:${statusBg};color:${statusColor};">${statusTxt}</span></div>
-        </div>
-        <span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;background:rgba(197,143,50,0.15);color:#c58f32;">~${p.dynVal.toLocaleString()}</span>
-      </div>`;
-    }).join('') || '<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">Keine Picks gefunden.</div>';
-    return;
-  }
-
-  // Default: player pool (none / with_picks / for_picks modes)
   const pool = buildTFPlayerPool().filter(p => {
     if (TF_STATE.giveTeam && p.ownerId !== TF_STATE.giveTeam) return false;
     return true;
@@ -171,7 +48,7 @@ function renderTFGiveList() {
   const filtered = q
     ? pool.filter(p => p.name.toLowerCase().includes(q) || p.nba.toLowerCase().includes(q))
     : pool;
-  const selectedNames = new Set(TF_STATE.give.filter(p => !p.isPick).map(p => p.name));
+  const selectedNames = new Set(TF_STATE.give.map(p => p.name));
   const isMaxed = TF_STATE.give.length >= fmt.give;
   if (!q && !filtered.length) {
     listEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">Tippe zum Suchen…</div>';
@@ -184,8 +61,8 @@ function renderTFGiveList() {
   listEl.innerHTML = filtered.slice(0, 80).map(p => {
     const isSel    = selectedNames.has(p.name);
     const disabled = !isSel && isMaxed;
-    const rb       = dynastyRankBg(p.rank);
-    const rc       = dynastyRankColor(p.rank);
+    const rb       = rankTierBg(p.rank);
+    const rc       = rankTierColor(p.rank);
     const ownerLbl = p.owner ? p.owner.name : 'Unowned';
     return `<div class="tf-player-item ${isSel ? 'selected' : ''}"
       style="${disabled ? 'opacity:0.4;cursor:default;' : ''}"
@@ -215,21 +92,6 @@ function toggleTFGive(name) {
   updateTFGiveUI();
 }
 
-function toggleTFGivePick(pickKey) {
-  const fmt    = getTFFormat();
-  const pool   = buildTFPickPool();
-  const pick   = pool.find(p => p.pickKey === pickKey);
-  if (!pick) return;
-  const idx = TF_STATE.give.findIndex(p => p.isPick && p.pickKey === pickKey);
-  if (idx >= 0) {
-    TF_STATE.give.splice(idx, 1);
-  } else {
-    if (TF_STATE.give.length >= fmt.give) return;
-    TF_STATE.give.push(pick);
-  }
-  updateTFGiveUI();
-}
-
 function updateTFGiveUI() {
   const fmt = getTFFormat();
   const cntEl = document.getElementById('tfGiveCount');
@@ -238,11 +100,6 @@ function updateTFGiveUI() {
   if (pillsEl) {
     pillsEl.innerHTML = TF_STATE.give.length
       ? TF_STATE.give.map(p => {
-          if (p.isPick) {
-            return `<span class="tf-pill" style="background:rgba(197,143,50,0.12);border-color:#c58f3266;color:#c58f32;" onclick="toggleTFGivePick('${p.pickKey}')">
-              📋 ${p.year} R${p.round} <span style="font-size:14px;opacity:0.7;line-height:1;">×</span>
-            </span>`;
-          }
           return `<span class="tf-pill" onclick="toggleTFGive('${p.name.replace(/'/g, "\\'")}')">
             ${p.name} <span style="font-size:14px;opacity:0.7;line-height:1;">×</span>
           </span>`;
@@ -255,7 +112,7 @@ function updateTFGiveUI() {
       const sorted = [...TF_STATE.give].sort((a, b) => b.dynVal - a.dynVal);
       const total  = sorted.reduce((s, p, i) => s + Math.round(p.dynVal * Math.pow(0.70, i)), 0);
       valEl.innerHTML = `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:12px;">
-        <span style="color:var(--muted);font-weight:600;">Gesamtwert (${TF_STATE.mode === 'dynasty' ? 'Dynasty' : TF_STATE.mode === 'winnow' ? 'Win-Now' : 'Raw'}):</span>
+        <span style="color:var(--muted);font-weight:600;">Gesamtwert:</span>
         <span style="font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--accent);margin-left:8px;">${total.toLocaleString()}</span>
       </div>`;
     } else {
@@ -269,7 +126,7 @@ function initTFOwnerFilter() {
   const sel = document.getElementById('tfOwnerDropdown');
   if (!sel) return;
   sel.innerHTML =
-    `<option value="">🌮 Alle Teams</option>` +
+    `<option value="">🕺 Alle Teams</option>` +
     TEAMS.map(t => `<option value="${t.id}">${t.name} (${t.owner})</option>`).join('');
   sel.value = TF_STATE.targetOwner || '';
   initTFGiveTeamDropdown();
@@ -286,7 +143,7 @@ function initTFGiveTeamDropdown() {
   const sel = document.getElementById('tfGiveTeamDropdown');
   if (!sel) return;
   sel.innerHTML =
-    `<option value="">🌮 Alle Teams</option>` +
+    `<option value="">🕺 Alle Teams</option>` +
     TEAMS.map(t => `<option value="${t.id}">${t.name} (${t.owner})</option>`).join('');
   sel.value = TF_STATE.giveTeam || '';
 }
@@ -304,8 +161,7 @@ function runTradeFinder() {
   if (TF_STATE.give.length !== fmt.give) {
     const btn = document.getElementById('tfFindBtn');
     const orig = btn.textContent;
-    const itemWord = TF_STATE.pickMode === 'give_picks' ? 'Picks' : 'Spieler';
-    btn.textContent = `⚠️ Wähle genau ${fmt.give} ${itemWord} aus!`;
+    btn.textContent = `⚠️ Wähle genau ${fmt.give} Spieler aus!`;
     btn.style.background = '#ff6584';
     setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
     return;
@@ -321,18 +177,12 @@ function runTradeFinder() {
 }
 
 function _runTFCore(fmt) {
-  const giveNames  = new Set(TF_STATE.give.filter(p => !p.isPick).map(p => p.name));
-  const giveKeys   = new Set(TF_STATE.give.filter(p => p.isPick).map(p => p.pickKey));
+  const giveNames  = new Set(TF_STATE.give.map(p => p.name));
   const giveSorted = [...TF_STATE.give].sort((a, b) => b.dynVal - a.dynVal);
   const giveTotal  = giveSorted.reduce((s, p, i) => s + Math.round(p.dynVal * Math.pow(0.70, i)), 0);
   const tol    = 0.13;
   const minVal = Math.round(giveTotal * (1 - tol));
   const maxVal = Math.round(giveTotal * (1 + tol));
-
-  // Determine the RESULT pool based on pick mode
-  // none / with_picks / for_picks → results are players (+ picks if with_picks/for_picks)
-  // give_picks → give = picks, results = players
-  const pickMode = TF_STATE.pickMode;
 
   // Build player pool for results
   // — always exclude players that are being given away
@@ -345,132 +195,9 @@ function _runTFCore(fmt) {
     return true;
   }).sort((a, b) => b.dynVal - a.dynVal);
 
-  // Build pick pool for results (for_picks / with_picks modes)
-  // — always exclude picks already being given away
-  // — always exclude picks currently owned by the give-side team
-  // — if targetOwner set, restrict to that team only
-  const allPicks = (pickMode === 'for_picks' || pickMode === 'with_picks')
-    ? buildTFPickPool().filter(p => {
-        if (giveKeys.has(p.pickKey)) return false;
-        if (TF_STATE.targetOwner) return p.currentOwner === TF_STATE.targetOwner;
-        if (TF_STATE.giveTeam && p.currentOwner === TF_STATE.giveTeam) return false;
-        return true;
-      }).sort((a, b) => b.dynVal - a.dynVal)
-    : [];
-
   const results = [];
   const seen    = new Set();
-
-  if (pickMode === 'for_picks') {
-    // Return side = only picks
-    const pool = allPicks;
-    if (fmt.get === 1) {
-      for (const p of pool) {
-        if (p.dynVal < minVal || p.dynVal > maxVal) continue;
-        if (!seen.has(p.pickKey)) {
-          seen.add(p.pickKey);
-          const pct = Math.round(Math.abs(p.dynVal - giveTotal) / Math.max(giveTotal, 1) * 100);
-          results.push({ players: [p], total: p.dynVal, diffPct: pct });
-        }
-      }
-    } else if (fmt.get === 2) {
-      const n = pool.length;
-      for (let i = 0; i < n && results.length < 200; i++) {
-        const a = pool[i];
-        if (a.dynVal > maxVal) continue;
-        for (let j = i + 1; j < n; j++) {
-          const b   = pool[j];
-          const tot = Math.round(a.dynVal + b.dynVal * 0.70);
-          if (tot < minVal) break;
-          if (tot <= maxVal) {
-            const key = [a.pickKey, b.pickKey].sort().join('|');
-            if (!seen.has(key)) {
-              seen.add(key);
-              const pct = Math.round(Math.abs(tot - giveTotal) / Math.max(giveTotal, 1) * 100);
-              results.push({ players: [a, b], total: tot, diffPct: pct });
-            }
-          }
-        }
-      }
-    } else if (fmt.get === 3) {
-      const n = pool.length;
-      outer: for (let i = 0; i < n; i++) {
-        const a = pool[i];
-        if (a.dynVal > maxVal) continue;
-        for (let j = i + 1; j < n; j++) {
-          const b       = pool[j];
-          const partial = Math.round(a.dynVal + b.dynVal * 0.70);
-          if (partial < minVal * 0.25) break;
-          for (let k = j + 1; k < n; k++) {
-            const c   = pool[k];
-            const tot = partial + Math.round(c.dynVal * 0.49);
-            if (tot < minVal) break;
-            if (tot <= maxVal) {
-              const key = [a.pickKey, b.pickKey, c.pickKey].sort().join('|');
-              if (!seen.has(key)) {
-                seen.add(key);
-                const pct = Math.round(Math.abs(tot - giveTotal) / Math.max(giveTotal, 1) * 100);
-                results.push({ players: [a, b, c], total: tot, diffPct: pct });
-              }
-            }
-            if (results.length > 300) break outer;
-          }
-        }
-      }
-    }
-  } else if (pickMode === 'with_picks') {
-    // Return side = 1 player + 1 pick (for 2for1 / 2for2 type results)
-    // We always search for (player) combos first, then also offer (player+pick) for single-return formats
-    const playerPool = allPlayers;
-    const pickPool   = allPicks;
-    if (fmt.get === 1) {
-      // offer single players OR single picks
-      for (const p of [...playerPool, ...pickPool]) {
-        const v = p.dynVal;
-        if (v < minVal || v > maxVal) continue;
-        const key = p.isPick ? p.pickKey : p.name;
-        if (!seen.has(key)) {
-          seen.add(key);
-          const pct = Math.round(Math.abs(v - giveTotal) / Math.max(giveTotal, 1) * 100);
-          results.push({ players: [p], total: v, diffPct: pct });
-        }
-      }
-    } else if (fmt.get === 2) {
-      // player+player, player+pick, pick+pick
-      const combined = [...playerPool, ...pickPool];
-      const n = combined.length;
-      for (let i = 0; i < n && results.length < 300; i++) {
-        const a = combined[i];
-        if (a.dynVal > maxVal) continue;
-        for (let j = i + 1; j < n; j++) {
-          const b   = combined[j];
-          if (TF_STATE.sameTeam && !a.isPick && !b.isPick && a.ownerId !== b.ownerId) continue;
-          const tot = Math.round(a.dynVal + b.dynVal * 0.70);
-          if (tot < minVal) break;
-          if (tot <= maxVal) {
-            const ka = a.isPick ? a.pickKey : a.name;
-            const kb = b.isPick ? b.pickKey : b.name;
-            const key = [ka, kb].sort().join('|');
-            if (!seen.has(key)) {
-              seen.add(key);
-              const pct = Math.round(Math.abs(tot - giveTotal) / Math.max(giveTotal, 1) * 100);
-              results.push({ players: [a, b], total: tot, diffPct: pct });
-            }
-          }
-        }
-        if (i % 15 === 0) {
-          const bar = document.getElementById('tfProgressBar');
-          if (bar) bar.style.width = Math.min(90, Math.round(i / n * 100)) + '%';
-        }
-      }
-    } else {
-      // fall back to players-only for 3-return
-      _runTFCorePlayersOnly(fmt, playerPool, giveSorted, giveTotal, minVal, maxVal, seen, results);
-    }
-  } else {
-    // 'none' or 'give_picks' (give=picks, get=players)
-    _runTFCorePlayersOnly(fmt, allPlayers, giveSorted, giveTotal, minVal, maxVal, seen, results);
-  }
+  _runTFCorePlayersOnly(fmt, allPlayers, giveSorted, giveTotal, minVal, maxVal, seen, results);
 
   results.sort((a, b) => a.diffPct - b.diffPct);
   const top = results.slice(0, 10);
@@ -480,7 +207,6 @@ function _runTFCore(fmt) {
 }
 
 function _runTFCorePlayersOnly(fmt, pool, giveSorted, giveTotal, minVal, maxVal, seen, results) {
-  const giveNames = new Set(giveSorted.filter(p => !p.isPick).map(p => p.name));
   if (fmt.get === 1) {
     for (const p of pool) {
       if (p.dynVal < minVal) continue;
@@ -576,16 +302,8 @@ function _renderTFResults(results, giveTotal) {
       ownerGroups[k].players.push(p);
     });
     const playerChips = r.players.map(p => {
-      if (p.isPick) {
-        const ownerColor = p.owner ? (isLight ? p.owner.lightColor : p.owner.color) : 'var(--muted)';
-        return `<div class="tf-result-player-chip" style="background:rgba(197,143,50,0.12);border-color:rgba(197,143,50,0.3);">
-          <span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;background:rgba(197,143,50,0.2);color:#c58f32;">📋</span>
-          <span>${p.year} R${p.round}</span>
-          ${p.owner ? `<span style="font-size:9px;font-weight:700;color:${ownerColor};">${p.owner.name.split(' ')[0]}</span>` : ''}
-        </div>`;
-      }
-      const rc = dynastyRankColor(p.rank);
-      const rb = dynastyRankBg(p.rank);
+      const rc = rankTierColor(p.rank);
+      const rb = rankTierBg(p.rank);
       const ownerColor = p.owner ? (isLight ? p.owner.lightColor : p.owner.color) : 'var(--muted)';
       return `<div class="tf-result-player-chip">
         <span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;background:${rb};color:${rc};">#${p.rank}</span>
@@ -600,29 +318,14 @@ function _renderTFResults(results, giveTotal) {
           ${group.owner ? `Von: ${group.owner.name}` : 'Free Agent'}
         </div>
         ${group.players.map(p => {
-          if (p.isPick) {
-            const statusTxt = p.traded ? `→ von ${p.orig.name}` : 'Eigener Pick';
-            return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
-              <span style="font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;background:rgba(197,143,50,0.15);color:#c58f32;">📋 R${p.round}</span>
-              <div style="flex:1;">
-                <div style="font-weight:600;font-size:13px;color:var(--text);">${p.year} · Round ${p.round}</div>
-                <div style="font-size:11px;color:var(--muted);">${statusTxt}</div>
-              </div>
-              <div style="text-align:right;font-size:11px;font-weight:800;color:#c58f32;">~${p.dynVal.toLocaleString()}</div>
-            </div>`;
-          }
-          const mRk = MATT_RANKS[p.name] || null;
-          const hRk = hashtagRank(p.name);
           const age = p.dob ? playerAge(p.dob) : null;
           return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">
-            <span style="font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;background:${dynastyRankBg(p.rank)};color:${dynastyRankColor(p.rank)};">#${p.rank}</span>
+            <span style="font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;background:${rankTierBg(p.rank)};color:${rankTierColor(p.rank)};">#${p.rank}</span>
             <div style="flex:1;">
               <div style="font-weight:600;font-size:13px;color:var(--text);">${p.name}</div>
               <div style="font-size:11px;color:var(--muted);">${p.nba} · ${p.pos}${age !== null ? ` · ${age}y` : ''}</div>
             </div>
-            <div style="text-align:right;font-size:10px;color:var(--muted);line-height:1.6;">
-              ${mRk ? `Matt #${mRk}<br>` : ''}${hRk ? `#️⃣${hRk}` : ''}
-            </div>
+            <div style="text-align:right;font-size:11px;font-weight:800;color:var(--muted);">${p.dynVal.toLocaleString()}</div>
           </div>`;
         }).join('')}
       </div>`;
@@ -665,8 +368,6 @@ function loadTFIntoAnalyzer(idx) {
   setTimeout(() => {
     TRADE_STATE.A.selected  = [...give];
     TRADE_STATE.B.selected  = [...receive];
-    TRADE_STATE.A.showPicks = false;
-    TRADE_STATE.B.showPicks = false;
     ['A','B'].forEach(side => {
       document.getElementById('tradeNbaFilter' + side).value = '';
       document.getElementById('tradeTTFilter'  + side).value = '';
@@ -687,27 +388,12 @@ function showTradeFinder() {
   TF_STATE.giveTeam    = null;
   TF_STATE.format      = '2for1';
   TF_STATE.sameTeam    = true;
-  TF_STATE.mode        = 'dynasty';
-  TF_STATE.pickMode    = 'with_picks';
-  TRADE_MODE           = 'dynasty';
 
   // Reset format inputs
   const gn = document.getElementById('tfGiveNum');
   const rn = document.getElementById('tfGetNum');
   if (gn) gn.value = 2;
   if (rn) rn.value = 1;
-
-  // Reset pick mode buttons
-  document.querySelectorAll('[id^="tfPickModeBtn-"]').forEach(b => b.classList.remove('active'));
-  const pmNone = document.getElementById('tfPickModeBtn-none');
-  if (pmNone) pmNone.classList.add('active');
-
-  // Reset valuation mode buttons
-  document.querySelectorAll('[id^="tfModeBtn-"]').forEach(b => b.classList.remove('active'));
-  const dm = document.getElementById('tfModeBtn-dynasty');
-  if (dm) dm.classList.add('active');
-  const descEl = document.getElementById('tfModeDesc');
-  if (descEl) descEl.innerHTML = TF_MODE_DESCRIPTIONS.dynasty;
 
   // Reset share button
   const shareBtn = document.getElementById('tfShareBtn');

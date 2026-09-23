@@ -1,30 +1,17 @@
 //  GLOBAL ADMIN SYSTEM
 // ============================================================
-var isAdmin = false; // declared globally so renderTradeHistory never throws ReferenceError
+var isAdmin = false; // global, damit Seiten ohne Admin-Code nie einen ReferenceError werfen
 const GLOBAL_ADMIN_PIN = '0815';
 
-// Shared admin state — replaces isAdmin used by Draft Duel
-// We keep isAdmin as the canonical flag so all existing code works
 function globalCheckPin() {
   const val = document.getElementById('globalPinInput')?.value?.trim();
   if (val === GLOBAL_ADMIN_PIN) {
-    // Set global admin flag (used by Draft Duel + Trade)
     isAdmin = true;
 
     // Update header UI
     _updateAdminUI(true);
 
-    // Also sync Draft Duel badge if visible
-    const duelBadge = document.getElementById('duelAdminBadge');
-    if (duelBadge) {
-      duelBadge.textContent = '\u2B50 Admin (3\u00d7)';
-      duelBadge.style.background = 'rgba(245,200,66,.15)';
-      duelBadge.style.borderColor = 'rgba(245,200,66,.4)';
-      duelBadge.style.color = '#f5c842';
-    }
 
-    // Update trade save button
-    if (typeof updateTradeSaveBtnState === 'function') updateTradeSaveBtnState();
 
     if (typeof toast === 'function') toast('\u2B50 Admin aktiv!');
     document.getElementById('globalPinInput').value = '';
@@ -43,14 +30,6 @@ function globalCheckPin() {
 function globalLogout() {
   isAdmin = false;
   _updateAdminUI(false);
-  const duelBadge = document.getElementById('duelAdminBadge');
-  if (duelBadge) {
-    duelBadge.textContent = 'User';
-    duelBadge.style.background = '';
-    duelBadge.style.borderColor = '';
-    duelBadge.style.color = '';
-  }
-  if (typeof updateTradeSaveBtnState === 'function') updateTradeSaveBtnState();
   if (typeof toast === 'function') toast('Admin-Modus deaktiviert.');
   document.getElementById('globalAdminBtn')?.classList.remove('open');
 }
@@ -58,17 +37,6 @@ function globalLogout() {
 function _updateAdminUI(active) {
   const settBtn = document.getElementById('adminSettingsBtn');
   if (settBtn) settBtn.style.display = active ? 'block' : 'none';
-  // Dynasty-Rankings: Edit-Toolbar refreshen (falls Page aktuell sichtbar)
-  if (typeof renderDynEditToolbar === 'function') {
-    try { renderDynEditToolbar(); } catch(e){}
-    // Wenn Edit-Modus aktiv war aber Admin abgemeldet, neu rendern damit Edit-Spalte weg ist
-    if (!active && typeof _dynEditModeActive !== 'undefined' && _dynEditModeActive) {
-      _dynEditModeActive = false;
-      if (typeof rCurrentData !== 'undefined' && typeof renderDynastyRankings === 'function') {
-        renderDynastyRankings(rCurrentData);
-      }
-    }
-  }
   const syncBtn = document.getElementById('espnSyncBtn');
   if (syncBtn) {
     if (active) {
@@ -211,84 +179,3 @@ function _applyRosterOverrides() {
   });
 }
 
-// ── DRAFT PICK OVERRIDE SYSTEM ──────────────────────────────────────────────
-// Same pattern as the roster overrides above: picks.js ships the "original"
-// pick ownership. Manual admin edits (asUpdatePick) are stored keyed by
-// "year-round-originalOwner" and re-applied on top of the originals on every
-// load. Previously these overrides were only written to localStorage and
-// read back by the admin page's own list — every other page (draft board,
-// trade analyzer, trade finder, ...) read PICKS directly and never saw the
-// change. _applyPickOverrides() now mutates the live PICKS array in place so
-// all pages stay in sync.
-function loadExtraPicks() {
-  try {
-    const raw = localStorage.getItem('extraPicks');
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) { return []; }
-}
-
-function saveExtraPicks(picks) {
-  try { localStorage.setItem('extraPicks', JSON.stringify(picks)); }
-  catch (e) { console.warn('Extra pick save failed:', e); }
-}
-
-// "Originals" = hardcoded picks from data/picks.js + any manually added
-// extra picks from a previous session, so both survive an override reset.
-// Merge die auto-synchronisierten ESPN-Pick-Daten (data/picks-live.js,
-// taeglich aktualisiert von scripts/sync-espn-picks.js ueber die "Daily
-// 9cat Live Scores" GitHub Action) in PICKS als neue Basis -- dasselbe
-// Muster wie _hydrateRostersFromLiveFile oben fuer Roster.
-//
-// Deckt NUR das TTHQ-Jahr des unmittelbar bevorstehenden ESPN-Drafts ab
-// (siehe Kommentar in data/picks-live.js). Fuer weiter in der Zukunft
-// liegende Picks, die ESPN nie sieht, siehe
-// scripts/data/pick-trades-manual.txt.
-//
-// Laeuft VOR _ORIGINAL_PICKS, damit ein manueller Admin-Override wie
-// gehabt das letzte Wort behaelt -- exakt wie beim Roster-Override.
-(function _hydratePicksFromLiveFile() {
-  if (typeof PICKS_LIVE === 'undefined' || !Array.isArray(PICKS_LIVE.updates)) return;
-  PICKS_LIVE.updates.forEach(u => {
-    const p = PICKS.find(x => x.year === u.year && x.round === u.round && x.originalOwner === u.originalOwner);
-    // Kein automatisches Anlegen fehlender Eintraege: ein Pick, den
-    // data/picks.js nicht kennt, deutet auf eine falsche Team-Zuordnung
-    // hin und soll auffallen statt still einen neuen Eintrag zu erzeugen.
-    // (scripts/sync-espn-picks.js prueft das serverseitig schon vorher,
-    // das hier ist nur die zweite Absicherung im Browser.)
-    if (p) p.currentOwner = u.currentOwner;
-  });
-})();
-
-const _ORIGINAL_PICKS = PICKS.map(p => ({...p})).concat(loadExtraPicks());
-
-function loadPickOverrides() {
-  try {
-    const raw = localStorage.getItem('pickOverrides');
-    return raw ? JSON.parse(raw) : {};
-  } catch (e) { return {}; }
-}
-
-function savePickOverrides(overrides) {
-  try {
-    localStorage.setItem('pickOverrides', JSON.stringify(overrides));
-  } catch (e) { console.warn('Pick override save failed:', e); }
-}
-
-function _applyPickOverrides() {
-  const overrides = loadPickOverrides();
-
-  // Always start fresh from originals, then re-apply overrides on top.
-  PICKS.length = 0;
-  _ORIGINAL_PICKS.forEach(p => PICKS.push({...p}));
-
-  if (!overrides || !Object.keys(overrides).length) return;
-
-  PICKS.forEach(p => {
-    const key = p.year + '-' + p.round + '-' + p.originalOwner;
-    if (overrides[key] !== undefined) p.currentOwner = overrides[key];
-    const noteKey = key + '-note';
-    if (overrides[noteKey]) p.note = overrides[noteKey];
-  });
-}
-
-_applyPickOverrides();

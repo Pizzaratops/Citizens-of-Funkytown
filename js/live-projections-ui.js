@@ -45,10 +45,9 @@ let lpFilterPanelOpen = false;
 
 function _lpData() {
   if (typeof LIVE_PROJECTIONS === 'undefined') return [];
-  const dynastyByName = new Map((typeof DYNASTY_PLAYERS !== 'undefined' ? DYNASTY_PLAYERS : []).map(p => [p[1], p]));
   return Object.entries(LIVE_PROJECTIONS).map(([name, s]) => {
-    const dp = dynastyByName.get(name);
-    return { name, team: dp ? dp[2] : '', pos: dp ? dp[3] : '', ...s };
+    const dp = getPlayerDbEntry(name);
+    return { name, team: dp ? dp[1] : '', pos: dp ? dp[2] : '', ...s };
   });
 }
 

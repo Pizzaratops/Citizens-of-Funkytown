@@ -26,7 +26,7 @@ const vm = require('vm');
 const XLSX = require('xlsx');
 
 const ROOT = path.join(__dirname, '..');
-const RANKINGS_PATH = path.join(ROOT, 'data', 'rankings.js');
+const PLAYERS_PATH = path.join(ROOT, 'data', 'players.js');
 const OUT = path.join(ROOT, 'data', 'projections-baseline.js');
 
 const xlsxPath = process.argv[2];
@@ -88,17 +88,17 @@ function aliasCanonical(raw) {
   return NAME_ALIASES[base] || null;
 }
 
-const DYNASTY_PLAYERS = loadVmArray(RANKINGS_PATH, 'DYNASTY_PLAYERS') || [];
-const dynastyByNorm = new Map();
-DYNASTY_PLAYERS.forEach(p => dynastyByNorm.set(normalizeName(p[1]), p));
+const PLAYER_DB = loadVmArray(PLAYERS_PATH, 'PLAYER_DB') || [];
+const playerByNorm = new Map();
+PLAYER_DB.forEach(p => playerByNorm.set(normalizeName(p[0]), p));
 function canonicalName(rawName) {
   const aliasName = aliasCanonical(rawName);
   if (aliasName) {
-    const m = dynastyByNorm.get(normalizeName(aliasName));
-    if (m) return m[1];
+    const m = playerByNorm.get(normalizeName(aliasName));
+    if (m) return m[0];
   }
-  const m = dynastyByNorm.get(normalizeName(rawName));
-  return m ? m[1] : stripDiacritics(rawName).trim();
+  const m = playerByNorm.get(normalizeName(rawName));
+  return m ? m[0] : stripDiacritics(rawName).trim();
 }
 
 // ── xlsx laden, Header robust finden ──────────────────────────

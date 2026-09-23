@@ -17,9 +17,9 @@
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="theme-color" content="#fff5ee">
   <link rel="stylesheet" href="css/style.css?v=5">
-  <link rel="stylesheet" href="css/big-board.css?v=5">
-  <link rel="stylesheet" href="css/projections.css?v=1">
+    <link rel="stylesheet" href="css/projections.css?v=1">
   <link rel="stylesheet" href="css/flow.css?v=1">
+  <link rel="stylesheet" href="css/countdown.css?v=1">
   <link rel="stylesheet" href="css/matchup.css?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,32 +95,12 @@
         </div>
       </div>
 
-      <div class="snav-group">
-        <button class="snav-group-btn" id="snavDynasty">🏅 Dynasty Rankings <span class="snav-arrow">▾</span></button>
-        <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="rankings"       onclick="showRankings()">🏅 Rankings</button>
-          <button class="snav-dropdown-item" data-page="dynastyrolling" onclick="showDynastyRolling()">📈 Rolling Rankings</button>
-        </div>
-      </div>
       <div class="snav-divider"></div>
 
       <div class="snav-group">
         <button class="snav-group-btn" id="snavFTBoards">🏆 Funkytown Draft Boards <span class="snav-arrow">▾</span></button>
         <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="draftboard"    onclick="showDraftboard()">📋 Full Draft Board</button>
           <button class="snav-dropdown-item" data-page="draftresults" onclick="showDraftResults()">🏆 Draft Results</button>
-        </div>
-      </div>
-
-      <div class="snav-group">
-        <button class="snav-group-btn" id="snavDraft">📋 Draft <span class="snav-arrow">▾</span></button>
-        <div class="snav-dropdown">
-          <div class="snav-dropdown-label">2026</div>
-          <button class="snav-dropdown-item" data-page="draft26"    onclick="showDraft26()">🔎 Prospect Database</button>
-          <button class="snav-dropdown-item" data-page="bigBoard"  onclick="showBigBoard()">📋 MFHFBs Big Board</button>
-          <button class="snav-dropdown-item" data-page="lottery"    onclick="showLottery()">🎲 2026 Lottery</button>
-          <div class="snav-dropdown-label">2027</div>
-          <button class="snav-dropdown-item" data-page="draft27" onclick="showDraft27()">📋 MFHFBs Big Board</button>
         </div>
       </div>
 
@@ -138,8 +118,6 @@
         <div class="snav-dropdown">
           <button class="snav-dropdown-item" data-page="trade"       onclick="showTrade()">⚖️ Trade Analyzer</button>
           <button class="snav-dropdown-item" data-page="tradefinder" onclick="showTradeFinder()">🔍 Trade Finder</button>
-          <button class="snav-dropdown-item" data-page="tradehistory" onclick="showTradeHistory()">📜 Trade History</button>
-          <button class="snav-dropdown-item" data-page="nbatrades" onclick="showNbaTrades()">🏀 NBA Trades</button>
         </div>
       </div>
 
@@ -149,17 +127,6 @@
       <button class="snav-single" data-page="standings" onclick="showStandings()">📈 Standings</button>
       <button class="snav-single" data-page="rules"     onclick="showRules()">📜 Rules</button>
       <div class="snav-divider"></div>
-      <!-- Draft Duel deaktiviert bis 2027er Prospects da sind — Block einfach wieder auskommentieren
-      <div class="snav-group">
-        <button class="snav-group-btn" id="snavDuel">⚡ Draft Duel <span class="snav-arrow">▾</span></button>
-        <div class="snav-dropdown">
-          <button class="snav-dropdown-item" data-page="duel"         onclick="showDuelPage()">⚡ Duell starten</button>
-          <button class="snav-dropdown-item" data-page="duelboard"    onclick="showDuelBoard()">📊 Duel Board</button>
-          <button class="snav-dropdown-item" data-page="duelsettings" onclick="showDuelSettings()">⚙️ Duel Settings</button>
-        </div>
-      </div>
-      -->
-
     </div>
   </div>
 
@@ -187,24 +154,8 @@
         <button class="subnav-mobile-btn" data-page="liveprojectionsdraft" onclick="showLiveProjDraft();closeMobileNav()">🏆 Live Projections (Test): Fantrax Redraft</button>
       </div>
       <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Dynasty Rankings</div>
-        <button class="subnav-mobile-btn" data-page="rankings"       onclick="showRankings();closeMobileNav()">🏅 Rankings</button>
-        <button class="subnav-mobile-btn" data-page="dynastyrolling" onclick="showDynastyRolling();closeMobileNav()">📈 Rolling Rankings</button>
-      </div>
-      <div class="subnav-mobile-group">
         <div class="subnav-mobile-label">Funkytown Draft Boards</div>
-        <button class="subnav-mobile-btn" data-page="draftboard"    onclick="showDraftboard();closeMobileNav()">📋 Full Draft Board</button>
         <button class="subnav-mobile-btn" data-page="draftresults" onclick="showDraftResults();closeMobileNav()">🏆 Draft Results</button>
-      </div>
-      <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Draft 2026</div>
-        <button class="subnav-mobile-btn" data-page="draft26"    onclick="showDraft26();closeMobileNav()">🔎 Prospect Database</button>
-        <button class="subnav-mobile-btn" data-page="bigBoard"  onclick="showBigBoard();closeMobileNav()">📋 MFHFBs Big Board</button>
-        <button class="subnav-mobile-btn" data-page="lottery"    onclick="showLottery();closeMobileNav()">🎲 2026 Lottery</button>
-      </div>
-      <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Draft 2027</div>
-        <button class="subnav-mobile-btn" data-page="draft27" onclick="showDraft27();closeMobileNav()">📋 MFHFBs Big Board</button>
       </div>
       <div class="subnav-mobile-group">
         <div class="subnav-mobile-label">Rankings & Analytics</div>
@@ -212,20 +163,10 @@
         <button class="subnav-mobile-btn" data-page="analytics" onclick="showAnalytics();closeMobileNav()">📊 Team Analytics</button>
         <button class="subnav-mobile-btn" data-page="rollingrankings" onclick="showRollingRankings();closeMobileNav()">📈 Rolling Rankings</button>
       </div>
-      <!-- Draft Duel deaktiviert bis 2027er Prospects da sind — Block einfach wieder auskommentieren
-      <div class="subnav-mobile-group">
-        <div class="subnav-mobile-label">Draft Duel</div>
-        <button class="subnav-mobile-btn" data-page="duel"         onclick="showDuelPage();closeMobileNav()">⚡ Duell</button>
-        <button class="subnav-mobile-btn" data-page="duelboard"    onclick="showDuelBoard();closeMobileNav()">📊 Duel Board</button>
-        <button class="subnav-mobile-btn" data-page="duelsettings" onclick="showDuelSettings();closeMobileNav()">⚙️ Settings</button>
-      </div>
-      -->
       <div class="subnav-mobile-group">
         <div class="subnav-mobile-label">Trade Tools</div>
         <button class="subnav-mobile-btn" data-page="trade"       onclick="showTrade();closeMobileNav()">⚖️ Trade Analyzer</button>
         <button class="subnav-mobile-btn" data-page="tradefinder" onclick="showTradeFinder();closeMobileNav()">🔍 Trade Finder</button>
-        <button class="subnav-mobile-btn" data-page="tradehistory" onclick="showTradeHistory();closeMobileNav()">📜 Trade History</button>
-        <button class="subnav-mobile-btn" data-page="nbatrades" onclick="showNbaTrades();closeMobileNav()">🏀 NBA Trades</button>
       </div>
     </div>
   </div>
@@ -242,7 +183,23 @@
            kein weiterer Code hier noetig. -->
       <div id="seasonPicker" style="display:none;"></div>
     </div>
-    <div class="home-sub">Klick auf Dein Team für Deine Spieler und Deine Picks</div>
+    <!-- DRAFT COUNTDOWN. Logik: js/draft-countdown.js (Datum dort in
+         DRAFT_START), Styling: css/countdown.css. Blendet sich nach
+         dem Draft von selbst aus. -->
+    <section class="dc-card" id="draftCountdown" hidden aria-label="Countdown bis zum Draft">
+      <div class="dc-info">
+        <div class="dc-eyebrow">Draft Day 2026/27</div>
+        <div class="dc-title">Countdown zum Draft</div>
+        <div class="dc-date"></div>
+      </div>
+      <div class="dc-clock" role="timer" aria-live="off">
+        <div class="dc-unit"><span class="dc-num" data-unit="d">–</span><span class="dc-label" data-label="d">Tage</span></div>
+        <div class="dc-unit"><span class="dc-num" data-unit="h">–</span><span class="dc-label">Std</span></div>
+        <div class="dc-unit"><span class="dc-num" data-unit="m">–</span><span class="dc-label">Min</span></div>
+        <div class="dc-unit"><span class="dc-num" data-unit="s">–</span><span class="dc-label">Sek</span></div>
+      </div>
+    </section>
+    <div class="home-sub">Klick auf Dein Team für Deinen Kader</div>
     <div class="team-grid" id="teamGrid"></div>
 
     <!-- Datenfluss-Visualisierung. Markup ist bewusst leer, der Inhalt
@@ -255,7 +212,7 @@
         <div class="flow-sub">
           Jede Zahl auf dieser Seite läuft denselben Weg: von den ESPN Boxscores über die tägliche
           Aggregation und die Z-Score Normierung bis in die Rankings, Projections und Werkzeuge.
-          Nichts davon wird von Hand gepflegt, bis auf die Preseason Baseline und das Dynasty Ranking.
+          Nichts davon wird von Hand gepflegt, bis auf die Preseason Baseline.
         </div>
         <div class="flow-toggle">
           <button class="flow-toggle-btn active" data-mode="compact"   onclick="flowSetMode('compact')">Kompakt</button>
@@ -283,8 +240,7 @@
   <div class="team-page-header" id="teamHeader"></div>
   <div style="display:flex;gap:8px;align-items:center;margin-bottom:24px;">
     <div class="tabs" style="flex:1;margin-bottom:0;">
-      <div class="tab active" onclick="switchTab('roster')">🏀 Roster</div>
-      <div class="tab" onclick="switchTab('picks')">🎯 My Owned Picks</div>
+      <div class="tab active">🏀 Roster</div>
     </div>
     <button onclick="showTrade()" style="background:linear-gradient(135deg,#4caf81,#6c63ff);border:none;color:white;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;"
       onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
@@ -292,18 +248,6 @@
     </button>
   </div>
   <div id="tabContent"></div>
-</div>
-
-<!-- DRAFT BOARD -->
-<div class="page page-wide" id="draftboardPage">
-  <h2 style="margin-bottom:6px;">📋 Full Draft Board</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">All traded picks already reflected</p>
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:var(--pick-own-bg);border:1px solid var(--pick-own-color);"></div>Own pick (kept)</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--pick-traded-bg);border:1px solid var(--pick-traded-color);"></div>Traded away → shows new holder</div>
-  </div>
-  <div class="draftboard-grid" id="draftboardContent"></div>
-  <div class="edit-hint">✏️ After trades, update <code>currentOwner</code> in the <code>PICKS</code> array</div>
 </div>
 
 <!-- DRAFT RESULTS -->
@@ -694,7 +638,7 @@
 <div class="hero">
     <div>
             <h1>Fantrax Redraft Board</h1>
-      <div class="sub">Live-Draft-Tracker für Deine Fantrax Redraft Ligen, auf Basis Deiner aktuellen Projections. Nicht zu verwechseln mit den Boards unter Draft, die den Dynasty Rookie Draft der Citizens of Funkytown League abbilden.</div>
+      <div class="sub">Live-Draft-Tracker für Deine Fantrax Redraft Ligen, auf Basis Deiner aktuellen Projections.</div>
     </div>
     <a class="settings-link" href="#" onclick="showLiveProjections();return false;">Gewichtungen &amp; Z-Basis anpassen →</a>
   </div>
@@ -1069,103 +1013,6 @@
   </div>
 </div>
 
-<!-- DYNASTY RANKINGS -->
-<div class="page page-wide" id="rankingsPage">
-  <h2 style="margin-bottom:6px;">Dynasty Rankings</h2>
-<p style="color:var(--muted);font-size:13px;margin-bottom:20px;">811 players · MFHFBs DR = your ranking (Stand 28. Jul 2026) · Matt DR = Matt Lawson's ranking · #️⃣ = Hashtag Basketball</p>
-  <div id="dynEditToolbarAnchor"></div>
-  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
-    <div class="rankings-search" style="margin-bottom:0;flex:1;min-width:220px;">
-      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" id="rankSearch" placeholder="Search player, team, or position…" oninput="filterRankings()"/>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;">
-      <label for="dynChangeSince" style="font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap;">Änderung seit</label>
-      <select id="dynChangeSince" onchange="setDynChangeSince(this.value)"
-        style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 10px;border-radius:8px;outline:none;">
-      </select>
-    </div>
-  </div>
-
-  <div class="rankings-table-wrap">
-    <table class="rankings-table">
-      <thead>
-        <tr>
-          <th onclick="sortRankings(0)">#<span class="r-sort-arrow">↕</span></th>
-          <th onclick="sortRankings(1)">Name<span class="r-sort-arrow">↕</span></th>
-          <th onclick="sortRankings(2)">Team<span class="r-sort-arrow">↕</span></th>
-          <th onclick="sortRankings(3)">Position<span class="r-sort-arrow">↕</span></th>
-          <th style="text-align:center;white-space:nowrap;">MFHFBs DR</th>
-          <th style="text-align:center;white-space:nowrap;" title="Kleine automatische Bewegung basierend auf aktueller Off-Season-/Saison-Performance — rein informativ, verändert nicht deinen Rang">📡 Live</th>
-          <th style="text-align:center;white-space:nowrap;">Matt DR</th>
-          <th style="text-align:center;white-space:nowrap;">#️⃣ Hashtag</th>
-          <th id="rankingsEditHeader" style="display:none;text-align:center;white-space:nowrap;">Edit Rank</th>
-        </tr>
-      </thead>
-      <tbody id="rankingsBody"></tbody>
-    </table>
-    <div class="r-no-results" id="rankingsNoResults" style="display:none;">No players found.</div>
-  </div>
-</div>
-
-<!-- DYNASTY ROLLING RANKINGS -->
-<div class="page page-wide" id="dynastyRollingPage">
-  <div class="rr-layout">
-    <div class="rr-sidebar">
-      <div class="rr-sidebar-header">
-        <div style="flex:1;">
-          <div style="font-size:15px;font-weight:800;color:var(--text);">📈 Dynasty Rolling Rankings</div>
-          <div id="drSnapshotSubtitle" style="font-size:11px;color:var(--muted);margin-top:2px;">MFHFBs DR</div>
-        </div>
-        <div style="position:relative;">
-          <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;">🔍</span>
-          <input id="drSearch" class="rr-search" placeholder="Suchen…" oninput="drFilter()">
-        </div>
-      </div>
-      <div id="drToolbar" class="rr-toolbar"></div>
-      <div class="rr-list-scroll">
-        <div id="drListCols" class="rr-list-cols"></div>
-        <div id="drListBody"></div>
-      </div>
-    </div>
-    <div class="rr-main" id="drChartPanel">
-      <div style="margin:auto;text-align:center;color:var(--muted);">
-        <div style="font-size:40px;margin-bottom:12px;">📈</div>
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">Spieler auswählen</div>
-        <div style="font-size:13px;">Klicke links auf einen Spieler um seinen Dynasty-Rang-Verlauf zu sehen</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- HASHTAG RANKINGS -->
-<div class="page page-wide" id="hashtagRankingsPage">
-  <h2 style="margin-bottom:6px;">#️⃣ Hashtag Rankings</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">700+ players · Dynasty Values</p>
-  <div class="rankings-search">
-    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input type="text" id="hashtagSearch" placeholder="Search player, team, or position…" oninput="filterHashtag()"/>
-  </div>
-  <div class="rankings-table-wrap">
-    <table class="rankings-table">
-      <thead>
-        <tr>
-          <th onclick="sortHashtag(0)">#<span class="r-sort-arrow">↕</span></th>
-          <th onclick="sortHashtag(1)">Name<span class="r-sort-arrow">↕</span></th>
-          <th onclick="sortHashtag(2)">Team<span class="r-sort-arrow">↕</span></th>
-          <th onclick="sortHashtag(3)">Position<span class="r-sort-arrow">↕</span></th>
-        </tr>
-      </thead>
-      <tbody id="hashtagBody"></tbody>
-    </table>
-    <div class="r-no-results" id="hashtagNoResults" style="display:none;">No players found.</div>
-  </div>
-</div>
-
 <!-- NBA TEAM PAGE -->
 <div class="page" id="nbaTeamPage">
   <div id="nbaTeamHeader" style="margin-bottom:24px;"></div>
@@ -1175,7 +1022,7 @@
 <!-- BEST AVAILABLE -->
 <div class="page page-wide" id="bestAvailPage">
   <h2 style="margin-bottom:6px;">🆓 Best Available</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Spieler die in keinem Roster stehen — sortiert nach einem gewichteten Gesamtscore aus Dynasty-Rang, letzter Saison, Off-Season/Preseason, laufender Saison (sobald verfügbar) und für Rookies zusätzlich Big Board + Draft Capital + Sticky Score. MFHFBs DR = MFHFBs eigenes Dynasty-Ranking. MIN, Beste/Schwächste Kategorie und 2026/27 Rankings/Projections fehlen bei Spielern, für die noch keine Daten vorliegen.</p>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Spieler die in keinem Roster stehen — sortiert nach einem gewichteten Gesamtscore aus BBM-Rang, letzter Saison, Off-Season/Preseason und laufender Saison (sobald verfügbar). MIN, Beste/Schwächste Kategorie und 2026/27 Rankings/Projections fehlen bei Spielern, für die noch keine Daten vorliegen.</p>
   <div class="rankings-search" style="display:flex;align-items:center;gap:10px;">
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -1199,8 +1046,6 @@
           <th onclick="baSortBy('minutesAvg')" style="text-align:center;cursor:pointer;">MIN<span class="r-sort-arrow" id="baArrow-minutesAvg">↕</span></th>
           <th onclick="baSortBy('bestCat30')" style="text-align:center;cursor:pointer;">Beste Kat.<span class="r-sort-arrow" id="baArrow-bestCat30">↕</span></th>
           <th onclick="baSortBy('worstCat30')" style="text-align:center;cursor:pointer;">Schwächste Kat.<span class="r-sort-arrow" id="baArrow-worstCat30">↕</span></th>
-          <th onclick="baSortBy('dynastyRank')" style="text-align:center;cursor:pointer;">MFHFBs DR<span class="r-sort-arrow" id="baArrow-dynastyRank">↕</span></th>
-          <th onclick="baSortBy('stickyScore')" style="text-align:center;cursor:pointer;">Sticky<span class="r-sort-arrow" id="baArrow-stickyScore">↕</span></th>
           <th onclick="baSortBy('season2627Rank')" style="text-align:center;cursor:pointer;">2026/27 Rankings<span class="r-sort-arrow" id="baArrow-season2627Rank">↕</span></th>
           <th style="text-align:center;">2026/27 Projections</th>
         </tr>
@@ -1209,72 +1054,6 @@
     </table>
     <div class="r-no-results" id="baNoResults" style="display:none;">Keine Spieler gefunden.</div>
   </div>
-</div>
-
-<!-- LOTTERY PAGE -->
-<div class="page" id="lotteryPage">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px;">
-    <div>
-      <h2 style="margin-bottom:4px;">🎲 2026 Draft Lottery</h2>
-      <p style="color:var(--muted);font-size:13px;">Pre-Lottery Odds · NBA Lottery: <strong style="color:var(--accent);">10. Mai 2026</strong></p>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <span style="font-size:11px;font-weight:700;background:rgba(76,175,129,0.15);color:#4caf81;padding:4px 10px;border-radius:20px;">■ hohe Chance</span>
-      <span style="font-size:11px;font-weight:700;background:rgba(245,200,66,0.15);color:#f5c842;padding:4px 10px;border-radius:20px;">■ mittel</span>
-      <span style="font-size:11px;font-weight:700;background:rgba(255,101,132,0.15);color:#ff6584;padding:4px 10px;border-radius:20px;">■ niedrig</span>
-    </div>
-  </div>
-
-  <!-- Rules banner -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;">
-    <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:180px;">
-      <span style="font-size:18px;">🏆</span>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text);">Champion = Pick #12</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Fighting Illini (Vorjahressieger) bekommen automatisch den letzten Pick</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:180px;">
-      <span style="font-size:18px;">🚫</span>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text);">Non-Playoff → max. Pick #6</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Vancouver, Double Dribble, S-Town & Cooking Show können nicht später als #6 landen</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:180px;">
-      <span style="font-size:18px;">🔗</span>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text);">NBA → TT Mapping</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Jedem TT-Team ist ein NBA-Team zugeordnet — dessen Lottery-Ergebnis wird zum TT-Pick</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Heatmap table -->
-  <div style="overflow-x:auto;border-radius:14px;border:1px solid var(--border);">
-    <table id="lotteryTable" style="width:100%;border-collapse:collapse;font-size:12px;min-width:680px;">
-      <thead>
-        <tr style="background:var(--surface2);border-bottom:2px solid var(--border);">
-          <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;border:none;">NBA Team</th>
-          <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;border:none;">TT Team</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#1</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#2</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#3</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#4</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#5</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#6</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#7</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#8</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#9</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#10</th>
-          <th style="padding:10px 6px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;width:48px;">#11</th>
-          <th style="padding:10px 14px;text-align:center;font-size:10px;font-weight:700;color:var(--muted);border:none;white-space:nowrap;">Ø Pick</th>
-        </tr>
-      </thead>
-      <tbody id="lotteryBody"></tbody>
-    </table>
-  </div>
-  <p style="color:var(--muted);font-size:11px;text-align:center;margin-top:10px;">Klick auf eine Zeile für die detaillierte Odds-Ansicht</p>
 </div>
 
 <!-- ANALYTICS PAGE -->
@@ -1399,32 +1178,13 @@
     <div id="anModalContent"></div>
   </div>
 </div>
-<div id="lotteryModal" onclick="if(event.target===this)closeLotteryModal()" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:420px;padding:24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.4);animation:modalIn 0.2s ease;">
-    <button onclick="closeLotteryModal()" style="position:absolute;top:14px;right:14px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;">✕</button>
-    <div id="lotteryModalContent"></div>
-  </div>
-</div>
 
 <!-- TRADE ANALYZER -->
 <div class="page" id="tradePage">
   <h2 style="margin-bottom:6px;">⚖️ Trade Analyzer</h2>
   <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
-    Schwierig, einen Dynastycalc zu bauen, der alles berücksichtigt. Nehmt dies hier als Anlaufpunkt, vorerst
+    Bewertet nach dem aktuellen 2026/27 Projections Rang (täglich aktualisiert). Ein Anlaufpunkt, keine letzte Wahrheit.
   </p>
-
-  <!-- VALUATION MODE TOGGLE -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:20px;">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Valuation Mode</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button onclick="setTradeMode('dynasty')" class="trade-mode-btn active" id="modeBtn-dynasty">🏗️ Dynasty</button>
-      <button onclick="setTradeMode('raw')" class="trade-mode-btn" id="modeBtn-raw">📊 Raw</button>
-      <button onclick="setTradeMode('winnow')" class="trade-mode-btn" id="modeBtn-winnow">🏆 Win-Now</button>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;" id="tradeModeDesc">
-      <strong style="color:var(--text);">Dynasty:</strong> Age-adjusted for long-term value. Young players get a significant boost, veterans are discounted. Best for rebuilding teams.
-    </div>
-  </div>
 
   <!-- START: Screenshot wrapper -->
   <div id="tradeCapture">
@@ -1614,8 +1374,6 @@
   /* ── Rolling Rankings ───────────────────────── */
   #rollingRankingsPage { padding: 0; overflow: hidden; }
   #rollingRankingsPage.active { display: flex; flex-direction: column; height: calc(100vh - 120px); }
-  #dynastyRollingPage { padding: 0; overflow: hidden; }
-  #dynastyRollingPage.active { display: flex; flex-direction: column; height: calc(100vh - 120px); }
   .rr-layout { display: grid; grid-template-columns: 340px 1fr; flex: 1; overflow: hidden; }
   .rr-sidebar { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
   .rr-sidebar-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--surface); }
@@ -1667,7 +1425,6 @@
   @media (max-width: 768px) {
     .rr-layout { grid-template-columns: 1fr; }
     #rollingRankingsPage.active { height: auto; }
-    #dynastyRollingPage.active { height: auto; }
     .rr-sidebar { height: 50vh; border-right: none; border-bottom: 1px solid var(--border); }
     .rr-main { padding: 16px; }
     .rr-toolbar { padding: 8px 12px; }
@@ -1743,14 +1500,6 @@
   <!-- TOP BAR: Mode + Target Team in one row -->
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
-      <div style="flex:1;min-width:140px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Valuation</div>
-        <div style="display:flex;gap:6px;">
-          <button onclick="setTFMode('dynasty')" class="trade-mode-btn active" id="tfModeBtn-dynasty" style="flex:1;padding:7px 4px;font-size:11px;">🏗️ Dynasty</button>
-          <button onclick="setTFMode('raw')"     class="trade-mode-btn"        id="tfModeBtn-raw"     style="flex:1;padding:7px 4px;font-size:11px;">📊 Raw</button>
-          <button onclick="setTFMode('winnow')"  class="trade-mode-btn"        id="tfModeBtn-winnow"  style="flex:1;padding:7px 4px;font-size:11px;">🏆 Win-Now</button>
-        </div>
-      </div>
       <div style="min-width:160px;flex:0 0 auto;">
         <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Trade mit</div>
         <div class="trade-dropdown-wrap" style="min-width:unset;">
@@ -1760,12 +1509,9 @@
         </div>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--muted);line-height:1.5;" id="tfModeDesc">
-      <strong style="color:var(--text);">Dynasty:</strong> Age-adjusted for long-term value. Young players get a significant boost, veterans are discounted. Best for rebuilding teams.
-    </div>
   </div>
 
-  <!-- CONFIG ROW: Format + Picks -->
+  <!-- CONFIG ROW: Format -->
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;">
     <div style="display:flex;gap:14px;flex-wrap:wrap;">
       <div style="flex:1;min-width:160px;">
@@ -1797,13 +1543,6 @@
           #tfGetNum::-webkit-inner-spin-button,  #tfGetNum::-webkit-outer-spin-button { opacity:1; }
         </style>
       </div>
-      <div style="flex:1;min-width:160px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Picks</div>
-        <div style="display:flex;gap:8px;" id="tfPickModeGrid">
-          <button class="tf-format-btn active" onclick="setTFPickMode('with_picks')" id="tfPickModeBtn-with_picks" style="font-size:12px;padding:8px 14px;flex:1;">⚡ Mit Picks</button>
-          <button class="tf-format-btn" onclick="setTFPickMode('none')" id="tfPickModeBtn-none" style="font-size:12px;padding:8px 14px;flex:1;">🚫 Keine Picks</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -1826,7 +1565,7 @@
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="text" id="tfGiveSearch" placeholder="Spieler oder Pick suchen…" oninput="renderTFGiveList()"/>
+        <input type="text" id="tfGiveSearch" placeholder="Spieler suchen…" oninput="renderTFGiveList()"/>
       </div>
       <div class="tf-give-list" id="tfGiveList">
         <div style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">Tippe zum Suchen…</div>
@@ -1858,45 +1597,6 @@
       </div>
     </div>
 
-  </div>
-</div>
-
-
-<!-- TRADE HISTORY PAGE -->
-<div class="page" id="tradeHistoryPage">
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-    <div>
-      <h2 style="margin-bottom:4px;">📜 Trade History</h2>
-      <p style="color:var(--muted);font-size:13px;">Alle gespeicherten Trades · Werte eingefroren zum Zeitpunkt des Trades</p>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-      <button id="thExportBtn" onclick="exportTradeHistoryFile()" style="display:none;padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:all 0.15s;" title="Erzeugt die nächste Version von data/trade-history.js zum Committen — erst nach dem Commit sind neue Trades für alle sichtbar">⬇ Für Repo exportieren</button>
-      <div style="display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;">
-      <button id="thModeDynasty" onclick="setTHMode('dynasty')" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:var(--accent);color:white;transition:all 0.15s;">🏗️ Dynasty</button>
-      <button id="thModeRaw" onclick="setTHMode('raw')" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;">📊 Raw</button>
-      <button id="thModeWinnow" onclick="setTHMode('winnow')" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;">🏆 Win-Now</button>
-      </div>
-    </div>
-  </div>
-  <div id="tradeHistoryList"></div>
-</div>
-
-
-
-<div class="page" id="nbaTradesPage">
-  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
-    <div>
-      <h2 style="margin-bottom:4px;">🏀 NBA Trades</h2>
-      <p style="color:var(--muted);font-size:13px;">⚠️ Pausiert: die bisherige Datenquelle (Balldontlie) bietet den Trades-Endpoint nicht mehr an, kostenlosen Ersatz gibt es aktuell nicht.</p>
-    </div>
-    <button disabled title="Keine kostenlose Trades-API verfügbar — siehe Hinweis" style="background:var(--surface2);border:1.5px solid var(--border);color:var(--muted);border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:not-allowed;font-family:'DM Sans',sans-serif;">🔄 Aktualisieren</button>
-  </div>
-  <div id="nbaTradesList">
-    <div style="text-align:center;padding:60px 20px;color:var(--muted);">
-      <div style="font-size:36px;margin-bottom:12px;">🏀</div>
-      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;">Lade NBA Trades…</div>
-      <div style="font-size:13px;">Klicke Aktualisieren oder ESPN Sync</div>
-    </div>
   </div>
 </div>
 
@@ -1940,61 +1640,6 @@
       </div>
     </div>
 
-    <!-- Section: Picks -->
-    <div class="admin-section">
-      <div class="admin-section-title">📋 Pick übertragen</div>
-      <div class="admin-row">
-        <label class="admin-label">Jahr</label>
-        <select id="as-pick-year" class="admin-select" style="width:90px;"></select>
-        <label class="admin-label" style="margin-left:12px;">Runde</label>
-        <select id="as-pick-round" class="admin-select" style="width:80px;">
-          <option value="1">R1</option><option value="2">R2</option><option value="3">R3</option>
-        </select>
-        <label class="admin-label" style="margin-left:12px;">Original-Team</label>
-        <select id="as-pick-orig" class="admin-select"></select>
-      </div>
-      <div class="admin-row">
-        <label class="admin-label">Neuer Besitzer</label>
-        <select id="as-pick-new-owner" class="admin-select"></select>
-        <label class="admin-label" style="margin-left:12px;">Notiz</label>
-        <input id="as-pick-note" class="admin-input" type="text" placeholder="z.B. Top-5 Protection" style="width:180px;">
-      </div>
-      <div class="admin-row">
-        <button class="admin-btn green" onclick="asUpdatePick()">💾 Pick speichern</button>
-        <button class="admin-btn" onclick="asAddNewPick()" style="margin-left:8px;">➕ Neuen Pick erstellen</button>
-      </div>
-      <div id="as-pick-list" style="margin-top:12px;font-size:12px;color:var(--muted);"></div>
-    </div>
-
-    <!-- Section: Trade manuell -->
-    <div class="admin-section">
-      <div class="admin-section-title">⚖️ Trade manuell eintragen</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Side A gibt ab</div>
-          <select id="as-trade-team-a" class="admin-select" style="width:100%;margin-bottom:8px;"></select>
-          <div id="as-trade-players-a" style="min-height:60px;background:var(--surface2);border-radius:8px;padding:8px;margin-bottom:6px;font-size:12px;"></div>
-          <div style="display:flex;gap:6px;">
-            <input id="as-trade-add-a" class="admin-input" type="text" placeholder="Spieler hinzufügen…" style="flex:1;" list="as-player-suggestions">
-            <button class="admin-btn" onclick="asTradeAddPlayer('A')" style="padding:6px 10px;">+</button>
-          </div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Side B gibt ab</div>
-          <select id="as-trade-team-b" class="admin-select" style="width:100%;margin-bottom:8px;"></select>
-          <div id="as-trade-players-b" style="min-height:60px;background:var(--surface2);border-radius:8px;padding:8px;margin-bottom:6px;font-size:12px;"></div>
-          <div style="display:flex;gap:6px;">
-            <input id="as-trade-add-b" class="admin-input" type="text" placeholder="Spieler hinzufügen…" style="flex:1;" list="as-player-suggestions">
-            <button class="admin-btn" onclick="asTradeAddPlayer('B')" style="padding:6px 10px;">+</button>
-          </div>
-        </div>
-      </div>
-      <div class="admin-row" style="margin-top:12px;">
-        <button class="admin-btn green" onclick="asSaveTrade()">💾 Trade speichern &amp; Roster updaten</button>
-        <button class="admin-btn" onclick="asClearTrade()" style="margin-left:8px;">🗑 Leeren</button>
-      </div>
-    </div>
-
     <!-- Section: ESPN Sync -->
     <div class="admin-section">
       <div class="admin-section-title">🔄 ESPN &amp; Daten</div>
@@ -2002,38 +1647,8 @@
         <button class="admin-btn green" onclick="espnSync()">🔄 ESPN Sync jetzt</button>
         <button id="liveScoresTriggerBtn" class="admin-btn green" onclick="triggerLiveScoresWorkflow()">🚀 Live Scores jetzt aktualisieren</button>
         <button class="admin-btn" onclick="asResetOverrides()">🧹 Roster-Overrides zurücksetzen</button>
-        <button class="admin-btn red"  onclick="asClearTradeHistory()">🗑 Trade History leeren</button>
       </div>
       <div id="as-sync-status" style="margin-top:10px;font-size:12px;color:var(--muted);"></div>
-    </div>
-
-    <!-- Section: ESPN Pick-Trade Diagnose -->
-    <!-- Rein informativ: der eigentliche Diagnoselauf passiert in GitHub
-         Actions, nicht auf der Seite. ESPN kennt keinen Handel mit Picks
-         kuenftiger Jahre, deshalb bleibt die manuelle Pflege sowieso
-         noetig -- diese Box klaert nur, ob 2026er Picks wenigstens
-         teilweise automatisch liefen. -->
-    <div class="admin-section">
-      <div class="admin-section-title">
-        🔍 ESPN Pick-Trade Diagnose
-        <span class="howto" tabindex="0">ⓘ
-          <span class="howto-box">
-            <span class="howto-title">So startest Du die Diagnose</span>
-            <ol>
-              <li>Auf GitHub im Repo <code>Citizens-of-Funkytown</code> oben auf den Tab <b>Actions</b></li>
-              <li>In der Liste links auf <b>Diagnose – ESPN Pick-Trades</b> klicken</li>
-              <li>Rechts auf <b>Run workflow</b>, das Saison-Feld leer lassen, nochmal <b>Run workflow</b> bestätigen</li>
-              <li>Nach knapp einer Minute läuft ein grüner Haken auf. Draufklicken zeigt den Bericht direkt in der Job-Zusammenfassung</li>
-            </ol>
-            <span class="howto-note">Prüft nur, ob ESPN Pick-Trades überhaupt herausgibt. Ändert nichts an Rostern oder Picks — das Journal weiter unten trägt die tatsächlichen Trades ein.</span>
-          </span>
-        </span>
-      </div>
-      <div class="admin-row">
-        <span style="font-size:12px;color:var(--muted);line-height:1.6;">
-          Läuft manuell in GitHub Actions, nicht hier auf der Seite. Klick auf das ⓘ oben für die Schritte.
-        </span>
-      </div>
     </div>
 
   </div>
@@ -2085,130 +1700,12 @@
   </div>
 </div>
 
-<!-- DRAFT DUEL PAGES -->
-
-<!-- DUEL PAGE -->
-<div class="page" id="duelPage">
-  <div style="max-width:520px;margin:0 auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
-      <div>
-        <h2 style="margin-bottom:3px;">⚡ Draft Duel</h2>
-        <p style="color:var(--muted);font-size:13px;">Wähle den besseren 2026 Prospect</p>
-      </div>
-      <span id="duelAdminBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);">User</span>
-    </div>
-    <div id="duelContent"></div>
-  </div>
-</div>
-
-<!-- DUEL BOARD PAGE -->
-<div class="page" id="duelBoardPage">
-  <div style="max-width:520px;margin:0 auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
-      <div>
-        <h2 style="margin-bottom:3px;">📊 Duel Board</h2>
-        <p style="color:var(--muted);font-size:13px;">Community-Ranking der 2026 Prospects</p>
-      </div>
-      <span id="duelTotalVotesBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--muted);">0 Votes</span>
-    </div>
-    <div id="duelBoardList"></div>
-  </div>
-</div>
-
-<!-- DUEL SETTINGS PAGE -->
-<div class="page" id="duelSettingsPage">
-  <div style="max-width:520px;margin:0 auto;">
-    <h2 style="margin-bottom:20px;">⚙️ Duel Settings</h2>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">🔑 Admin Login</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Admin-PIN eingeben — dein Vote zählt dann 3× so viel</div>
-      <div style="display:flex;gap:8px;">
-        <input type="password" id="duelPinInput" placeholder="PIN eingeben…" maxlength="8"
-          onkeydown="if(event.key==='Enter')duelCheckPin()"
-          style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;border-radius:9px;outline:none;"/>
-        <button onclick="duelCheckPin()" style="background:var(--accent);border:none;color:white;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;">Login</button>
-      </div>
-    </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">🗂️ Meine Session</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Deine besuchten Duelle zurücksetzen (globale Votes bleiben erhalten)</div>
-      <button onclick="duelResetMySession()" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;">Meine Duelle zurücksetzen</button>
-    </div>
-    <div id="duelAdminOnlySection" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">⚠️ Admin Tools</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Alle globalen Votes löschen — betrifft alle 12 User</div>
-      <button onclick="duelResetAllVotes()" style="background:rgba(255,101,132,.15);border:1px solid rgba(255,101,132,.3);color:#ff6584;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;">Alle Votes löschen</button>
-    </div>
-  </div>
-</div>
-
-<!-- SCOUT MODAL -->
-<div class="scout-modal-overlay" id="scoutModal" onclick="closeScoutModal(event)">
-  <div class="scout-modal">
-    <button class="scout-modal-close" onclick="closeScoutModal()">✕</button>
-    <div class="scout-modal-pick" id="modalPick"></div>
-    <div class="scout-modal-name" id="modalName"></div>
-    <div class="scout-modal-meta" id="modalMeta"></div>
-    <hr class="scout-modal-divider">
-    <div class="scout-modal-label">🔍 Scouting Report</div>
-    <div class="scout-modal-text" id="modalScouting"></div>
-  </div>
-</div>
-
-<!-- 2026 DRAFT BOARD -->
-<div class="page page-wide" id="draft26Page">
-  <h2 style="margin-bottom:6px;">🔎 Prospect Database · 2026 Draft</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Browse-Modus mit Suche · Scouting Reports & Fantasy-Insights · Tier-Struktur fest. Für deine persönliche Rangliste → <a href="#" onclick="showBigBoard();return false;" style="color:var(--accent);text-decoration:underline;">📋 Big Board</a>.</p>
-  <div class="draft26-search">
-    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input type="text" id="draft26Search" placeholder="Search prospect, school, or position…" oninput="filterDraft26()"/>
-  </div>
-  <div id="draft26Grid"></div>
-  <div class="draft26-no-results" id="draft26NoResults" style="display:none;">No prospects found.</div>
-</div>
-
-<!-- 2027 DRAFT BOARD -->
-<div class="page page-wide" id="draft27Page">
-  <h2 style="margin-bottom:6px;">📋 MFHFBs Big Board · 2027 Draft</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Fantasy-gewichtetes Top-20 Board, Stand 08.08.2026 · (abgeglichen mit Dizzle Dynasty, Game Theory Rankings, Ben Pfeifers Archetyp-Board, etc.) · sortiert nach Dynasty-9-cat-Wert, NICHT nach NBA-Draft-Slot. Volle Scouting-Reports &amp; Tape verlinkt zu <a href="https://grindingtape.com/board" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">Grinding Tape</a>.</p>
-  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
-    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);"><b style="color:var(--text);">Tier</b> = Fantasy-Archetyp-Qualität (MFHFBs Einschätzung), unabhängig vom NBA-Draft-Slot</span>
-    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);"><b style="color:var(--text);">Erste Zahl</b> = Aggregat-Rang (Dizzle Dynasty, Game Theory Rankings, Tankathon, etc.)</span>
-    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);"><b style="color:var(--text);">Zweite Zahl</b> = Fantasy-Skillset-Einschätzung (MFHFBs)</span>
-  </div>
-  <div class="draft26-search">
-    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input type="text" id="draft27Search" placeholder="Search prospect, school, or position…" oninput="filterDraft27()"/>
-  </div>
-  <div id="draft27Grid"></div>
-  <div class="draft26-no-results" id="draft27NoResults" style="display:none;">No prospects found.</div>
-</div>
-
-<!-- BIG BOARD (Interactive, Newspaper-Style) -->
-<div class="page page-wide" id="bigBoardPage"></div>
-
-<!-- TRADE CONFIRM MODAL -->
-<div id="tradeConfirmOverlay" onclick="if(event.target===this)closeTradeConfirm()">
-  <div id="tradeConfirmBox">
-    <div class="tcm-title">&#128203; Trade bestätigen</div>
-    <div class="tcm-sub">Prüfe die Roster-Änderungen und bestätige den Transfer</div>
-    <div id="tcmRows"></div>
-    <div class="tcm-btn-row">
-      <button class="tcm-btn cancel" onclick="closeTradeConfirm()">Abbrechen</button>
-      <button class="tcm-btn confirm" onclick="confirmTradeAndSave()">&#10003; Speichern &amp; Roster updaten</button>
-    </div>
-  </div>
-</div>
-
 <!-- CDN -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Data (load first — other scripts depend on these constants) -->
+<script src="data/players.js?v=6b810b7f"></script>
 <script src="data/teams-rosters.js?v=dfcd2c47"></script>
 <script src="data/season-2025-26.js?v=58ffb567"></script>
 <script src="data/season-2024-25.js?v=f1d49ae1"></script>
@@ -2217,21 +1714,12 @@
 <script src="data/season-2021-22.js?v=bb837487"></script>
 <script src="data/season-rankings.js?v=51f908be"></script>
 <script src="data/rosters-live.js?v=9cdcf7c7"></script>
-<script src="data/picks.js?v=43f5868b"></script>
-<!-- Auto-Override fuer den bevorstehenden Draft, taeglich aus ESPN --><script src="data/picks-live.js?v=d5a5005e"></script>
 <!-- Wer wen gepickt hat, fuer einen abgeschlossenen Draft. Manuell aktualisiert, siehe scripts/fetch-draft-results-espn.js. NUR diese "active"-Datei einbinden, nicht zusaetzlich data/draft-results-<jahr>.js -- beide deklarieren dieselbe Konstante. --><script src="data/draft-results-active.js?v=ecf33158"></script>
-<script src="data/rankings.js?v=3b97f222"></script>
 <script src="data/projections-baseline.js?v=c194f5ad"></script>
-<script src="data/live-projections.js?v=b3b63084"></script>
-<script src="data/dynasty-rolling.js?v=5a3bad82"></script>
-<script src="data/dynasty-live.js?v=1801bd75"></script>
-<script src="data/hashtag.js?v=79b756a3"></script>
-<script src="data/aliases.js?v=be878c58"></script>
-<script src="data/draft2026.js?v=7795b40e"></script>
-<script src="data/draft2027.js?v=67c40565"></script>
-<script src="data/postdraft-board.js?v=d09c7d99"></script>
+<script src="data/live-projections.js?v=e3f38185"></script>
+<script src="data/aliases.js?v=2cbadcff"></script>
 <script src="data/best-available-board.js?v=45234e7d"></script>
-<script src="data/stats.js?v=7b760995"></script>
+<script src="data/stats.js?v=ce55f807"></script>
 
 <!-- App logic -->
 <script src="js/theme.js?v=5"></script>
@@ -2240,9 +1728,9 @@
 <script src="js/fantasy-owner.js?v=1"></script>
 <script src="js/consensus-projections.js?v=1"></script>
 <script src="js/flow-diagram.js?v=1"></script>
+<script src="js/draft-countdown.js?v=1"></script>
 <script src="js/nba-teams.js?v=5"></script>
 <script src="js/standings.js?v=5"></script>
-<script src="js/rankings-ui.js?v=5"></script>
 <!-- Seit 2026-07-31 unangebunden: "Live Projections (Test)" zeigt jetzt den
      eingebetteten MFHFBs-Toolkit statt der nativen Baseline+Blend-Tabelle,
      die dieses Script rendert (Details siehe index.html-Kommentar bei
@@ -2250,25 +1738,19 @@
      gleiches Prinzip wie beim Draft-Duel-Block weiter oben.
 <script src="js/live-projections-ui.js?v=1"></script>
 -->
-<script src="js/dynasty-rolling-ui.js?v=1"></script>
-<script src="js/dynasty-edit.js?v=5"></script>
 <script src="js/best-available.js?v=5"></script>
 <script src="js/trade-analyzer.js?v=5"></script>
 <script src="js/trade-finder.js?v=5"></script>
-<script src="data/trade-history.js?v=197e4415"></script>
-<script src="js/trade-history.js?v=6"></script>
-<script src="js/trade-admin.js?v=5"></script>
-<script src="js/draft-duel.js?v=5"></script>
-<script src="js/big-board.js?v=5"></script>
-<script src="data/team-analytics.js?v=cea70ad3"></script>
+<script src="js/roster-overrides.js?v=1"></script>
+<script src="data/team-analytics.js?v=8596232e"></script>
 <script src="js/analytics.js?v=6"></script>
 <script src="js/admin.js?v=5"></script>
 <script src="js/admin-inline.js?v=5"></script>
 <script src="js/admin-settings.js?v=5"></script>
 <script src="js/admin-workflow-trigger.js?v=1"></script>
 <script src="js/espn-sync.js?v=5"></script>
-<script src="js/espn-trade-detect.js?v=5"></script>
-<!-- Muss nach espn-trade-detect.js stehen: nutzt dessen _fetchEspnViaProxy() -->
+<script src="js/espn-live-sync.js?v=6"></script>
+<!-- Muss nach espn-live-sync.js stehen: nutzt dessen _fetchEspnViaProxy() -->
 <script src="js/matchup-planner.js?v=1"></script>
 
 <!-- Init runs last, after all scripts are loaded -->
@@ -2299,4 +1781,4 @@
 </script>
 
 </body>
-</html>
+</html>

@@ -66,17 +66,12 @@ function teamStrengthBadge(teamId) {
   const roster = ROSTERS[teamId] || [];
   const projMap = _getProjRankMap();
 
-  // Basis: aktuelle Projections. Fallback auf Dynasty-Ranks nur, wenn
-  // (noch) keine Projections geladen sind — damit die Karte nie leer ist.
+  // Basis: aktuelle Projections (taeglich neu gebaut).
   let ranks = roster
     .map(p => projMap.get(normalizeName(p.name).toLowerCase()) ?? null)
     .filter(r => r !== null);
   let label = 'Ø Top-20 Rank';
-  let tip = 'Durchschnittlicher Projections Rang der 20 besten Spieler des Kaders (Basis: aktuelle 2026/27 Projections, täglich aktualisiert)';
-  if (!ranks.length) {
-    ranks = roster.map(p => getDynastyRank(p.name)).filter(r => r !== null);
-    tip = 'Durchschnittlicher Dynasty Rang der 20 besten Spieler des Kaders';
-  }
+  const tip = 'Durchschnittlicher Projections Rang der 20 besten Spieler des Kaders (Basis: aktuelle 2026/27 Projections, täglich aktualisiert)';
   ranks = ranks.sort((a, b) => a - b).slice(0, 20);
   if (!ranks.length) return '';
   const avg = Math.round(ranks.reduce((a, b) => a + b, 0) / ranks.length);
@@ -161,7 +156,7 @@ function renderHome() {
   // Farbe weiterhin live aus TEAMS (Umbenennungen wirken nicht rueckwirkend
   // auf die archivierten Bilanzen). Kein Staerke-Badge -- fuer keine
   // archivierte Saison liegt ein Player-Ranking aus DER JEWEILIGEN Zeit vor;
-  // die aktuellen Dynasty-Ranks auf ein altes Roster anzuwenden waere
+  // die aktuellen Projection-Ranks auf ein altes Roster anzuwenden waere
   // irrefuehrend (z.B. Spieler, die es damals noch gar nicht gab).
   const season = _getSeasonData(_viewSeason);
   if (!season) { grid.innerHTML = ''; return; }
@@ -230,16 +225,6 @@ function showTeam(id){
   renderTab(); navigate('teamPage');
 }
 
-function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab').forEach((el, i) =>
-    el.classList.toggle('active', (i===0&&tab==='roster')||(i===1&&tab==='picks')));
-  // Sort-Button nur bei Roster anzeigen
-  const sortBtn = document.getElementById('rosterSortBtn');
-  if (sortBtn) sortBtn.style.display = tab === 'roster' ? 'block' : 'none';
-  renderTab();
-}
-
 function toggleRosterSort() {
   currentRosterSort = currentRosterSort === 'pos' ? 'rank' : 'pos';
   const btn = document.getElementById('sortToggleBtn');
@@ -253,11 +238,10 @@ function toggleRosterSort() {
 }
 function renderTab(){
   if (_viewSeason !== 'current') {
-    document.getElementById('tabContent').innerHTML = currentTab === 'roster'
-      ? renderArchivedRoster(currentTeamId) : renderArchivedPicks();
+    document.getElementById('tabContent').innerHTML = renderArchivedRoster(currentTeamId);
     return;
   }
-  document.getElementById('tabContent').innerHTML=currentTab==='roster'?renderRoster(currentTeamId):renderPicks(currentTeamId);
+  document.getElementById('tabContent').innerHTML=renderRoster(currentTeamId);
 }
 
 // ── Archivierte Rosteransicht ────────────────────────────────
@@ -302,29 +286,23 @@ function renderArchivedRoster(teamId) {
     </div>
   </div>`).join('');
 }
-function renderArchivedPicks() {
-  const season = _getSeasonData(_viewSeason);
-  return `<div style="padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;">
-    "My Owned Picks" ist für archivierte Saisons (${season ? season.label : ''}) nicht verfügbar.
-  </div>`;
+// ── Projection-Rang eines Spielers (1 = bester) ─────────────
+//  Einheitlicher Redraft-Rang fuer Roster, Best Available, NBA Teams
+//  und die Trade-Tools. Quelle: _getProjRankMap() (LIVE_PROJECTIONS).
+function getProjRank(name) {
+  return _getProjRankMap().get(normalizeName(name).toLowerCase()) ?? null;
 }
-
-function getDynastyRank(name) {
-  const canonical = normalizeName(name).toLowerCase();
-  const entry = DYNASTY_PLAYERS.find(p =>
-    normalizeName(p[1]).toLowerCase() === canonical
-  );
-  return entry ? entry[0] : null;
+// Stammdaten (Team/Position/Geburtsdatum) aus data/players.js.
+let _playerDbMap = null;
+function getPlayerDbEntry(name) {
+  if (!_playerDbMap) {
+    _playerDbMap = new Map();
+    (typeof PLAYER_DB !== 'undefined' ? PLAYER_DB : [])
+      .forEach(p => _playerDbMap.set(normalizeName(p[0]).toLowerCase(), p));
+  }
+  return _playerDbMap.get(normalizeName(name).toLowerCase()) || null;
 }
-function getHashtagRank(name) {
-  const canonical = normalizeName(name).toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  return HASHTAG_RANKINGS.find(p =>
-    normalizeName(p[1]).toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') === canonical
-  )?.[0] ?? null;
-}
-function dynastyRankBg(rank) {
+function rankTierBg(rank) {
   if (rank === 1)      return 'rgba(245,200,66,0.15)';
   if (rank <= 5)       return 'rgba(108,99,255,0.15)';
   if (rank <= 15)      return 'rgba(76,175,129,0.15)';
@@ -332,7 +310,7 @@ function dynastyRankBg(rank) {
   if (rank <= 75)      return 'rgba(255,101,132,0.12)';
   return 'rgba(123,127,158,0.12)';
 }
-function dynastyRankColor(rank) {
+function rankTierColor(rank) {
   if (rank === 1)      return '#f5c842';
   if (rank <= 5)       return '#a89bff';
   if (rank <= 15)      return '#6dddaa';
@@ -340,9 +318,9 @@ function dynastyRankColor(rank) {
   if (rank <= 75)      return '#ff8fa3';
   return 'var(--muted)';
 }
-function dynastyRankBadge(rank) {
+function projRankBadge(rank) {
   if (rank === null) return '<span style="font-size:11px;color:var(--border);font-weight:600;width:48px;text-align:right;padding:3px 8px;display:inline-block;">—</span>';
-  return `<span onclick="showRankings()" style="font-size:11px;font-weight:800;width:48px;text-align:center;padding:3px 8px;border-radius:6px;background:${dynastyRankBg(rank)};color:${dynastyRankColor(rank)};cursor:pointer;transition:opacity 0.15s;display:inline-block;" onmouseenter="this.style.opacity='0.75'" onmouseleave="this.style.opacity='1'">#${rank}</span>`;
+  return `<span onclick="showPlayerRankings()" title="2026/27 Projections Rang" style="font-size:11px;font-weight:800;width:48px;text-align:center;padding:3px 8px;border-radius:6px;background:${rankTierBg(rank)};color:${rankTierColor(rank)};cursor:pointer;transition:opacity 0.15s;display:inline-block;" onmouseenter="this.style.opacity='0.75'" onmouseleave="this.style.opacity='1'">#${rank}</span>`;
 }
 function playerAge(dob) {
   if (!dob) return null;
@@ -365,15 +343,13 @@ function renderRoster(id) {
     <div style="width:32px;flex-shrink:0;"></div>
     <div style="flex:1;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Name</div>
     <div class="roster-col-nba" style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">NBA</div>
-    <div class="roster-col-rank" style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">MFHFBs</div>
-    <div class="roster-col-rank" style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Matt</div>
-    <div class="roster-col-rank" style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">#️⃣</div>
+    <div class="roster-col-rank" style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);" title="2026/27 Projections Rang">Proj</div>
   </div>`;
 
   const sorted = currentRosterSort === 'rank'
     ? [...roster].sort((a, b) => {
-        const ra = getDynastyRank(a.name) ?? 9999;
-        const rb = getDynastyRank(b.name) ?? 9999;
+        const ra = getProjRank(a.name) ?? 9999;
+        const rb = getProjRank(b.name) ?? 9999;
         return ra - rb;
       })
     : roster;
@@ -389,22 +365,13 @@ function renderRoster(id) {
   posGroups.forEach(({ pos, players }) => {
     if (!players.length) return;
     players.forEach(p => {
-      const rank   = getDynastyRank(p.name);
-      const mattRk = MATT_RANKS[p.name] || null;
-      const hashRk = getHashtagRank(p.name);
-      const dpEntry = DYNASTY_PLAYERS.find(dp => dp[1] === p.name || normalizeName(dp[1]) === normalizeName(p.name));
-      const age    = dpEntry ? playerAge(dpEntry[4]) : null;
+      const rank   = getProjRank(p.name);
+      const dbEntry = getPlayerDbEntry(p.name);
+      const age    = dbEntry ? playerAge(dbEntry[3]) : null;
       const ageStr = age !== null
         ? `<span style="font-size:10px;font-weight:600;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:10px;margin-left:4px;">${age}y</span>`
         : '';
-
-      const mattBadge = mattRk
-        ? `<span onclick="showRankings()" style="font-size:11px;font-weight:800;width:48px;text-align:center;padding:3px 8px;border-radius:6px;background:${dynastyRankBg(mattRk)};color:${dynastyRankColor(mattRk)};cursor:pointer;display:inline-block;" onmouseenter="this.style.opacity='.75'" onmouseleave="this.style.opacity='1'">#${mattRk}</span>`
-        : '<span style="font-size:11px;color:var(--border);font-weight:600;width:48px;text-align:right;padding:3px 8px;display:inline-block;">—</span>';
-      const hashBadge = hashRk
-        ? `<span onclick="showRankings()" style="font-size:11px;font-weight:800;width:48px;text-align:center;padding:3px 8px;border-radius:6px;background:${dynastyRankBg(hashRk)};color:${dynastyRankColor(hashRk)};cursor:pointer;display:inline-block;" onmouseenter="this.style.opacity='.75'" onmouseleave="this.style.opacity='1'">#${hashRk}</span>`
-        : '<span style="font-size:11px;color:var(--border);font-weight:600;width:48px;text-align:right;padding:3px 8px;display:inline-block;">—</span>';
-      const dynBadge = dynastyRankBadge(rank);
+      const projBadge = projRankBadge(rank);
 
       const _isAdm = typeof isAdmin !== 'undefined' && isAdmin;
       const _posKey = p.pos ? p.pos.split('/')[0] : 'PG';
@@ -423,9 +390,7 @@ function renderRoster(id) {
               onclick="window.isAdmin?adminEditPlayerField(event,this,'${p.name}',${id},'team','${p.team}'):showNBATeam('${p.team}')"
               style="${_teamStyle}"
             >${p.team}</span>
-            <span class="roster-col-rank">${dynBadge}</span>
-            <span class="roster-col-rank">${mattBadge}</span>
-            <span class="roster-col-rank">${hashBadge}</span>
+            <span class="roster-col-rank">${projBadge}</span>
           </div>
           <!-- Mobile: two lines -->
           <div class="roster-mobile-row">
@@ -434,9 +399,7 @@ function renderRoster(id) {
               <span class="player-team r-team-link" onclick="showNBATeam('${p.team}')" style="font-size:11px;">${p.team}</span>
             </div>
             <div style="display:flex;gap:4px;flex-wrap:wrap;">
-              <span style="font-size:9px;font-weight:700;color:var(--muted);padding:2px 6px;background:var(--surface2);border-radius:4px;">MFH</span>${dynBadge}
-              <span style="font-size:9px;font-weight:700;color:var(--muted);padding:2px 6px;background:var(--surface2);border-radius:4px;">Matt</span>${mattBadge}
-              <span style="font-size:9px;font-weight:700;color:var(--muted);padding:2px 6px;background:var(--surface2);border-radius:4px;">#️⃣</span>${hashBadge}
+              <span style="font-size:9px;font-weight:700;color:var(--muted);padding:2px 6px;background:var(--surface2);border-radius:4px;">Proj</span>${projBadge}
             </div>
           </div>
         </div>
@@ -446,69 +409,12 @@ function renderRoster(id) {
   return html;
 }
 
-function renderPicks(id){
-  const myPicks=PICKS.filter(p=>p.currentOwner===id);
-  if(!myPicks.length) return '<p style="color:var(--muted);padding:20px 0;">No picks held.</p>';
-  const isLight=document.body.classList.contains('light');
-  const yearStyles=isLight?{
-    2026:{header:'rgba(192,98,47,0.1)',dot:'#c0622f',label:'#8a3a10',own:'rgba(192,98,47,0.08)',ownBorder:'rgba(192,98,47,0.3)',traded:'rgba(192,98,47,0.04)',tradedBorder:'rgba(192,98,47,0.15)'},
-    2027:{header:'rgba(45,122,80,0.1)',dot:'#2d7a50',label:'#1a5c35',own:'rgba(45,122,80,0.08)',ownBorder:'rgba(45,122,80,0.3)',traded:'rgba(45,122,80,0.04)',tradedBorder:'rgba(45,122,80,0.15)'},
-    2028:{header:'rgba(154,110,16,0.1)',dot:'#9a6e10',label:'#6e4c08',own:'rgba(154,110,16,0.08)',ownBorder:'rgba(154,110,16,0.3)',traded:'rgba(154,110,16,0.04)',tradedBorder:'rgba(154,110,16,0.15)'},
-    2029:{header:'rgba(42,122,184,0.1)',dot:'#2a7ab8',label:'#1a5a8a',own:'rgba(42,122,184,0.08)',ownBorder:'rgba(42,122,184,0.3)',traded:'rgba(42,122,184,0.04)',tradedBorder:'rgba(42,122,184,0.15)'},
-  }:{
-    2026:{header:'rgba(108,99,255,0.25)',dot:'#6c63ff',label:'#a89bff',own:'rgba(108,99,255,0.12)',ownBorder:'rgba(108,99,255,0.35)',traded:'rgba(108,99,255,0.06)',tradedBorder:'rgba(108,99,255,0.2)'},
-    2027:{header:'rgba(76,175,129,0.25)',dot:'#4caf81',label:'#6dddaa',own:'rgba(76,175,129,0.12)',ownBorder:'rgba(76,175,129,0.35)',traded:'rgba(76,175,129,0.06)',tradedBorder:'rgba(76,175,129,0.2)'},
-    2028:{header:'rgba(245,200,66,0.25)',dot:'#f5c842',label:'#f5d97a',own:'rgba(245,200,66,0.12)',ownBorder:'rgba(245,200,66,0.35)',traded:'rgba(245,200,66,0.06)',tradedBorder:'rgba(245,200,66,0.2)'},
-    2029:{header:'rgba(41,182,246,0.25)',dot:'#29b6f6',label:'#7dd8f8',own:'rgba(41,182,246,0.12)',ownBorder:'rgba(41,182,246,0.35)',traded:'rgba(41,182,246,0.06)',tradedBorder:'rgba(41,182,246,0.2)'},
-  };
-  const allRounds=[...new Set(PICKS.map(p=>p.round))].sort();
-  const years=[...new Set(myPicks.map(p=>p.year))].sort();
-  let html='';
-  years.forEach(year=>{
-    const s=yearStyles[year]||yearStyles[2026];
-    const yearPicks=myPicks.filter(p=>p.year===year);
-    html+=`<div style="margin-bottom:28px;border:1px solid ${s.ownBorder};border-radius:14px;overflow:hidden;">
-      <div style="background:${s.header};padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid ${s.ownBorder};">
-        <div style="width:10px;height:10px;border-radius:50%;background:${s.dot};"></div>
-        <div style="font-size:14px;font-weight:800;color:${s.label};font-family:'Playfair Display',serif;">${year}</div>
-        <div style="font-size:11px;color:var(--muted);background:var(--surface2);padding:2px 8px;border-radius:20px;margin-left:4px;font-weight:600;">${yearPicks.length} pick${yearPicks.length!==1?'s':''}</div>
-      </div>
-      <table style="width:100%;border-collapse:collapse;">
-        <thead><tr>
-          <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface2);">ROUND</th>
-          <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface2);">ORIGIN</th>
-          <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface2);">STATUS</th>
-        </tr></thead><tbody>`;
-    allRounds.forEach(round=>{
-      const roundPicks=yearPicks.filter(p=>p.round===round).sort((a,b)=>a.originalOwner-b.originalOwner);
-      roundPicks.forEach((pick,i)=>{
-        const traded=pick.originalOwner!==pick.currentOwner;
-        const orig=teamMap[pick.originalOwner];
-        html+=`<tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:10px 12px;font-size:12px;font-weight:700;color:${s.label};white-space:nowrap;background:var(--surface);">${i===0?`R${round}`:''}</td>
-          <td style="padding:10px 12px;font-size:13px;color:var(--text);background:var(--surface);">${orig.name}</td>
-          <td style="padding:10px 12px;background:var(--surface);">
-            <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${traded?s.traded:s.own};border:1px solid ${traded?s.tradedBorder:s.ownBorder};color:${s.label};">
-              ${traded?'Traded'+(pick.note?' ('+pick.note+')':''):'Own'}
-            </span>
-          </td>
-        </tr>`;
-      });
-    });
-    html+='</tbody></table></div>';
-  });
-  return html;
-}
-
 // ============================================================
 //  DRAFT RESULTS -- wer hat wen gepickt (abgeschlossener Draft)
 // ============================================================
-//  Anders als showDraftboard() (Pick-BESITZ ueber alle Jahre, aus dem
-//  handgepflegten PICKS-Array) zeigt diese Seite Pick-INHALT fuer einen
-//  einzelnen, bereits gelaufenen Draft -- welcher Spieler ging an
-//  welches Team, bei welchem Pick. Daten kommen aus
-//  data/draft-results-<saison>.js (siehe scripts/fetch-draft-results-espn.js),
-//  nicht aus PICKS.
+//  Zeigt fuer einen bereits gelaufenen Draft, welcher Spieler an
+//  welches Team ging, bei welchem Pick. Daten kommen aus
+//  data/draft-results-<saison>.js (siehe scripts/fetch-draft-results-espn.js).
 function showDraftResults(){
   navigate('draftResultsPage');
   const host = document.getElementById('draftResultsContent');
@@ -564,128 +470,11 @@ function showDraftResults(){
   host.innerHTML = html;
 }
 
-function showDraftboard(){
-  const years=[...new Set(PICKS.map(p=>p.year))].sort();
-  const rounds=[...new Set(PICKS.map(p=>p.round))].sort();
-  let html='';
-  years.forEach(year=>{
-    html+=`<h3 style="margin:24px 0 12px;font-size:16px;font-family:'Playfair Display',serif;color:var(--text);">${year} Draft</h3>`;
-
-    // Automatisch erzeugte Trade-Zusammenfassung, aus den tatsaechlichen
-    // PICKS-Daten (inkl. Live-Overrides aus ESPN-Sync und Pick-Journal),
-    // NICHT aus DRAFT_NOTES. Damit taucht ein neuer Pick-Trade sofort im
-    // Header auf, ohne dass jemand den Freitext von Hand nachtragen muss.
-    // DRAFT_NOTES bleibt zusaetzlich bestehen fuer Kontext, den die reinen
-    // Zahlen nicht hergeben (Spielernamen, Trade-Anlass).
-    const movedThisYear = PICKS.filter(p => p.year === year && p.currentOwner !== p.originalOwner);
-    if (movedThisYear.length) {
-      const zeilen = movedThisYear.map(p => {
-        const from = teamMap[p.originalOwner], to = teamMap[p.currentOwner];
-        const fromName = from ? from.name.split(' ')[0] : '?';
-        const toName = to ? to.name.split(' ')[0] : '?';
-        return `${fromName}'s R${p.round} → ${toName}`;
-      });
-      html += `<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">🔄 ${zeilen.join(' · ')}</div>`;
-    }
-
-    if(DRAFT_NOTES[year]) html+=`<div style="background:var(--accent-light);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--muted);">${DRAFT_NOTES[year]}</div>`;
-
-    // For 2026: show lottery slot order table before the regular pick matrix
-    if(year===2026 && typeof DRAFT_2026_SLOT_ORDER !== 'undefined') {
-      html+=`<div style="margin-bottom:20px;">
-        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">🎰 2026 Lottery Reihenfolge (R1)</div>
-        <table style="width:100%;border-collapse:collapse;">
-          <thead><tr style="background:var(--surface);">
-            <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);">Slot</th>
-            <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);">NBA Team</th>
-            <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);">Ursprung</th>
-            <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);">Besitzer</th>
-            <th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);">Notiz</th>
-          </tr></thead><tbody>`;
-      DRAFT_2026_SLOT_ORDER.filter(s=>s.round===1).forEach(s=>{
-        const orig   = TEAMS.find(t=>t.id===s.originalOwner);
-        const holder = TEAMS.find(t=>t.id===s.currentOwner);
-        const traded = s.originalOwner !== s.currentOwner;
-        const slotColor = s.slot<=3?'#f5c842':s.slot<=6?'#4caf81':s.slot<=9?'#29b6f6':'var(--muted)';
-        html+=`<tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:7px 10px;"><span style="font-size:13px;font-weight:800;color:${slotColor};">#${s.slot}</span></td>
-          <td style="padding:7px 10px;font-size:12px;font-weight:600;color:var(--text);">${s.nbaTeam}</td>
-          <td style="padding:7px 10px;font-size:12px;color:var(--muted);">${orig?.name||'?'}</td>
-          <td style="padding:7px 10px;">
-            <span style="font-size:12px;font-weight:700;color:${traded?'var(--accent)':'var(--text)'};">${holder?.name||'?'}</span>
-          </td>
-          <td style="padding:7px 10px;font-size:11px;color:var(--muted);">${s.note||'—'}</td>
-        </tr>`;
-      });
-      html+='</tbody></table></div>';
-    }
-
-if(year===2026 && typeof DRAFT_2026_SLOT_ORDER!=='undefined') {
-      const r1Slots = DRAFT_2026_SLOT_ORDER.filter(s=>s.round===1).sort((a,b)=>a.slot-b.slot);
-      html+=`<table><thead><tr><th class="round-label">Rnd</th>`;
-      r1Slots.forEach(s=>{
-        const orig=TEAMS.find(t=>t.id===s.originalOwner);
-        const holder=TEAMS.find(t=>t.id===s.currentOwner);
-        const traded=s.originalOwner!==s.currentOwner;
-        html+=`<th title="${orig?.owner||''}">${orig?.name.split(' ')[0]||'?'}<span style="display:block;font-size:9px;font-weight:400;color:${traded?'var(--accent)':'var(--muted)'};">#${s.slot}${traded?' →'+holder?.name.split(' ')[0]:''}</span></th>`;
-      });
-      html+='</tr></thead><tbody>';
-      rounds.forEach(round=>{
-        html+=`<tr><td style="font-weight:700;color:var(--muted);white-space:nowrap;background:var(--surface);">R${round}</td>`;
-        r1Slots.forEach(s=>{
-          const pick=PICKS.find(p=>p.year===2026&&p.round===round&&p.originalOwner===s.originalOwner);
-          if(!pick){html+=`<td><span class="pick-empty">—</span></td>`;return;}
-          const traded=pick.currentOwner!==pick.originalOwner;
-          const holder=teamMap[pick.currentOwner];
-html += `<td>
-  <div class="pick-cell ${traded?'pick-traded-cell':'pick-own-cell'}"
-    style="cursor:pointer;"
-    onclick="openPickInTrade(2026,${round},${s.originalOwner},${pick.currentOwner},'${(pick.note||'').replace(/'/g,"\\'")}')">
-    ${traded?'→ '+holder.name.split(' ')[0]:'Keep'}
-    <span style="display:block;font-size:9px;color:var(--muted);margin-top:2px;">${round}.${s.slot}</span>
-    <span style="display:block;font-size:8px;color:var(--accent);margin-top:2px;opacity:0.8;">🔄 Trade</span>
-  </div>
-</td>`;
-		});
-        html+='</tr>';
-      });
-      html+='</tbody></table>';
-    } else {
-      html+=`<table><thead><tr><th class="round-label">Rnd</th>`;
-      TEAMS.forEach(t=>{html+=`<th title="${t.owner}">${t.name.split(' ')[0]}</th>`;});
-      html+='</tr></thead><tbody>';
-      rounds.forEach(round=>{
-        html+=`<tr><td style="font-weight:700;color:var(--muted);white-space:nowrap;background:var(--surface);">R${round}</td>`;
-        TEAMS.forEach(t=>{
-          const pick=PICKS.find(p=>p.year===year&&p.round===round&&p.originalOwner===t.id);
-          if(!pick){html+=`<td><span class="pick-empty">—</span></td>`;return;}
-          const traded=pick.currentOwner!==pick.originalOwner;
-          const holder=teamMap[pick.currentOwner];
-html += `<td>
-  <div class="pick-cell ${traded?'pick-traded-cell':'pick-own-cell'}"
-    style="cursor:pointer;"
-    onclick="openPickInTrade(${year},${round},${t.id},${pick.currentOwner},'${(pick.note||'').replace(/'/g,"\\'")}')">
-    ${traded?'→ '+holder.name.split(' ')[0]:'Keep'}
-    <span style="display:block;font-size:8px;color:var(--accent);margin-top:2px;opacity:0.8;">🔄 Trade</span>
-  </div>
-</td>`;
-		});
-        html+='</tr>';
-      });
-      html+='</tbody></table>';
-    }
-  });
-  document.getElementById('draftboardContent').innerHTML=html;
-  navigate('draftboardPage');
-}
-
 // Which group each page belongs to (for group-button highlighting)
 const SUBNAV_PAGES = {
-  homePage:'home', draftboardPage:'draftboard', draftResultsPage:'draftresults', draft26Page:'draft26', draft27Page:'draft27', bigBoardPage:'bigBoard',
-  duelPage:'duel', duelBoardPage:'duelboard', duelSettingsPage:'duelsettings',
-  lotteryPage:'lottery', rankingsPage:'rankings', hashtagRankingsPage:'rankings', dynastyRollingPage:'dynastyrolling',
+  homePage:'home', draftResultsPage:'draftresults',
   bestAvailPage:'bestavail', analyticsPage:'analytics', rollingRankingsPage:'rollingrankings', tradePage:'trade',
-  tradeFinderPage:'tradefinder', tradeHistoryPage:'tradehistory', nbaTradesPage:'nbatrades', adminSettingsPage:'adminsettings', standingsPage:'standings', rulesPage:'rules',
+  tradeFinderPage:'tradefinder', adminSettingsPage:'adminsettings', standingsPage:'standings', rulesPage:'rules',
   liveScoresPage:'livescores', playerRankingsPage:'playerrankings', playerProjectionsPage:'playerprojections',
   matchupPage:'matchup',
   liveProjectionsPage:'liveprojections', liveProjTeamsPage:'liveprojectionsteams', liveProjDraftPage:'liveprojectionsdraft',
@@ -693,12 +482,9 @@ const SUBNAV_PAGES = {
 
 const SNAV_GROUP = {
   playerrankings: 'snavPlayer', playerprojections: 'snavPlayer', liveprojections: 'snavPlayer', liveprojectionsteams: 'snavPlayer', liveprojectionsdraft: 'snavPlayer',
-  rankings: 'snavDynasty', dynastyrolling: 'snavDynasty',
-  draft26: 'snavDraft', draft27: 'snavDraft', lottery: 'snavDraft', bigBoard: 'snavDraft',
-  draftboard: 'snavFTBoards', draftresults: 'snavFTBoards',
-  duel: 'snavDuel', duelboard: 'snavDuel', duelsettings: 'snavDuel',
+  draftresults: 'snavFTBoards',
   bestavail: 'snavAnalytics', analytics: 'snavAnalytics', rollingrankings: 'snavAnalytics',
-  trade:      'snavTrade', tradefinder: 'snavTrade', tradehistory: 'snavTrade',
+  trade:      'snavTrade', tradefinder: 'snavTrade',
 };
 
 // Reverse map: hash value → pageId
@@ -709,7 +495,6 @@ const HASH_TO_PAGE = Object.fromEntries(
 const EXTRA_HASH_TO_PAGE = {
   'home': 'homePage',
   'adminsettings': 'adminSettingsPage',
-  'nbatrades': 'nbaTradesPage',
 };
 
 function _applyPage(pageId) {
@@ -831,72 +616,19 @@ function showLiveScores(){navigate('liveScoresPage');typeof lsInit==='function'&
 function _rerenderPage(pageId) {
   if (pageId === 'playerRankingsPage')   typeof prInit === 'function' && prInit();
   if (pageId === 'standingsPage')        setTimeout(renderStandingsChart, 50);
-  if (pageId === 'nbaTradesPage')        renderNbaTrades();
   if (pageId === 'adminSettingsPage')    _asInit();
-  if (pageId === 'tradeHistoryPage')     renderTradeHistory();
-  if (pageId === 'draftboardPage')       showDraftboard();
   if (pageId === 'draftResultsPage')     showDraftResults();
   if (pageId === 'bestAvailPage')        showBestAvail();
-  if (pageId === 'rankingsPage')         showRankings();
-  if (pageId === 'dynastyRollingPage')   showDynastyRolling();
   if (pageId === 'liveProjectionsPage')  showLiveProjections();
   if (pageId === 'liveProjTeamsPage')    showLiveProjTeams();
   if (pageId === 'liveProjDraftPage')    showLiveProjDraft();
-  if (pageId === 'hashtagRankingsPage')  showHashtagRankings();
   if (pageId === 'analyticsPage')        showAnalytics();
   if (pageId === 'rollingRankingsPage')  showRollingRankings();
-  if (pageId === 'bigBoardPage')         showBigBoard();
-  if (pageId === 'draft26Page')          showDraft26();
-  if (pageId === 'draft27Page')          typeof showDraft27 === 'function' && showDraft27();
-  if (pageId === 'lotteryPage')          showLottery();
   if (pageId === 'tradePage')            typeof showTrade === 'function' && showTrade();
   if (pageId === 'tradeFinderPage')      typeof showTradeFinder === 'function' && showTradeFinder();
-  if (pageId === 'duelPage')             typeof showDuelPage === 'function' && showDuelPage();
-  if (pageId === 'duelBoardPage')        typeof showDuelBoard === 'function' && showDuelBoard();
-  if (pageId === 'duelSettingsPage')     typeof showDuelSettings === 'function' && showDuelSettings();
   if (pageId === 'rulesPage')            showRules();
   if (pageId === 'liveScoresPage')       typeof lsInit === 'function' && lsInit();
   if (pageId === 'matchupPage')          typeof _mpEnsureData === 'function' && _mpEnsureData(mpInit);
 }
 function toggleRule(header){header.parentElement.classList.toggle('collapsed');}
 
-function openPickInTrade(year, round, originalOwner, currentOwner, note) {
-  // Pick-Objekt in Trade-Struktur bauen (identisch zu toggleTradePickDirect)
-  const key = `${year}_R${round}_T${originalOwner}`;
-  const val = (typeof PICK_VALUES !== 'undefined' && PICK_VALUES[`${year}_R${round}_mid`]) || 0;
-  const orig  = teamMap[originalOwner];
-  const holder = teamMap[currentOwner];
-  const traded = originalOwner !== currentOwner;
-
-  const pickObj = {
-    isPick: true,
-    name: `${year} R${round} (${orig?.name || '?'})`,
-    pickKey: key,
-    year, round,
-    pickRange: `R${round}`,
-    originalOwner, currentOwner,
-    note: note || '',
-    owners: [{
-      curr: holder,
-      traded,
-      note: note || ''
-    }]
-  };
-
-  // showTrade() initialisiert alles → danach Pick in Side A injizieren
-  showTrade(); // setzt TRADE_STATE zurück und navigiert zur tradePage
-  TRADE_STATE.A.selected = [pickObj];
-  TRADE_STATE.A.showPicks = false;
-
-  // TT-Filter auf den aktuellen Besitzer vorsetzen
-  TRADE_STATE.A.ttFilter = String(currentOwner);
-  const ttEl = document.getElementById('tradeTTFilterA');
-  if (ttEl) {
-    ttEl.value = String(currentOwner);
-    ttEl.classList.add('has-filter');
-  }
-
-  renderTradeList('A');
-  renderSelectedPills('A');
-  renderTradeResult();
-}

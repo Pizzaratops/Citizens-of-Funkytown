@@ -201,12 +201,12 @@ const FLOW_STAGES = [
       },
       {
         icon: '🆓', kind: 'view', title: 'Best Available',
-        text: 'Freie Spieler nach einem zusammengesetzten Wert aus Dynasty Rang, Preseason, aktueller Form und Draft Kapital. Filterbar nach NBA Team.',
+        text: 'Freie Spieler nach einem zusammengesetzten Wert aus Projection, letzter Saison, Preseason und aktueller Form. Filterbar nach NBA Team.',
         page: 'showBestAvail',
       },
       {
         icon: '⚖️', kind: 'view', title: 'Trade Analyzer',
-        text: 'Bewertet beide Seiten eines Trades über Dynasty Rang und Alter.',
+        text: 'Bewertet beide Seiten eines Trades über den aktuellen 2026/27 Projections Rang.',
         page: 'showTrade',
       },
       {
@@ -224,7 +224,6 @@ const FLOW_STAGES = [
         page: 'showLiveProjDraft',
         detail: [
           ['Meine Spieler', 'Zeigt je Spieler, in wie vielen Ligen er mir gehört, wie früh er im Schnitt ging und wie früh ich ihn geholt habe.'],
-          ['Nicht verwechseln', 'Das ist der Redraft in fremden Ligen. Die Boards unter Draft bilden den Dynasty Rookie Draft der Taco Tuesday League ab.'],
         ],
       },
       {

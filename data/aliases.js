@@ -183,7 +183,7 @@ const NAME_ALIASES = {
 const NAME_FIRST_ALIASES = {
   'nicolas claxton':  'nic claxton',
   'alexandre sarr':   'alex sarr',
-  'cameron johnson':  'cam johnson',  // Roster uses Cameron, DYNASTY_PLAYERS uses Cam
+  'cameron johnson':  'cam johnson',  // Roster uses Cameron, PLAYER_DB uses Cam
   'herbert jones':    'herb jones',   // Hashtag/ESPN nutzen "Herbert", Beyaz' Baseline "Herb"
 
   // 17.08.2026, aus dem manuellen Namensvarianten-Abgleich (Beyaz):
@@ -223,35 +223,11 @@ function normalizeName(raw) {
 
 // ============================================================
 //  RANKING DISPLAY HELPERS
-//  (used by rankings-ui.js, best-available.js)
+//  (used by best-available.js)
 // ============================================================
 function rankClass(r) {
   if(r===1) return 'r-rank-top1';
   if(r<=5)  return 'r-rank-top5';
   if(r<=15) return 'r-rank-top15';
   return '';
-}
-function hashtagRankBadge(name) {
-  const r = hashtagRank(name);
-  if (!r) return '<span style="color:var(--border);font-size:11px;font-weight:600;">—</span>';
-  let bg, color;
-  if (r === 1)      { bg='rgba(245,200,66,0.15)';  color='#f5c842'; }
-  else if (r <= 5)  { bg='rgba(108,99,255,0.15)';  color='#a89bff'; }
-  else if (r <= 15) { bg='rgba(76,175,129,0.15)';  color='#6dddaa'; }
-  else if (r <= 30) { bg='rgba(41,182,246,0.15)';  color='#4fc3f7'; }
-  else if (r <= 75) { bg='rgba(255,101,132,0.12)'; color='#ff8fa3'; }
-  else              { bg='rgba(123,127,158,0.12)'; color='var(--muted)'; }
-  return `<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:${bg};color:${color};">#${r}</span>`;
-}
-function mattRankBadge(name) {
-  const r = MATT_RANKS[name];
-  if (!r) return '<span style="color:var(--border);font-size:11px;font-weight:600;">—</span>';
-  let bg, color;
-  if (r === 1)      { bg='rgba(245,200,66,0.15)';  color='#f5c842'; }
-  else if (r <= 5)  { bg='rgba(108,99,255,0.15)';  color='#a89bff'; }
-  else if (r <= 15) { bg='rgba(76,175,129,0.15)';  color='#6dddaa'; }
-  else if (r <= 30) { bg='rgba(41,182,246,0.15)';  color='#4fc3f7'; }
-  else if (r <= 75) { bg='rgba(255,101,132,0.12)'; color='#ff8fa3'; }
-  else              { bg='rgba(123,127,158,0.12)'; color='var(--muted)'; }
-  return `<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:${bg};color:${color};">#${r}</span>`;
 }

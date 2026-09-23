@@ -2,7 +2,7 @@
 // ============================================================
 //  ESPN ROSTER SYNC (automatisiert)
 // ============================================================
-//  Node-Äquivalent von espnSync() in js/espn-trade-detect.js.
+//  Node-Äquivalent von espnSync() in js/espn-live-sync.js.
 //  Im Browser muss der ESPN-Call über einen CORS-Proxy laufen, weil
 //  ESPN keine Browser-Cross-Origin-Requests erlaubt. In Node/GitHub
 //  Actions gibt es kein CORS — hier wird direkt gegen den ESPN-
@@ -24,23 +24,9 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const https = require('https');
-const { detectAndSaveTrades } = require('./detect-espn-trades');
 
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'data', 'rosters-live.js');
-
-function loadOldRosters() {
-  // Stand VOR dem heutigen Sync -- Vergleichsbasis fuer die Trade-
-  // Erkennung. Existiert die Datei noch nicht (allererster Lauf),
-  // wird ein leeres Objekt zurueckgegeben; dann werden folgerichtig
-  // keine "Trades" erkannt (kein alter Zustand zum Vergleichen).
-  if (!fs.existsSync(OUT)) return {};
-  const code = fs.readFileSync(OUT, 'utf8');
-  const sandbox = {};
-  vm.createContext(sandbox);
-  vm.runInContext(`${code}\nthis.__OLD__ = ROSTERS_LIVE;`, sandbox);
-  return sandbox.__OLD__ || {};
-}
 
 function loadConfig() {
   const code = fs.readFileSync(path.join(ROOT, 'js', 'espn-sync.js'), 'utf8');
@@ -80,7 +66,6 @@ function httpsGetJson(url) {
 
 async function main() {
   const cfg = loadConfig();
-  const oldRosters = loadOldRosters(); // MUSS vor dem Schreiben weiter unten passieren
   const espnUrl = `https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/${cfg.ESPN_SEASON}/segments/0/leagues/${cfg.ESPN_LEAGUE_ID}?view=mRoster&view=mTeam`;
 
   const data = await httpsGetJson(espnUrl);
@@ -167,15 +152,6 @@ const TEAM_RECORDS_LIVE = {
   fs.writeFileSync(OUT, out, 'utf8');
   console.log(`${OUT} aktualisiert: ${totalPlayers} Spieler über ${Object.keys(rosters).length} Teams.`);
 
-  // Trade-Erkennung: alter Stand (vor dieser Zeile ueberschrieben) vs.
-  // der gerade geschriebene neue Stand. Bewusst NICHT fatal -- ein
-  // Fehler hier darf den Roster-Sync selbst nicht ungueltig machen,
-  // der manuelle "Fuer Repo exportieren"-Button bleibt als Fallback.
-  try {
-    detectAndSaveTrades(oldRosters, rosters, { root: ROOT });
-  } catch (err) {
-    console.error('[Trade Detection] Fehlgeschlagen (Roster-Sync bleibt gueltig):', err.message);
-  }
 }
 
 main().catch(err => {

@@ -1,0 +1,124 @@
+/* ============================================================
+   DRAFT COUNTDOWN — Hero-Karte oben auf der Home-Seite
+   ============================================================
+   Logik: js/draft-countdown.js. Nutzt nur die Theme-Variablen aus
+   css/style.css, funktioniert damit in Dark und Light ohne
+   Sonderbehandlung.
+   ============================================================ */
+
+.dc-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 14px 0 22px;
+  padding: 24px 28px;
+  background:
+    radial-gradient(ellipse at 0% 0%, var(--accent-light) 0%, transparent 70%),
+    var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+.dc-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.dc-card[hidden] { display: none; }
+
+.dc-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 6px;
+}
+.dc-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--text);
+}
+.dc-date {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.dc-clock {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+.dc-unit {
+  min-width: 78px;
+  padding: 12px 10px 10px;
+  text-align: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.dc-num {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.dc-unit:first-child .dc-num { color: var(--accent); }
+.dc-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Zustand "Draft läuft" */
+.dc-clock:has(.dc-live) { flex-direction: column; align-items: flex-end; gap: 8px; }
+.dc-live { display: flex; align-items: center; gap: 10px; }
+.dc-live-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--accent2);
+  box-shadow: 0 0 0 0 var(--accent2);
+  animation: dcPulse 1.6s ease-out infinite;
+}
+.dc-live-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text);
+}
+.dc-live-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+}
+.dc-live-link:hover { text-decoration: underline; }
+@keyframes dcPulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent2) 60%, transparent); }
+  100% { box-shadow: 0 0 0 12px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dc-live-dot { animation: none; }
+}
+
+@media (max-width: 640px) {
+  .dc-card { padding: 20px 16px; gap: 16px; }
+  .dc-title { font-size: 22px; }
+  .dc-clock { width: 100%; gap: 6px; }
+  .dc-unit { flex: 1; min-width: 0; padding: 10px 4px 8px; }
+  .dc-num { font-size: 28px; }
+  .dc-label { font-size: 9px; letter-spacing: 0.8px; }
+  .dc-clock:has(.dc-live) { align-items: flex-start; }
+}

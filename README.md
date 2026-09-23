@@ -2,7 +2,7 @@
 
 **Live:** https://pizzaratops.github.io/Citizens-of-Funkytown/ *(GitHub Pages ggf. noch unter Settings → Pages zu aktivieren)*
 
-Fantasy-Basketball-Hub für eine 12-Team H2H 9-Category **Redraft**-Liga auf ESPN Fantasy Basketball (Liga-ID `15679`, aktiv seit 2018). Rosters, Trade-Analyse, Draft-Tools, Standings-Historie, Live Scores und mehr — automatisiert über GitHub Pages + GitHub Actions.
+Fantasy-Basketball-Hub für eine 12-Team H2H 9-Category **Redraft**-Liga auf ESPN Fantasy Basketball (Liga-ID `15679`, aktiv seit 2018). Rosters, Trade-Analyse, Draft-Countdown, Standings-Historie, Live Scores und mehr — automatisiert über GitHub Pages + GitHub Actions.
 
 Dieses Repo ist ein Fork des Toolkits **[Taco Tuesday HQ](https://github.com/Pizzaratops/Taco-Tuesday-HQ)**, angepasst auf eine eigenständige, zweite Liga. Architektur, Automatisierung und Konventionen unten sind mit dem Original identisch — nur Liga-ID, Teams und Format unterscheiden sich.
 
@@ -20,7 +20,8 @@ Dieses Repo ist ein Fork des Toolkits **[Taco Tuesday HQ](https://github.com/Piz
 | Wie entwickelt sich jemand über die Saison? | Rolling Rankings |
 | Wen kann ich noch holen? | Best Available, NBA Teams mit Fund-Hinweis |
 | Wie geht meine Woche aus? | Matchup Planer |
-| Was mache ich im Draft? | Draft Board |
+| Wann ist der Draft? | Countdown auf der Home-Seite |
+| Was mache ich im Draft? | Fantrax Redraft Board, 2026/27 Rankings/Projections |
 | Lohnt sich der Trade? | Trade Analyzer |
 
 **Grundsätze, die die Architektur erklären**
@@ -37,7 +38,7 @@ Dieses Repo ist ein Fork des Toolkits **[Taco Tuesday HQ](https://github.com/Piz
 - Kein Backend. Alles läuft als statische Seite auf GitHub Pages, Datenaufbereitung passiert vorab in GitHub Actions.
 - Der Matchup Planer kennt keine Positionsvorgaben bei der automatischen Aufstellung.
 - Prozentwerte werden nach Minuten gewichtet, nicht nach Wurfversuchen, weil die Rankings-Quellen keine Versuche mitliefern.
-- Redraft-Liga: Dynasty-Rankings/Keeper-Logik aus dem Original-Toolkit sind vorhanden, aber für diese Liga nicht relevant und standardmäßig nicht befüllt.
+- Redraft-Liga: Dynasty-Rankings, Draft Picks als Handelsgut, NBA-Prospect-Boards und Trade History aus dem Original-Toolkit sind entfernt (siehe unten).
 
 ---
 
@@ -52,8 +53,26 @@ Dieses Repo wurde per GitHub-Import 1:1 aus Taco Tuesday HQ übernommen. Bisher 
 
 1. Ersten ESPN-Roster-Sync laufen lassen (Kader sind aktuell leer).
 2. Historische Saisons/Trades/Draft-Picks aus ESPN übernehmen (Liga existiert seit 2018 — `previousSeasons: [2018 … 2026]`).
-3. `data/rankings.js`, `data/dynasty-rolling.js` und weitere Dynasty-spezifische Dateien leeren oder deaktivieren, da diese Liga Redraft ist.
-4. GitHub Actions Workflows (`.github/workflows/*.yml`) prüfen und ggf. auf die neue Liga-ID/Team-Anzahl umstellen — wurden beim Import unverändert mitkopiert.
+3. ~~Dynasty-spezifische Dateien entfernen~~ — erledigt 2026-09-23, siehe unten.
+4. ~~GitHub Actions Workflows prüfen~~ — erledigt, enthalten keine hartkodierte Liga-ID/Team-Anzahl.
+
+## 🧹 Redraft-Umbau (2026-09-23)
+
+Alles, was nur in einer Dynasty-Liga Sinn ergibt, ist raus:
+
+- **Dynasty Rankings** (Rankings, Rolling, Hashtag/Matt-Vergleich, Live Nudge) inkl. `data/rankings.js`, `data/hashtag.js`, `data/dynasty-*.js` und der zugehörigen Build-Scripts/Workflow-Schritte.
+- **NBA Draft Prospects** (Prospect Database, MFHFBs Big Board 2026/2027, Lottery, Draft Duel, Post-Draft Board).
+- **Draft Picks / Draft Capital** (Full Draft Board, „My Owned Picks“, Pick-Admin, ESPN-Pick-Sync, Pick-Journal, Pick-Diagnose, Pick-Werte im Trade Analyzer).
+- **Trade History** (Seite, `data/trade-history.js`, serverseitige Trade-Erkennung, manuelles Trade-Eintragen im Admin) und die pausierte NBA-Trades-Seite.
+
+Was stattdessen gilt:
+
+- **`data/players.js` (`PLAYER_DB`)** ist das neutrale Spielerverzeichnis (Name, NBA-Team, Position, Geburtsdatum) ohne Bewertung. Entstanden aus der alten Dynasty-Liste, alphabetisch.
+- **Einheitlicher Redraft-Rang** = 2026/27 Projections Rang (`getProjRank()` in `js/navigation.js`, täglich aus `LIVE_PROJECTIONS`). Genutzt von Kader-Ansicht, NBA Teams, Best Available, Trade Analyzer und Trade Finder.
+- **Trade Analyzer/Finder:** Wert = `TRADE_VALUE_TABLE[Projections-Rang]`, keine Altersanpassung, keine Modi, keine Picks.
+- **Best Available:** Score aus Projection (0.45), BBM-Rang, letzter Saison, Off-Season und laufender Saison.
+- **Draft-Countdown** auf der Home-Seite (`js/draft-countdown.js`, Datum in `DRAFT_START`). Läuft ab Draftbeginn drei Stunden als „Draft läuft“ und blendet sich danach aus.
+- `js/espn-trade-detect.js` heißt jetzt `js/espn-live-sync.js`, `js/trade-admin.js` ist auf `js/roster-overrides.js` geschrumpft.
 
 ---
 
@@ -75,7 +94,7 @@ ESPN API (Rosters + Boxscores)
    │                          └─► build-rolling-archive.js    ──► data/rolling-rankings-*.js
    │
    └─► build-best-available-board.js  ──► data/best-available-board.js
-            (bündelt: Rankings, Rolling, Off-Season, Post-Draft, Live-Signal)
+            (bündelt: Projections, BBM, Rolling, Off-Season, Live-Signal)
 ```
 
 ### Verknüpfungsmatrix
@@ -83,9 +102,9 @@ ESPN API (Rosters + Boxscores)
 | Seite | Datenquelle(n) | Automatisch? |
 |---|---|---|
 | **Best Available** | `best-available-board.js` gegen `rosters-live.js` gefiltert | komplett automatisch |
-| **Trade Analyzer** | `rankings.js` bzw. aktuelle Rankings-Quelle | folgt manuellen Updates sofort |
+| **Trade Analyzer** | `live-projections.js` (Projections-Rang) | komplett automatisch |
 | **Live Scores** | `livescores-daily.js` + `livescores-aggregate.js` | komplett automatisch |
-| **Draft Board** | `draft20XX.js` (jeweiliger Draft-Jahrgang) | manuell, einmal pro Saison |
+| **Draft Results** | `draft-results-active.js` (ESPN) | manuell per Workflow, einmal pro Saison |
 | **Team Analytics** | `js/analytics.js` | ⚠️ im Original-Toolkit statisch/nicht automatisiert |
 
 Details zu Gewichtungen und weiteren Quellen: siehe [Taco Tuesday HQ README](https://github.com/Pizzaratops/Taco-Tuesday-HQ#readme) — die Mechanik ist identisch, nur die Liga dahinter ist neu.
@@ -100,6 +119,7 @@ js/                      Frontend-Logik (eine Datei pro Feature-Bereich)
 data/                    Datendateien — teils statisch (von Hand gepflegt),
                          teils automatisch generiert
   teams-rosters.js       └ Team-Stammdaten (Namen, Owner, Farben) — EINZIGE Quelle
+  players.js             └ Spielerverzeichnis (Name, Team, Position, Geburtsdatum)
 scripts/                 Node-Scripts für die tägliche GitHub Action
 .github/workflows/       Die tägliche Automatisierung
 ```

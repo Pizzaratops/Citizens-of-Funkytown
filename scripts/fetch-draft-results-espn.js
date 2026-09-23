@@ -2,10 +2,8 @@
 // ============================================================
 //  DRAFT RESULTS ABRUFEN — wer hat wen gepickt (abgeschlossener Draft)
 // ============================================================
-//  Anders als scripts/sync-espn-picks.js (Pick-BESITZ, taeglich, nur
-//  der bevorstehende Draft) holt dieses Script Pick-INHALT fuer einen
-//  bereits gelaufenen Draft: welcher Spieler ging an welches Team, bei
-//  welchem Pick. Manuell ausgeloest, nicht taeglich -- ein
+//  Holt fuer einen bereits gelaufenen Draft, welcher Spieler an welches
+//  Team ging, bei welchem Pick. Manuell ausgeloest, nicht taeglich -- ein
 //  abgeschlossener Draft aendert sich nicht mehr.
 //
 //  NAMENSAUFLOESUNG

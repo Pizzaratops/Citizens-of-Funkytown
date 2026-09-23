@@ -4,7 +4,7 @@
 let baCurrentData = [];
 let baExperienceFilter = 'all'; // 'all' | 'rookie' | 'sophomore'
 
-let baSortCol = null;   // 'name' | 'nbaTeam' | 'pos' | 'age' | 'minutesAvg' | 'bestCat30' | 'worstCat30' | 'dynastyRank' | 'stickyScore' | 'season2627Rank'
+let baSortCol = null;   // 'name' | 'nbaTeam' | 'pos' | 'age' | 'minutesAvg' | 'bestCat30' | 'worstCat30' | 'season2627Rank'
 let baSortDir = 1;      // 1 = aufsteigend, -1 = absteigend
 
 // Fixe 9-Cat-Reihenfolge fuer die Beste-/Schwaechste-Kat-Sortierung — identisch
@@ -18,15 +18,14 @@ function baSortBy(col) {
   } else {
     baSortCol = col;
     // Rang-/Score-Spalten starten sinnvoll aufsteigend (1 = bester Rang).
-    // Sticky Score: hoeher = besser, deshalb dort zuerst absteigend zeigen.
-    baSortDir = (col === 'stickyScore') ? -1 : 1;
+    baSortDir = 1;
   }
   baUpdateSortArrows();
   filterBestAvail();
 }
 
 function baUpdateSortArrows() {
-  ['name', 'nbaTeam', 'pos', 'age', 'minutesAvg', 'bestCat30', 'worstCat30', 'dynastyRank', 'stickyScore', 'season2627Rank']
+  ['name', 'nbaTeam', 'pos', 'age', 'minutesAvg', 'bestCat30', 'worstCat30', 'season2627Rank']
     .forEach(col => {
       const el = document.getElementById('baArrow-' + col);
       if (!el) return;
@@ -46,8 +45,6 @@ function baSortData(data) {
       case 'minutesAvg':     return p.minutesAvg ?? null;
       case 'bestCat30':      { const i = BA_CAT_ORDER.indexOf(p.bestCat30); return i === -1 ? null : i; }
       case 'worstCat30':     { const i = BA_CAT_ORDER.indexOf(p.worstCat30); return i === -1 ? null : i; }
-      case 'dynastyRank':    return p.dynastyRank ?? null;
-      case 'stickyScore':    return p.stickyScore ?? null;
       case 'season2627Rank': return p.season2627Rank ?? null;
       default: return null;
     }
@@ -71,9 +68,8 @@ const BA_NBA_TEAMS = new Set(['ATL','BOS','BKN','CHA','CHI','CLE','DAL','DEN','D
   'PHI','PHO','POR','SAC','SAS','TOR','UTA','WAS','FA']);
 
 // BEST_AVAILABLE_BOARD (data/best-available-board.js) ist bereits der fertige,
-// gewichtete Gesamtscore ueber ALLE Signale (Dynasty-Rang, BBM-Rang,
-// letzte Saison, Off-Season, laufende Saison, Post-Draft-Board fuer
-// Rookies) - taeglich neu von scripts/build-best-available-board.js
+// gewichtete Gesamtscore ueber ALLE Signale (2026/27 Projection, BBM-Rang,
+// letzte Saison, Off-Season, laufende Saison) - taeglich neu von scripts/build-best-available-board.js
 // gebaut. Hier wird nur noch gegen die aktuellen Rosters gefiltert.
 // NBA-Team-Filter. Ein Fantasy-Filter waere hier sinnlos, weil dieses
 // Board per Definition nur Spieler zeigt, die in keinem Kader stehen.
@@ -109,10 +105,7 @@ function buildBestAvailRaw() {
   return BEST_AVAILABLE_BOARD
     .filter(p => !allRosteredNames.has(normalizeName(p.name)))
     .filter(p => baExperienceFilter === 'all' || p.experience === baExperienceFilter)
-    .map(p => ({
-      ...p,
-      source: p.isRookie ? 'postdraft' : (p.dynastyRank ? 'dynasty' : 'fa'),
-    }));
+    .map(p => ({ ...p }));
 }
 
 function buildBestAvail() {
@@ -138,28 +131,18 @@ function renderBestAvail(data) {
     const nba  = p.nbaTeam;
     const pos  = p.pos;
     const dob  = p.dob ?? null;
-    const isFA = p.source === 'fa';
-    const isRookie = p.source === 'postdraft' || p.isRookie;
+    const isFA = p.nbaTeam === 'FA'; // ohne NBA-Vertrag
+    const isRookie = !!p.isRookie;
 
     const age  = playerAge(dob) ?? p.age ?? null;
     const rc   = rankClass(rank);
 
-    // Auf Wunsch zeigt Best Available nur noch den MFHFB-eigenen Dynasty-Rang
-    // (data/rankings.js) statt zusaetzlich Matt Lawsons und Hashtag Basketballs
-    // Vergleichsrang einzublenden — die bleiben auf der Dynasty-Rankings-Seite
-    // selbst weiterhin sichtbar, nur hier auf Best Available nicht mehr.
-    const mfhfbBadge = p.dynastyRank
-      ? `<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:${dynastyRankBg(p.dynastyRank)};color:${dynastyRankColor(p.dynastyRank)};">#${p.dynastyRank}</span>`
-      : '<span style="color:var(--border);">-</span>';
     const faBadge = isFA
       ? `<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;background:rgba(76,175,129,0.15);color:#4caf81;margin-left:5px;vertical-align:middle;">FA</span>`
       : '';
     const rookieBadge = isRookie
       ? `<span style="font-size:9px;font-weight:800;padding:1px 5px;border-radius:5px;background:rgba(108,99,255,0.15);color:#a89bff;margin-left:5px;vertical-align:middle;">ROOKIE</span>`
       : '';
-    const stickyBadge = (p.stickyScore !== null && p.stickyScore !== undefined)
-      ? `<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:${p.stickyScore >= 5 ? 'rgba(76,175,129,0.15)' : p.stickyScore >= 0 ? 'rgba(41,182,246,0.15)' : 'rgba(255,101,132,0.12)'};color:${p.stickyScore >= 5 ? '#6dddaa' : p.stickyScore >= 0 ? '#4fc3f7' : '#ff8fa3'};" title="Sticky Score (Summer-League-Modell)">${p.stickyScore.toFixed(1)}</span>`
-      : '<span style="color:var(--border);">-</span>';
 
     const minCell = (p.minutesAvg !== null && p.minutesAvg !== undefined)
       ? `<span style="font-size:12px;color:var(--muted);font-weight:600;">${p.minutesAvg}</span>`
@@ -179,11 +162,15 @@ function renderBestAvail(data) {
     // 2026/27 Rankings & Projections — Rankings zieht aus dem permanenten
     // Rolling-Rankings-Archiv der laufenden Saison (Liga "nba"), das sich
     // automatisch füllt, sobald Weekly/Monthly-Daten reinkommen. Off-Season:
-    // bleibt leer, das ist erwartet. Projections hat noch keine Quelle.
+    // bleibt leer, das ist erwartet. Projections = Rang in LIVE_PROJECTIONS
+    // (getProjRank aus js/navigation.js).
     const season2627RankCell = p.season2627Rank
-      ? `<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:${dynastyRankBg(p.season2627Rank)};color:${dynastyRankColor(p.season2627Rank)};">#${p.season2627Rank}</span>`
+      ? `<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:${rankTierBg(p.season2627Rank)};color:${rankTierColor(p.season2627Rank)};">#${p.season2627Rank}</span>`
       : '<span style="color:var(--border);">-</span>';
-    const season2627ProjCell = '<span style="color:var(--border);">-</span>';
+    const projRk = getProjRank(name);
+    const season2627ProjCell = projRk
+      ? `<span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;background:${rankTierBg(projRk)};color:${rankTierColor(projRk)};">#${projRk}</span>`
+      : '<span style="color:var(--border);">-</span>';
 
     return `<tr>
       <td><span class="r-rank ${rc}">${rank}</span></td>
@@ -194,8 +181,6 @@ function renderBestAvail(data) {
       <td style="text-align:center;">${minCell}</td>
       <td style="text-align:center;">${bestCatCell}</td>
       <td style="text-align:center;">${worstCatCell}</td>
-      <td style="text-align:center;">${mfhfbBadge}</td>
-      <td style="text-align:center;">${stickyBadge}</td>
       <td style="text-align:center;">${season2627RankCell}</td>
       <td style="text-align:center;">${season2627ProjCell}</td>
     </tr>`;
