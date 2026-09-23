@@ -31,8 +31,9 @@ function renderDues() {
   }
 
   const cur = CURRENT_DUES_SEASON;
-  const paidCount = TEAMS.filter(t => leagueDuesStatus(t.id, cur) === 'paid').length;
-  const total = TEAMS.length;
+  // Pausierte Teams (TEAMS[].inactive) zaehlen nicht mit.
+  const paidCount = ACTIVE_TEAMS.filter(t => leagueDuesStatus(t.id, cur) === 'paid').length;
+  const total = ACTIVE_TEAMS.length;
   const pct = total ? Math.round(paidCount / total * 100) : 0;
   const money = (typeof DUES_AMOUNT === 'number' && DUES_AMOUNT > 0)
     ? `<div class="dues-money">${(paidCount * DUES_AMOUNT).toLocaleString('de-DE')} € von ${(total * DUES_AMOUNT).toLocaleString('de-DE')} € eingesammelt</div>`
@@ -41,6 +42,7 @@ function renderDues() {
   // Offene Teams der laufenden Saison zuerst, damit sofort sichtbar ist,
   // wer noch fehlt. Innerhalb der Gruppen alphabetisch.
   const teams = [...TEAMS].sort((a, b) => {
+    if (!!a.inactive !== !!b.inactive) return a.inactive ? 1 : -1;
     const pa = leagueDuesStatus(a.id, cur) === 'paid' ? 1 : 0;
     const pb = leagueDuesStatus(b.id, cur) === 'paid' ? 1 : 0;
     return pa - pb || a.name.localeCompare(b.name, 'de');
@@ -66,7 +68,7 @@ function renderDues() {
         <tbody>
           ${teams.map(t => {
             const c = getTeamColor(t);
-            return `<tr>
+            return `<tr class="${t.inactive ? 'dues-inactive' : ''}">
               <td style="text-align:left;">
                 <div class="lg-team">
                   <span class="lg-dot" style="background:${c};"></span>
@@ -76,7 +78,9 @@ function renderDues() {
                   </div>
                 </div>
               </td>
-              ${DUES_SEASONS.map(s => `<td>${_duesBadge(leagueDuesStatus(t.id, s), leagueDuesPaidEntry(t.id, s))}</td>`).join('')}
+              ${DUES_SEASONS.map(s => `<td>${t.inactive && s === cur && leagueDuesStatus(t.id, s) !== 'paid'
+                ? '<span class="dues-badge dues-open">⏸ pausiert</span>'
+                : _duesBadge(leagueDuesStatus(t.id, s), leagueDuesPaidEntry(t.id, s))}</td>`).join('')}
             </tr>`;
           }).join('')}
         </tbody>

@@ -63,7 +63,7 @@ function renderAnHeatmap() {
     const s = norm[tid];
     const avg = AN_CATS.reduce((a,c) => a+s[c], 0) / AN_CATS.length;
     return { tid: parseInt(tid), avg, s };
-  }).sort((a,b) => b.avg - a.avg);
+  }).filter(x => isTeamActive(TEAMS.find(t => t.id === x.tid))).sort((a,b) => b.avg - a.avg);
   tbody.innerHTML = sorted.map(({tid, avg, s}, ri) => {
     const team = TEAMS.find(t => t.id === tid);
     const seasonRow = SEASON_STATS[tid] || null;
@@ -89,7 +89,7 @@ function renderAnRadar() {
   const { norm } = anComputeScores(AN_STATE.cutoff, AN_STATE.method);
   const grid = document.getElementById('anRadarGrid');
   if (!grid) return;
-  grid.innerHTML = TEAMS.map(team => {
+  grid.innerHTML = TEAMS.filter(isTeamActive).map(team => {
     const s = norm[String(team.id)]; if (!s) return '';
     const avg = AN_CATS.reduce((a,c) => a+s[c],0) / AN_CATS.length;
     const bars = AN_CATS.map((c,i) => {

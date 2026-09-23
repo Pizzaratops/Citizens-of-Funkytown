@@ -123,3 +123,12 @@
   .dues-summary-value { font-size: 24px; }
   .lg-table th, .lg-table td { padding: 8px 8px; }
 }
+
+/* ── Pausierte Teams (TEAMS[].inactive) ────────────────────── */
+.team-card.is-inactive { opacity: .45; filter: grayscale(1); }
+.team-card.is-inactive:hover { opacity: .7; }
+.team-paused {
+  display: inline-block; margin-top: 10px; padding: 2px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; color: var(--muted); background: var(--surface2);
+}
+.dues-inactive td { opacity: .45; }

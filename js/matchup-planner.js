@@ -1156,7 +1156,7 @@ function mpFillTeamSelects() {
     if (!el) return;
     const cur = id === 'mpTeamA' ? MP_STATE.teamA : MP_STATE.teamB;
     el.innerHTML = '<option value="">— Team wählen —</option>' +
-      TEAMS.map(t => `<option value="${t.id}"${cur === t.id ? ' selected' : ''}>${_mpEsc(t.name)} · ${_mpEsc(t.owner)}</option>`).join('');
+      ACTIVE_TEAMS.map(t => `<option value="${t.id}"${cur === t.id ? ' selected' : ''}>${_mpEsc(t.name)} · ${_mpEsc(t.owner)}</option>`).join('');
   });
 }
 

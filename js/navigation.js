@@ -139,8 +139,18 @@ function renderHome() {
   const grid = document.getElementById('teamGrid');
 
   if (_viewSeason === 'current') {
-    grid.innerHTML = TEAMS.map(t => {
+    // Pausierte Teams (TEAMS[].inactive) ausgegraut ans Ende.
+    const ordered = [...TEAMS].sort((a, b) => (a.inactive ? 1 : 0) - (b.inactive ? 1 : 0));
+    grid.innerHTML = ordered.map(t => {
       const c = getTeamColor(t);
+      if (t.inactive) {
+        return `<div class="team-card is-inactive" onclick="showTeam(${t.id})" title="Für diese Saison pausiert">
+        <div class="team-avatar" style="background:${c}18;color:${c};">${getInitials(t.name)}</div>
+        <div class="team-name">${t.name}</div>
+        <div class="team-owner">${t.owner}</div>
+        <div class="team-paused">⏸ pausiert</div>
+      </div>`;
+      }
       return `<div class="team-card" onclick="showTeam(${t.id})">
         <div class="team-avatar" style="background:${c}18;color:${c};">${getInitials(t.name)}</div>
         <div class="team-name">${t.name}</div>
@@ -440,12 +450,12 @@ function showDraftResults(){
   }
 
   html += '<table><thead><tr><th class="round-label">Rnd</th>';
-  TEAMS.forEach(t => { html += `<th title="${t.owner}">${t.name.split(' ')[0]}</th>`; });
+  ACTIVE_TEAMS.forEach(t => { html += `<th title="${t.owner}">${t.name.split(' ')[0]}</th>`; });
   html += '</tr></thead><tbody>';
 
   rounds.forEach(round => {
     html += `<tr><td style="font-weight:700;color:var(--muted);white-space:nowrap;background:var(--surface);">R${round}</td>`;
-    TEAMS.forEach(t => {
+    ACTIVE_TEAMS.forEach(t => {
       const pick = DRAFT_RESULTS.picks.find(p => p.round === round && p.teamId === t.id);
       if (!pick) { html += `<td><span class="pick-empty">—</span></td>`; return; }
       const unresolvedTag = pick.nameSource === 'unresolved' ? ' style="opacity:.6;font-style:italic;"' : '';
