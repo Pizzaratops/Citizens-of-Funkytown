@@ -30,6 +30,8 @@ const LEAGUE_DUES_PAID = [
   { teamId: 9, season: '2026/27' },  // Greifswald SG Gerstensaft (Sven Kosanke)
   { teamId: 6, season: '2026/27' },  // Cook Island Airballers (Rocket Sascha)
   { teamId: 7, season: '2026/27' },  // Crackpistel Baller (Thies Rinner)
+  { teamId: 4, season: '2026/27' },  // Gewürz Jürgchens (Jürgen Willi)
+  { teamId: 5, season: '2026/27' },  // Team Peterson (Enno)
 ];
 
 // Rückgabe: "paid" | "owes" | "not-relevant"
