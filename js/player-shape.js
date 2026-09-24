@@ -281,7 +281,19 @@ function _psSeasonRawIndex(seasonKey) {
       // ueber die hiesigen 9-Cat-Perzentile, die ja erst je nach Pool (nur
       // gerostert vs. volle Liga) entstehen. Objektreferenz statt Name als
       // Map-Key, falls zwei Zeilen zufaellig gleich heissen.
-      const ranked = arr.slice().sort((a, b) => (typeof b.composite === 'number' ? b.composite : -Infinity) - (typeof a.composite === 'number' ? a.composite : -Infinity));
+      //
+      // Seit 24.09.2026 folgt der Rang dem Score-Modus (js/score-mode.js):
+      // aus den mitgelieferten Kategorie-Z-Scores wird je nach Modus die
+      // rohe Summe, die auf ±3 gekappte Summe oder der mittlere Perzentil-
+      // Rang gebildet. Ohne zScores bleibt der BBM-Composite.
+      const score = new Map();
+      if (typeof scoreFromCatZ === 'function' && arr.length && arr.every(s => s.zScores)) {
+        const res = scoreFromCatZ(arr.map(s => s.zScores), ['pts', 'reb', 'ast', 'stl', 'blk', 'tpm', 'fgImpact', 'ftImpact', 'to']);
+        arr.forEach((s, i) => score.set(s, res[i].score));
+      } else {
+        arr.forEach(s => score.set(s, typeof s.composite === 'number' ? s.composite : -Infinity));
+      }
+      const ranked = arr.slice().sort((a, b) => score.get(b) - score.get(a));
       const rankOf = new Map();
       ranked.forEach((s, idx) => rankOf.set(s, idx + 1));
       arr.forEach(s => {
@@ -644,6 +656,19 @@ function _psEnsureSeasonData(callback) {
   });
 }
 
+// Score-Modus gewechselt: die Raenge (nicht die Perzentil-Radare, die sind
+// ohnehin schon perzentil-basiert) haengen davon ab -> Caches leeren.
+if (typeof onScoreModeChange === 'function') {
+  onScoreModeChange(() => {
+    _psSeasonIdxCache = {};
+    _psPoolCache = {};
+    _psCurrentMetaCache = null;
+    _psProjRankMap = null;
+    const page = document.getElementById('playerShapePage');
+    if (page && page.classList.contains('active')) { _psFillControls(); _psRenderCard(); }
+  });
+}
+
 function showPlayerShape() {
   navigate('playerShapePage');
   _psApplyControlsCollapseState();
@@ -878,6 +903,7 @@ function _psTeamTag(teamId) {
 function _psRankTag(p, tooltip) {
   if (!(typeof p.rank === 'number' && p.rank > 0)) return '';
   const label = `Rang #${p.rank}`;
+  if (!tooltip && typeof scoreModeInfo === 'function') tooltip = `Gesamtrang nach Bewertung „${scoreModeInfo().label}"`;
   if (tooltip) return ` &middot; <span class="ps-rank-tag" title="${String(tooltip).replace(/"/g, '&quot;')}">${label}</span>`;
   return ` &middot; ${label}`;
 }

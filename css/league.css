@@ -132,3 +132,17 @@
   font-size: 11px; font-weight: 700; color: var(--muted); background: var(--surface2);
 }
 .dues-inactive td { opacity: .45; }
+
+/* ── Score-Modus (js/score-mode.js): Z roh / Z ±3 / Perzentil ─ */
+.score-mode-row { margin: 0 0 14px; }
+.score-mode { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.score-mode-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.ps-field .score-mode-label { display: none; }
+.score-mode-seg { display: flex; gap: 3px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+.score-mode-seg button {
+  background: transparent; border: none; color: var(--muted); cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+  padding: 6px 12px; border-radius: 7px; white-space: nowrap;
+}
+.score-mode-seg button:hover { color: var(--text); }
+.score-mode-seg button.active { background: var(--accent); color: #fff; }

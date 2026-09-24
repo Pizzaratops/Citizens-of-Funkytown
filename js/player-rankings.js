@@ -13,7 +13,9 @@
 //    Vegas + Pre-Season) bisher, gebaut von
 //    scripts/build-offseason-rankings.js.
 //
-//  Projections ist bewusst noch leer (Platzhalter für später).
+//  Der Gesamtwert (Spalte ganz rechts) folgt dem Score-Modus aus
+//  js/score-mode.js (Z roh / Z ±3 / Perzentil) und wird dafuer im Browser
+//  aus den mitgelieferten Kategorie-Z-Scores neu gebildet.
 // ============================================================
 
 let prCurrentTab = 'regseason'; // 'offseason' | 'regseason'
@@ -134,9 +136,29 @@ function prLoadTab() {
     }
   }
 
-  prRows = entry.players.slice();
+  prRows = _prApplyScoreMode(entry.players);
   _prSort(prSortCol, true);
   _prRenderTable();
+}
+
+// Gesamtwert je nach Score-Modus (js/score-mode.js) neu aus den mitgelieferten
+// Kategorie-Z-Scores bilden. Pool fuer Perzentile = alle Spieler des
+// Eintrags. Ohne zScores (sehr alte Daten) bleibt der Rohwert stehen.
+const PR_Z_KEYS = ['pts', 'reb', 'ast', 'stl', 'blk', 'tpm', 'fgImpact', 'ftImpact', 'to'];
+function _prApplyScoreMode(players) {
+  const rows = players.map(p => ({ ...p, zRaw: p.composite }));
+  if (typeof scoreFromCatZ !== 'function' || !rows.every(r => r.zScores)) return rows;
+  // TO steckt in zScores bereits invertiert (hoeher = besser).
+  const res = scoreFromCatZ(rows.map(r => r.zScores), PR_Z_KEYS);
+  rows.forEach((r, i) => { r.composite = res[i].score; r.scoreCats = res[i].cats; });
+  return rows;
+}
+
+if (typeof onScoreModeChange === 'function') {
+  onScoreModeChange(() => {
+    const page = document.getElementById('playerRankingsPage');
+    if (page && page.classList.contains('active')) prLoadTab();
+  });
 }
 
 function _prFormatDateShort(dateStr) {
@@ -198,13 +220,16 @@ function _prRenderTable() {
     return;
   }
 
+  const colLabel = c => (c.key === 'composite' && typeof scoreColumnLabel === 'function') ? scoreColumnLabel() : c.label;
   const thead = PR_COLUMNS.map(c =>
-    `<th class="${c.key === prSortCol ? 'r-sorted' : ''}" onclick="prSortBy('${c.key}')">${c.label}<span class="r-sort-arrow">↕</span></th>`
+    `<th class="${c.key === prSortCol ? 'r-sorted' : ''}" onclick="prSortBy('${c.key}')">${colLabel(c)}<span class="r-sort-arrow">↕</span></th>`
   ).join('');
 
   const body = rows.map((p, i) => {
-    const compClass = p.composite >= 0 ? 'pos' : 'neg';
-    const compLabel = (p.composite >= 0 ? '+' : '') + p.composite.toFixed(2);
+    const hasMode = typeof scoreFormat === 'function';
+    const compClass = (hasMode ? scoreIsPositive(p.composite) : p.composite >= 0) ? 'pos' : 'neg';
+    const compLabel = hasMode ? scoreFormat(p.composite) : (p.composite >= 0 ? '+' : '') + p.composite.toFixed(2);
+    const compTitle = typeof p.zRaw === 'number' ? ` title="Z roh ${(p.zRaw >= 0 ? '+' : '') + p.zRaw.toFixed(2)}"` : '';
     const owner = _prFantasyOwner(p.name);
     const secondLine = owner
       ? `<span class="ls-team-full ls-fantasy-owner" onclick="event.stopPropagation();if(typeof showTeam==='function')showTeam(${owner.id})" title="Go to ${owner.name}">${owner.name}</span>`
@@ -225,7 +250,7 @@ function _prRenderTable() {
       <td>${p.tpm.toFixed(1)}</td>
       <td>${p.fgPct.toFixed(1)}%</td>
       <td>${p.ftPct.toFixed(1)}%</td>
-      <td><span class="ls-composite ${compClass}">${compLabel}</span></td>
+      <td><span class="ls-composite ${compClass}"${compTitle}>${compLabel}</span></td>
     </tr>`;
   }).join('');
 

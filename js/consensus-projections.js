@@ -11,7 +11,8 @@
 //
 //  ── Z-SCORE ──────────────────────────────────────────────────
 //  Wird komplett im Browser berechnet (Pool-Groesse, Gewichte sind
-//  hier einstellbar). FG%/FT% gehen als IMPACT ein, nicht als roher
+//  hier einstellbar). Wie die Kategorien zum Gesamtwert werden (Z roh,
+//  Z ±3 gekappt, Perzentil), regelt js/score-mode.js. FG%/FT% gehen als IMPACT ein, nicht als roher
 //  Prozentsatz -- siehe cpComputeZ weiter unten fuer die Begruendung.
 //
 //  ── Δ RANG (16.08.2026 auf drei Quellen erweitert) ────────────
@@ -113,7 +114,7 @@ function _cpMeanSd(vals) {
 
 function cpComputeZ(rows, poolIdx, weights) {
   const pool = poolIdx.map(i => rows[i]);
-  if (!pool.length) return rows.map(() => ({ z: 0, cats: {} }));
+  if (!pool.length) return rows.map(() => ({ z: 0, zRaw: 0, cats: {}, rawCats: {} }));
 
   const counting = ['pts', 'reb', 'ast', 'stl', 'blk', 'tpm', 'tov'];
   const stat = {};
@@ -129,7 +130,7 @@ function cpComputeZ(rows, poolIdx, weights) {
   stat.fgImpact = _cpMeanSd(pool.map(r => fgImpactOf(r.v)));
   stat.ftImpact = _cpMeanSd(pool.map(r => ftImpactOf(r.v)));
 
-  return rows.map(r => {
+  const out = rows.map(r => {
     const cats = {};
     counting.forEach(k => {
       cats[k] = stat[k].sd ? ((r.v[k] || 0) - stat[k].mean) / stat[k].sd : 0;
@@ -138,10 +139,19 @@ function cpComputeZ(rows, poolIdx, weights) {
     cats.fgImpact = stat.fgImpact.sd ? (fgImpactOf(r.v) - stat.fgImpact.mean) / stat.fgImpact.sd : 0;
     cats.ftImpact = stat.ftImpact.sd ? (ftImpactOf(r.v) - stat.ftImpact.mean) / stat.ftImpact.sd : 0;
 
-    let z = 0;
-    CP_CATS.forEach(c => { z += (cats[c.key] || 0) * (weights[c.key] === undefined ? 1 : weights[c.key]); });
-    return { z, cats, poolFgPct, poolFtPct };
+    let zRaw = 0;
+    CP_CATS.forEach(c => { zRaw += (cats[c.key] || 0) * (weights[c.key] === undefined ? 1 : weights[c.key]); });
+    return { z: zRaw, zRaw, cats, rawCats: cats, poolFgPct, poolFtPct };
   });
+
+  // Gesamtwert nach Score-Modus (js/score-mode.js): Z roh / Z ±3 /
+  // Perzentil. Perzentile beziehen sich auf denselben Pool wie Mittelwert
+  // und Streuung oben.
+  if (typeof scoreFromCatZ === 'function') {
+    const res = scoreFromCatZ(out.map(o => o.rawCats), CP_CATS.map(c => c.key), weights, poolIdx);
+    out.forEach((o, i) => { o.z = res[i].score; o.cats = res[i].cats; });
+  }
+  return out;
 }
 
 function cpZWithPool(rows, poolSize, weights) {
@@ -204,7 +214,7 @@ function cpRecompute() {
 
     return {
       name: n, ...c,
-      z: z[i].z, cats: z[i].cats,
+      z: z[i].z, zRaw: z[i].zRaw, cats: z[i].cats, rawCats: z[i].rawCats,
       rankA: ra, rankB: rb, rankC: rc,
       rankDiff: spread,
     };
@@ -329,6 +339,8 @@ function cpPassesFilters(r) {
 
 function _cpHeat(z) {
   if (!Number.isFinite(z)) return '';
+  // Perzentil-Modus: 50 = Mitte, auf eine Z-aehnliche Skala bringen.
+  if (typeof getScoreMode === 'function' && getScoreMode() === 'pctl') z = (z - 50) / 20;
   const a = Math.min(Math.abs(z) / 2.5, 1) * 0.5;
   if (a < 0.06) return '';
   return z > 0
@@ -396,7 +408,8 @@ function cpRender() {
     const wChanged = CP_CATS.filter(c => _cpWeights[c.key] !== 1).length;
     const fCount = Object.keys(_cpFilters).length;
     const coreN = all.filter(r => r.sourceCount === 3).length;
-    info.textContent = `${rows.length} von ${all.length} Spielern · Z-Score relativ zu ${poolTxt} · ${coreN} mit vollem 3-Quellen-Konsens`
+    const modeTxt = typeof scoreModeInfo === 'function' ? scoreModeInfo().label : 'Z roh';
+    info.textContent = `${rows.length} von ${all.length} Spielern · Bewertung ${modeTxt} relativ zu ${poolTxt} · ${coreN} mit vollem 3-Quellen-Konsens`
       + (wChanged ? ` · ${wChanged} Gewicht(e) angepasst` : '')
       + (fCount ? ` · ${fCount} Filter aktiv` : '');
   }
@@ -409,7 +422,7 @@ function cpRender() {
     '<th class="cp-rank">#</th>' +
     th('name', 'Spieler', ' cp-name') +
     '<th>Team</th><th>Pos</th><th title="Fantasy Team in der Taco Tuesday League">Fant.</th>' +
-    th('z', 'Z', ' cp-zcol', 'Gewichteter 9-Cat-Z-Score, relativ zur gewählten Pool-Größe') +
+    th('z', typeof scoreColumnLabel === 'function' ? scoreColumnLabel() : 'Z', ' cp-zcol', 'Gewichteter 9-Cat-Gesamtwert (Modus siehe Bewertung), relativ zur gewählten Pool-Größe') +
     th('min', 'MIN') +
     CP_CATS.map(c => th(c.pct ? c.pct : c.key, c.label)).join('') +
     '<th title="Feldwürfe: getroffen / versucht">FGM-FGA</th>' +
@@ -434,12 +447,16 @@ function cpRender() {
       <td class="cp-team">${r.team || '—'}</td>
       <td class="cp-team">${r.pos || '—'}</td>
       <td>${typeof ttOwnerTag === 'function' ? ttOwnerTag(r.name) : ''}</td>
-      <td class="cp-num cp-zcol">${r.z.toFixed(2)}</td>
+      <td class="cp-num cp-zcol" title="Z roh ${r.zRaw.toFixed(2)}">${typeof scoreFormat === 'function' ? scoreFormat(r.z) : r.z.toFixed(2)}</td>
       <td class="cp-num">${(r.min || 0).toFixed(1)}</td>
       ${CP_CATS.map(c => {
         const shown = c.pct ? (r[c.pct] || 0) : (r[c.key] || 0);
         const zc = r.cats ? (r.cats[c.key] || 0) : 0;
-        return `<td class="cp-num" style="${_cpHeat(zc)}" title="Z ${zc.toFixed(2)}">${shown.toFixed(c.dec)}</td>`;
+        const zr = r.rawCats ? (r.rawCats[c.key] || 0) : zc;
+        const tip = (typeof getScoreMode === 'function' && getScoreMode() === 'pctl')
+          ? `Perzentil ${zc.toFixed(0)} · Z ${zr.toFixed(2)}`
+          : (zc !== zr ? `Z ${zr.toFixed(2)} → gekappt ${zc.toFixed(2)}` : `Z ${zc.toFixed(2)}`);
+        return `<td class="cp-num" style="${_cpHeat(zc)}" title="${tip}">${shown.toFixed(c.dec)}</td>`;
       }).join('')}
       <td class="cp-num cp-att">${(r.fgm || 0).toFixed(1)}-${(r.fga || 0).toFixed(1)}</td>
       <td class="cp-num cp-att">${(r.ftm || 0).toFixed(1)}-${(r.fta || 0).toFixed(1)}</td>
@@ -468,7 +485,8 @@ function cpExportCsv() {
   if (!rows || !rows.length) return;
 
   const header = [
-    '#', 'Spieler', 'Team', 'Pos', 'Fant.', 'Z', 'MIN',
+    '#', 'Spieler', 'Team', 'Pos', 'Fant.',
+    typeof scoreColumnLabel === 'function' ? scoreColumnLabel() : 'Z', 'Z roh', 'MIN',
     ...CP_CATS.map(c => c.label),
     'FGM', 'FGA', 'FTM', 'FTA', 'Δ Rang', 'Quellen',
   ];
@@ -486,6 +504,7 @@ function cpExportCsv() {
       r.pos || '',
       fant,
       r.z.toFixed(2),
+      r.zRaw.toFixed(2),
       (r.min || 0).toFixed(1),
       ...CP_CATS.map(c => {
         const shown = c.pct ? (r[c.pct] || 0) : (r[c.key] || 0);
@@ -512,6 +531,15 @@ function cpExportCsv() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// Score-Modus gewechselt: Ergebnis verwerfen, bei offener Seite neu zeichnen.
+if (typeof onScoreModeChange === 'function') {
+  onScoreModeChange(() => {
+    _cpComputed = null;
+    const page = document.getElementById('playerProjectionsPage');
+    if (page && page.classList.contains('active') && typeof PROJECTIONS_CONSENSUS !== 'undefined') cpRender();
+  });
 }
 
 // ── Init ─────────────────────────────────────────────────────

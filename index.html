@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="css/projections.css?v=1">
   <link rel="stylesheet" href="css/flow.css?v=1">
   <link rel="stylesheet" href="css/countdown.css?v=1">
-  <link rel="stylesheet" href="css/league.css?v=2">
+  <link rel="stylesheet" href="css/league.css?v=3">
   <link rel="stylesheet" href="css/catweb.css?v=1">
   <link rel="stylesheet" href="css/matchup.css?v=1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -336,6 +336,10 @@
         <label for="psPlayerSelect">Spieler</label>
         <select id="psPlayerSelect"></select>
       </div>
+      <div class="ps-field ps-field-auto" title="Wirkt auf die angezeigten Gesamtränge. Der Radar selbst ist immer perzentil-basiert.">
+        <label>Rang-Bewertung</label>
+        <div data-score-mode-host></div>
+      </div>
       <div class="ps-field ps-field-auto">
         <label>Ansicht</label>
         <div class="ps-seg" id="psModeSeg" role="group" aria-label="Ansicht wählen">
@@ -363,12 +367,14 @@
 <!-- PLAYER RANKINGS -->
 <div class="page page-wide" id="playerRankingsPage">
   <h2 style="margin-bottom:6px;">🏅 Rankings 2026/27</h2>
-  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">9-Cat Z-Score Rankings · automatisch aus Live Score Stats</p>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">9-Cat Rankings · automatisch aus Live Score Stats · Bewertung umschaltbar: Z roh, Z ±3 (gekappt) oder Perzentil</p>
 
   <div class="ls-subtabs">
     <div class="ls-subtab" id="prSubtabOffSeason" onclick="prSwitchTab('offseason')">☀️ Off Season</div>
     <div class="ls-subtab active" id="prSubtabRegSeason" onclick="prSwitchTab('regseason')">🏆 Reg Season</div>
   </div>
+
+  <div class="score-mode-row" data-score-mode-host></div>
 
   <div class="rankings-search">
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -398,6 +404,7 @@
     Mittelwert aus <b>Beyaz' eigenen Projections</b> und <b>Josh Lloyd</b> (Basketball Monster, August-Stand).
     Zählstats werden gemittelt, FG%/FT% über die Wurfversuche gewichtet zurückgerechnet.
   </p>
+  <div class="score-mode-row" data-score-mode-host></div>
   <p id="cpInfo" style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;margin-bottom:16px;"></p>
 
   <div class="cp-controls">
@@ -408,15 +415,15 @@
       <option value="SF">SF</option><option value="PF">PF</option><option value="F">F</option>
       <option value="C">C</option>
     </select>
-    <select class="cp-select" id="cpPool" onchange="cpSetPool(this.value)" title="Vergleichsgruppe für den Z-Score">
-      <option value="100">Z relativ zu Top 100</option>
-      <option value="150">Z relativ zu Top 150</option>
-      <option value="200">Z relativ zu Top 200</option>
-      <option value="250">Z relativ zu Top 250</option>
-      <option value="300">Z relativ zu Top 300</option>
-      <option value="350">Z relativ zu Top 350</option>
-      <option value="400">Z relativ zu Top 400</option>
-      <option value="all">Z relativ zu allen Spielern</option>
+    <select class="cp-select" id="cpPool" onchange="cpSetPool(this.value)" title="Vergleichsgruppe für Z-Score bzw. Perzentil">
+      <option value="100">Pool: Top 100</option>
+      <option value="150">Pool: Top 150</option>
+      <option value="200">Pool: Top 200</option>
+      <option value="250">Pool: Top 250</option>
+      <option value="300">Pool: Top 300</option>
+      <option value="350">Pool: Top 350</option>
+      <option value="400">Pool: Top 400</option>
+      <option value="all">Pool: alle Spieler</option>
     </select>
     <select class="cp-select" id="cpSource" onchange="cpSetSource(this.value)" title="Nach Datengrundlage filtern">
       <option value="twoplus">Mind. 2 von 3 Quellen (Standard)</option>
@@ -929,7 +936,7 @@
 <script src="data/players.js?v=6b810b7f"></script>
 <script src="data/teams-rosters.js?v=69f5b375"></script>
 <script src="data/season-history.js?v=24924011"></script>
-<script src="data/season-matchups.js?v=7c2a4be5"></script>
+<script src="data/season-matchups.js?v=3215e8e3"></script>
 <script src="data/league-dues.js?v=e55b2749"></script>
 <script src="data/season-rankings.js?v=51f908be"></script>
 <script src="data/rosters-live.js?v=9cdcf7c7"></script>
@@ -943,17 +950,18 @@
 <!-- App logic -->
 <script src="js/theme.js?v=5"></script>
 <script src="js/navigation.js?v=5"></script>
+<script src="js/score-mode.js?v=1"></script>
 <!-- Gemeinsame Fantasy-Besitz-Logik fuer Projections, NBA Teams und Best Available -->
 <script src="js/fantasy-owner.js?v=1"></script>
-<script src="js/consensus-projections.js?v=1"></script>
+<script src="js/consensus-projections.js?v=2"></script>
 <script src="js/flow-diagram.js?v=1"></script>
 <script src="js/draft-countdown.js?v=1"></script>
 <script src="js/nba-teams.js?v=5"></script>
 <script src="js/standings.js?v=6"></script>
 <script src="js/league-dues.js?v=1"></script>
-<script src="js/player-shape.js?v=1"></script>
+<script src="js/player-shape.js?v=2"></script>
 <script src="js/best-available.js?v=5"></script>
-<script src="data/team-analytics.js?v=b9b1642c"></script>
+<script src="data/team-analytics.js?v=e832c651"></script>
 <script src="js/analytics.js?v=6"></script>
 <script src="js/rosters.js?v=1"></script>
 <script src="js/espn-sync.js?v=5"></script>
@@ -969,7 +977,7 @@
 <script src="data/livescores-aggregate.js?v=69091e1d"></script>
 <script src="js/livescores.js?v=6"></script>
 <script src="data/offseason-rankings.js?v=c53883eb"></script>
-<script src="js/player-rankings.js?v=1"></script>
+<script src="js/player-rankings.js?v=2"></script>
   <script src="js/init.js?v=5"></script>
 
 <script>
