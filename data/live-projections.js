@@ -6,7 +6,7 @@
 //  + den echten Saison-Stats bisher (BASELINE_WEIGHT=2, siehe
 //  Script-Kommentar für die Formel). Siehe README "Season-Start-Plan:
 //  Projections-Flow".
-//  Zuletzt gebaut: 2026-09-25 · Liga: nba · 0 Spieltag(e) eingerechnet
+//  Zuletzt gebaut: 2026-09-26 · Liga: nba · 0 Spieltag(e) eingerechnet
 //
 //  Shape: LIVE_PROJECTIONS["Spielername"] = {
 //    min, pts, reb, ast, stl, blk, tpm, tov, fgm, fga, ftm, fta,  // Pro-Spiel-Schnitte, geblendet
