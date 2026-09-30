@@ -32,6 +32,7 @@ const LEAGUE_DUES_PAID = [
   { teamId: 7, season: '2026/27' },  // Crackpistel Baller (Thies Rinner)
   { teamId: 4, season: '2026/27' },  // Gewürz Jürgchens (Jürgen Willi)
   { teamId: 5, season: '2026/27' },  // Team Peterson (Enno)
+  { teamId: 10, season: '2026/27' }, // Wedding Bobcats (Fabian Düe) — gemeldet 30.09.2026
 ];
 
 // Rückgabe: "paid" | "owes" | "not-relevant"
