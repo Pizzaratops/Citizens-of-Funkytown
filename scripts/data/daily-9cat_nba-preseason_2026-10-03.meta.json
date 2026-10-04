@@ -1,0 +1,11 @@
+{
+  "league": "nba-preseason",
+  "date": "2026-10-03",
+  "games": [
+    "Miami Heat 129 @ Toronto Raptors 105 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 43.9,
+    "ft": 75.8
+  }
+}

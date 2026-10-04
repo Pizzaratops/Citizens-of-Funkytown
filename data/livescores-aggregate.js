@@ -30,6 +30,49 @@
 
 const LIVESCORES_AGGREGATE = {
   "month": {
+    "nba-preseason": {
+      "2026-10-03": {
+        windowStart: "2026-09-04",
+        windowEnd: "2026-10-03",
+        windowDays: 30,
+        daysInWindow: 1,
+        minGames: 1,
+        leagueAvg: { fg: 43.9, ft: 75.8 },
+        players: [
+          { rank: 1, name: "Nikola Jovic", team: "MIA", games: 1, min: 17, pts: 11, reb: 7, ast: 4, stl: 0, blk: 2, to: 2, tpm: 1, fgPct: 33.3, ftPct: 100, composite: 6.38, zScores: { pts: 0.81, reb: 1.72, ast: 1.2, stl: -0.85, blk: 2.95, tpm: 0.15, fgImpact: -0.74, ftImpact: 1.75, to: -0.62 } },
+          { rank: 2, name: "Pelle Larsson", team: "MIA", games: 1, min: 11, pts: 13, reb: 2, ast: 2, stl: 2, blk: 0, to: 1, tpm: 0, fgPct: 100, ftPct: 100, composite: 5.61, zScores: { pts: 1.28, reb: -0.52, ast: 0.11, stl: 1.18, blk: -0.5, tpm: -0.76, fgImpact: 1.31, ftImpact: 3.06, to: 0.44 } },
+          { rank: 3, name: "Andrew Wiggins", team: "MIA", games: 1, min: 13, pts: 12, reb: 1, ast: 0, stl: 1, blk: 0, to: 0, tpm: 4, fgPct: 66.7, ftPct: 0, composite: 4.16, zScores: { pts: 1.05, reb: -0.97, ast: -0.99, stl: 0.16, blk: -0.5, tpm: 2.85, fgImpact: 1.06, ftImpact: 0, to: 1.51 } },
+          { rank: 4, name: "Myron Gardner", team: "MIA", games: 1, min: 14, pts: 7, reb: 5, ast: 2, stl: 2, blk: 1, to: 2, tpm: 1, fgPct: 50, ftPct: 100, composite: 3.8, zScores: { pts: -0.13, reb: 0.82, ast: 0.11, stl: 1.18, blk: 1.23, tpm: 0.15, fgImpact: 0.19, ftImpact: 0.88, to: -0.62 } },
+          { rank: 5, name: "RJ Barrett", team: "TOR", games: 1, min: 17, pts: 15, reb: 3, ast: 1, stl: 1, blk: 0, to: 1, tpm: 2, fgPct: 33.3, ftPct: 87.5, composite: 3.34, zScores: { pts: 1.75, reb: -0.07, ast: -0.44, stl: 0.16, blk: -0.5, tpm: 1.05, fgImpact: -0.74, ftImpact: 1.7, to: 0.44 } },
+          { rank: 6, name: "Ian Schieffelin", team: "MIA", games: 1, min: 10, pts: 11, reb: 3, ast: 1, stl: 0, blk: 0, to: 0, tpm: 1, fgPct: 100, ftPct: 100, composite: 3.22, zScores: { pts: 0.81, reb: -0.07, ast: -0.44, stl: -0.85, blk: -0.5, tpm: 0.15, fgImpact: 1.75, ftImpact: 0.88, to: 1.51 } },
+          { rank: 7, name: "Tim Hardaway Jr.", team: "MIA", games: 1, min: 11, pts: 14, reb: 0, ast: 0, stl: 0, blk: 0, to: 1, tpm: 3, fgPct: 100, ftPct: 100, composite: 3.21, zScores: { pts: 1.52, reb: -1.42, ast: -0.99, stl: -0.85, blk: -0.5, tpm: 1.95, fgImpact: 1.75, ftImpact: 1.31, to: 0.44 } },
+          { rank: 8, name: "Chucky Hepburn", team: "TOR", games: 1, min: 25, pts: 11, reb: 4, ast: 2, stl: 3, blk: 0, to: 2, tpm: 1, fgPct: 66.7, ftPct: 66.7, composite: 3.08, zScores: { pts: 0.81, reb: 0.38, ast: 0.11, stl: 2.19, blk: -0.5, tpm: 0.15, fgImpact: 1.06, ftImpact: -0.49, to: -0.62 } },
+          { rank: 9, name: "Jakob Poeltl", team: "TOR", games: 1, min: 18, pts: 9, reb: 1, ast: 1, stl: 2, blk: 1, to: 1, tpm: 0, fgPct: 100, ftPct: 75, composite: 2.28, zScores: { pts: 0.34, reb: -0.97, ast: -0.44, stl: 1.18, blk: 1.23, tpm: -0.76, fgImpact: 1.31, ftImpact: -0.05, to: 0.44 } },
+          { rank: 10, name: "Jamal Shead", team: "TOR", games: 1, min: 28, pts: 3, reb: 5, ast: 7, stl: 3, blk: 1, to: 2, tpm: 0, fgPct: 14.3, ftPct: 50, composite: 2.11, zScores: { pts: -1.07, reb: 0.82, ast: 2.85, stl: 2.19, blk: 1.23, tpm: -0.76, fgImpact: -1.61, ftImpact: -0.93, to: -0.62 } },
+          { rank: 11, name: "Giannis Antetokounmpo", team: "MIA", games: 1, min: 14, pts: 9, reb: 4, ast: 7, stl: 0, blk: 0, to: 2, tpm: 0, fgPct: 100, ftPct: 75, composite: 2.1, zScores: { pts: 0.34, reb: 0.38, ast: 2.85, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: 1.31, ftImpact: -0.05, to: -0.62 } },
+          { rank: 12, name: "Tyreke Key", team: "TOR", games: 1, min: 16, pts: 15, reb: 1, ast: 0, stl: 0, blk: 0, to: 1, tpm: 4, fgPct: 55.6, ftPct: 50, composite: 1.62, zScores: { pts: 1.75, reb: -0.97, ast: -0.99, stl: -0.85, blk: -0.5, tpm: 2.85, fgImpact: 0.82, ftImpact: -0.93, to: 0.44 } },
+          { rank: 13, name: "Jaden Bradley", team: "TOR", games: 1, min: 20, pts: 9, reb: 3, ast: 2, stl: 1, blk: 0, to: 0, tpm: 1, fgPct: 75, ftPct: 50, composite: 0.8, zScores: { pts: 0.34, reb: -0.07, ast: 0.11, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: 0.97, ftImpact: -1.86, to: 1.51 } },
+          { rank: 14, name: "Bez Mbeng", team: "MIA", games: 1, min: 18, pts: 11, reb: 3, ast: 3, stl: 1, blk: 0, to: 2, tpm: 1, fgPct: 45.5, ftPct: 0, composite: 0.72, zScores: { pts: 0.81, reb: -0.07, ast: 0.66, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: 0.13, ftImpact: 0, to: -0.62 } },
+          { rank: 15, name: "Ja'Kobe Walter", team: "TOR", games: 1, min: 18, pts: 8, reb: 5, ast: 1, stl: 0, blk: 0, to: 1, tpm: 2, fgPct: 37.5, ftPct: 0, composite: 0.23, zScores: { pts: 0.11, reb: 0.82, ast: -0.44, stl: -0.85, blk: -0.5, tpm: 1.05, fgImpact: -0.4, ftImpact: 0, to: 0.44 } },
+          { rank: 16, name: "J'Vonne Hadley", team: "MIA", games: 1, min: 10, pts: 2, reb: 6, ast: 0, stl: 1, blk: 0, to: 0, tpm: 0, fgPct: 100, ftPct: 0, composite: -0.17, zScores: { pts: -1.3, reb: 1.27, ast: -0.99, stl: 0.16, blk: -0.5, tpm: -0.76, fgImpact: 0.44, ftImpact: 0, to: 1.51 } },
+          { rank: 17, name: "Nick Richards", team: "MIA", games: 1, min: 10, pts: 0, reb: 7, ast: 0, stl: 0, blk: 2, to: 2, tpm: 0, fgPct: 0, ftPct: 0, composite: -0.31, zScores: { pts: -1.77, reb: 1.72, ast: -0.99, stl: -0.85, blk: 2.95, tpm: -0.76, fgImpact: 0, ftImpact: 0, to: -0.62 } },
+          { rank: 18, name: "Immanuel Quickley", team: "TOR", games: 1, min: 12, pts: 5, reb: 2, ast: 3, stl: 1, blk: 0, to: 1, tpm: 1, fgPct: 33.3, ftPct: 0, composite: -0.71, zScores: { pts: -0.6, reb: -0.52, ast: 0.66, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: -0.49, ftImpact: 0, to: 0.44 } },
+          { rank: 19, name: "Bam Adebayo", team: "MIA", games: 1, min: 13, pts: 10, reb: 6, ast: 0, stl: 0, blk: 0, to: 2, tpm: 1, fgPct: 28.6, ftPct: 83.3, composite: -0.98, zScores: { pts: 0.58, reb: 1.27, ast: -0.99, stl: -0.85, blk: -0.5, tpm: 0.15, fgImpact: -0.83, ftImpact: 0.82, to: -0.62 } },
+          { rank: 20, name: "Scottie Barnes", team: "TOR", games: 1, min: 12, pts: 11, reb: 2, ast: 2, stl: 3, blk: 0, to: 3, tpm: 0, fgPct: 45.5, ftPct: 50, composite: -1.14, zScores: { pts: 0.81, reb: -0.52, ast: 0.11, stl: 2.19, blk: -0.5, tpm: -0.76, fgImpact: 0.13, ftImpact: -0.93, to: -1.68 } },
+          { rank: 21, name: "Collin Murray-Boyles", team: "TOR", games: 1, min: 20, pts: 6, reb: 9, ast: 1, stl: 0, blk: 0, to: 0, tpm: 0, fgPct: 30, ftPct: 0, composite: -1.24, zScores: { pts: -0.36, reb: 2.62, ast: -0.44, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: -1.08, ftImpact: -1.37, to: 1.51 } },
+          { rank: 22, name: "Davion Mitchell", team: "MIA", games: 1, min: 13, pts: 3, reb: 1, ast: 4, stl: 1, blk: 0, to: 2, tpm: 1, fgPct: 20, ftPct: 0, composite: -2.57, zScores: { pts: -1.07, reb: -0.97, ast: 1.2, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: -0.93, ftImpact: 0, to: -0.62 } },
+          { rank: 23, name: "Simone Fontecchio", team: "MIA", games: 1, min: 11, pts: 4, reb: 2, ast: 1, stl: 0, blk: 1, to: 2, tpm: 0, fgPct: 50, ftPct: 0, composite: -2.6, zScores: { pts: -0.83, reb: -0.52, ast: -0.44, stl: -0.85, blk: 1.23, tpm: -0.76, fgImpact: 0.19, ftImpact: 0, to: -0.62 } },
+          { rank: 24, name: "Vladislav Goldin", team: "MIA", games: 1, min: 7, pts: 6, reb: 1, ast: 0, stl: 0, blk: 0, to: 1, tpm: 0, fgPct: 75, ftPct: 0, composite: -3.02, zScores: { pts: -0.36, reb: -0.97, ast: -0.99, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: 0.97, ftImpact: 0, to: 0.44 } },
+          { rank: 25, name: "Tre Donaldson", team: "MIA", games: 1, min: 16, pts: 6, reb: 0, ast: 3, stl: 1, blk: 1, to: 2, tpm: 0, fgPct: 20, ftPct: 66.7, composite: -3.02, zScores: { pts: -0.36, reb: -1.42, ast: 0.66, stl: 0.16, blk: 1.23, tpm: -0.76, fgImpact: -0.93, ftImpact: -0.98, to: -0.62 } },
+          { rank: 26, name: "Bobby Portis", team: "MIA", games: 1, min: 11, pts: 4, reb: 3, ast: 2, stl: 0, blk: 0, to: 1, tpm: 1, fgPct: 25, ftPct: 50, composite: -3.08, zScores: { pts: -0.83, reb: -0.07, ast: 0.11, stl: -0.85, blk: -0.5, tpm: 0.15, fgImpact: -0.59, ftImpact: -0.93, to: 0.44 } },
+          { rank: 27, name: "Ryan Conwell", team: "MIA", games: 1, min: 18, pts: 6, reb: 1, ast: 2, stl: 0, blk: 0, to: 1, tpm: 0, fgPct: 37.5, ftPct: 0, composite: -3.29, zScores: { pts: -0.36, reb: -0.97, ast: 0.11, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: -0.4, ftImpact: 0, to: 0.44 } },
+          { rank: 28, name: "Malachi Smith", team: "TOR", games: 1, min: 31, pts: 7, reb: 5, ast: 2, stl: 2, blk: 0, to: 3, tpm: 0, fgPct: 27.3, ftPct: 50, composite: -3.31, zScores: { pts: -0.13, reb: 0.82, ast: 0.11, stl: 1.18, blk: -0.5, tpm: -0.76, fgImpact: -1.42, ftImpact: -0.93, to: -1.68 } },
+          { rank: 29, name: "Nimari Burnett", team: "TOR", games: 1, min: 24, pts: 6, reb: 3, ast: 3, stl: 1, blk: 0, to: 4, tpm: 1, fgPct: 20, ftPct: 50, composite: -5.5, zScores: { pts: -0.36, reb: -0.07, ast: 0.66, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: -1.86, ftImpact: -0.93, to: -2.74 } },
+          { rank: 30, name: "Klay Thompson", team: "MIA", games: 1, min: 13, pts: 0, reb: 2, ast: 0, stl: 0, blk: 0, to: 1, tpm: 0, fgPct: 0, ftPct: 0, composite: -5.63, zScores: { pts: -1.77, reb: -0.52, ast: -0.99, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: -0.68, ftImpact: 0, to: 0.44 } },
+          { rank: 31, name: "Lester Quinones", team: "MIA", games: 1, min: 9, pts: 0, reb: 1, ast: 0, stl: 0, blk: 0, to: 1, tpm: 0, fgPct: 0, ftPct: 0, composite: -6.08, zScores: { pts: -1.77, reb: -0.97, ast: -0.99, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: -0.68, ftImpact: 0, to: 0.44 } }
+        ]
+      }
+    },
     "nba-summer-california": {
       "2026-07-06": {
         windowStart: "2026-06-07",
@@ -2257,6 +2300,49 @@ const LIVESCORES_AGGREGATE = {
     }
   },
   "week": {
+    "nba-preseason": {
+      "2026-10-03": {
+        windowStart: "2026-09-27",
+        windowEnd: "2026-10-03",
+        windowDays: 7,
+        daysInWindow: 1,
+        minGames: 1,
+        leagueAvg: { fg: 43.9, ft: 75.8 },
+        players: [
+          { rank: 1, name: "Nikola Jovic", team: "MIA", games: 1, min: 17, pts: 11, reb: 7, ast: 4, stl: 0, blk: 2, to: 2, tpm: 1, fgPct: 33.3, ftPct: 100, composite: 6.38, zScores: { pts: 0.81, reb: 1.72, ast: 1.2, stl: -0.85, blk: 2.95, tpm: 0.15, fgImpact: -0.74, ftImpact: 1.75, to: -0.62 } },
+          { rank: 2, name: "Pelle Larsson", team: "MIA", games: 1, min: 11, pts: 13, reb: 2, ast: 2, stl: 2, blk: 0, to: 1, tpm: 0, fgPct: 100, ftPct: 100, composite: 5.61, zScores: { pts: 1.28, reb: -0.52, ast: 0.11, stl: 1.18, blk: -0.5, tpm: -0.76, fgImpact: 1.31, ftImpact: 3.06, to: 0.44 } },
+          { rank: 3, name: "Andrew Wiggins", team: "MIA", games: 1, min: 13, pts: 12, reb: 1, ast: 0, stl: 1, blk: 0, to: 0, tpm: 4, fgPct: 66.7, ftPct: 0, composite: 4.16, zScores: { pts: 1.05, reb: -0.97, ast: -0.99, stl: 0.16, blk: -0.5, tpm: 2.85, fgImpact: 1.06, ftImpact: 0, to: 1.51 } },
+          { rank: 4, name: "Myron Gardner", team: "MIA", games: 1, min: 14, pts: 7, reb: 5, ast: 2, stl: 2, blk: 1, to: 2, tpm: 1, fgPct: 50, ftPct: 100, composite: 3.8, zScores: { pts: -0.13, reb: 0.82, ast: 0.11, stl: 1.18, blk: 1.23, tpm: 0.15, fgImpact: 0.19, ftImpact: 0.88, to: -0.62 } },
+          { rank: 5, name: "RJ Barrett", team: "TOR", games: 1, min: 17, pts: 15, reb: 3, ast: 1, stl: 1, blk: 0, to: 1, tpm: 2, fgPct: 33.3, ftPct: 87.5, composite: 3.34, zScores: { pts: 1.75, reb: -0.07, ast: -0.44, stl: 0.16, blk: -0.5, tpm: 1.05, fgImpact: -0.74, ftImpact: 1.7, to: 0.44 } },
+          { rank: 6, name: "Ian Schieffelin", team: "MIA", games: 1, min: 10, pts: 11, reb: 3, ast: 1, stl: 0, blk: 0, to: 0, tpm: 1, fgPct: 100, ftPct: 100, composite: 3.22, zScores: { pts: 0.81, reb: -0.07, ast: -0.44, stl: -0.85, blk: -0.5, tpm: 0.15, fgImpact: 1.75, ftImpact: 0.88, to: 1.51 } },
+          { rank: 7, name: "Tim Hardaway Jr.", team: "MIA", games: 1, min: 11, pts: 14, reb: 0, ast: 0, stl: 0, blk: 0, to: 1, tpm: 3, fgPct: 100, ftPct: 100, composite: 3.21, zScores: { pts: 1.52, reb: -1.42, ast: -0.99, stl: -0.85, blk: -0.5, tpm: 1.95, fgImpact: 1.75, ftImpact: 1.31, to: 0.44 } },
+          { rank: 8, name: "Chucky Hepburn", team: "TOR", games: 1, min: 25, pts: 11, reb: 4, ast: 2, stl: 3, blk: 0, to: 2, tpm: 1, fgPct: 66.7, ftPct: 66.7, composite: 3.08, zScores: { pts: 0.81, reb: 0.38, ast: 0.11, stl: 2.19, blk: -0.5, tpm: 0.15, fgImpact: 1.06, ftImpact: -0.49, to: -0.62 } },
+          { rank: 9, name: "Jakob Poeltl", team: "TOR", games: 1, min: 18, pts: 9, reb: 1, ast: 1, stl: 2, blk: 1, to: 1, tpm: 0, fgPct: 100, ftPct: 75, composite: 2.28, zScores: { pts: 0.34, reb: -0.97, ast: -0.44, stl: 1.18, blk: 1.23, tpm: -0.76, fgImpact: 1.31, ftImpact: -0.05, to: 0.44 } },
+          { rank: 10, name: "Jamal Shead", team: "TOR", games: 1, min: 28, pts: 3, reb: 5, ast: 7, stl: 3, blk: 1, to: 2, tpm: 0, fgPct: 14.3, ftPct: 50, composite: 2.11, zScores: { pts: -1.07, reb: 0.82, ast: 2.85, stl: 2.19, blk: 1.23, tpm: -0.76, fgImpact: -1.61, ftImpact: -0.93, to: -0.62 } },
+          { rank: 11, name: "Giannis Antetokounmpo", team: "MIA", games: 1, min: 14, pts: 9, reb: 4, ast: 7, stl: 0, blk: 0, to: 2, tpm: 0, fgPct: 100, ftPct: 75, composite: 2.1, zScores: { pts: 0.34, reb: 0.38, ast: 2.85, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: 1.31, ftImpact: -0.05, to: -0.62 } },
+          { rank: 12, name: "Tyreke Key", team: "TOR", games: 1, min: 16, pts: 15, reb: 1, ast: 0, stl: 0, blk: 0, to: 1, tpm: 4, fgPct: 55.6, ftPct: 50, composite: 1.62, zScores: { pts: 1.75, reb: -0.97, ast: -0.99, stl: -0.85, blk: -0.5, tpm: 2.85, fgImpact: 0.82, ftImpact: -0.93, to: 0.44 } },
+          { rank: 13, name: "Jaden Bradley", team: "TOR", games: 1, min: 20, pts: 9, reb: 3, ast: 2, stl: 1, blk: 0, to: 0, tpm: 1, fgPct: 75, ftPct: 50, composite: 0.8, zScores: { pts: 0.34, reb: -0.07, ast: 0.11, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: 0.97, ftImpact: -1.86, to: 1.51 } },
+          { rank: 14, name: "Bez Mbeng", team: "MIA", games: 1, min: 18, pts: 11, reb: 3, ast: 3, stl: 1, blk: 0, to: 2, tpm: 1, fgPct: 45.5, ftPct: 0, composite: 0.72, zScores: { pts: 0.81, reb: -0.07, ast: 0.66, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: 0.13, ftImpact: 0, to: -0.62 } },
+          { rank: 15, name: "Ja'Kobe Walter", team: "TOR", games: 1, min: 18, pts: 8, reb: 5, ast: 1, stl: 0, blk: 0, to: 1, tpm: 2, fgPct: 37.5, ftPct: 0, composite: 0.23, zScores: { pts: 0.11, reb: 0.82, ast: -0.44, stl: -0.85, blk: -0.5, tpm: 1.05, fgImpact: -0.4, ftImpact: 0, to: 0.44 } },
+          { rank: 16, name: "J'Vonne Hadley", team: "MIA", games: 1, min: 10, pts: 2, reb: 6, ast: 0, stl: 1, blk: 0, to: 0, tpm: 0, fgPct: 100, ftPct: 0, composite: -0.17, zScores: { pts: -1.3, reb: 1.27, ast: -0.99, stl: 0.16, blk: -0.5, tpm: -0.76, fgImpact: 0.44, ftImpact: 0, to: 1.51 } },
+          { rank: 17, name: "Nick Richards", team: "MIA", games: 1, min: 10, pts: 0, reb: 7, ast: 0, stl: 0, blk: 2, to: 2, tpm: 0, fgPct: 0, ftPct: 0, composite: -0.31, zScores: { pts: -1.77, reb: 1.72, ast: -0.99, stl: -0.85, blk: 2.95, tpm: -0.76, fgImpact: 0, ftImpact: 0, to: -0.62 } },
+          { rank: 18, name: "Immanuel Quickley", team: "TOR", games: 1, min: 12, pts: 5, reb: 2, ast: 3, stl: 1, blk: 0, to: 1, tpm: 1, fgPct: 33.3, ftPct: 0, composite: -0.71, zScores: { pts: -0.6, reb: -0.52, ast: 0.66, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: -0.49, ftImpact: 0, to: 0.44 } },
+          { rank: 19, name: "Bam Adebayo", team: "MIA", games: 1, min: 13, pts: 10, reb: 6, ast: 0, stl: 0, blk: 0, to: 2, tpm: 1, fgPct: 28.6, ftPct: 83.3, composite: -0.98, zScores: { pts: 0.58, reb: 1.27, ast: -0.99, stl: -0.85, blk: -0.5, tpm: 0.15, fgImpact: -0.83, ftImpact: 0.82, to: -0.62 } },
+          { rank: 20, name: "Scottie Barnes", team: "TOR", games: 1, min: 12, pts: 11, reb: 2, ast: 2, stl: 3, blk: 0, to: 3, tpm: 0, fgPct: 45.5, ftPct: 50, composite: -1.14, zScores: { pts: 0.81, reb: -0.52, ast: 0.11, stl: 2.19, blk: -0.5, tpm: -0.76, fgImpact: 0.13, ftImpact: -0.93, to: -1.68 } },
+          { rank: 21, name: "Collin Murray-Boyles", team: "TOR", games: 1, min: 20, pts: 6, reb: 9, ast: 1, stl: 0, blk: 0, to: 0, tpm: 0, fgPct: 30, ftPct: 0, composite: -1.24, zScores: { pts: -0.36, reb: 2.62, ast: -0.44, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: -1.08, ftImpact: -1.37, to: 1.51 } },
+          { rank: 22, name: "Davion Mitchell", team: "MIA", games: 1, min: 13, pts: 3, reb: 1, ast: 4, stl: 1, blk: 0, to: 2, tpm: 1, fgPct: 20, ftPct: 0, composite: -2.57, zScores: { pts: -1.07, reb: -0.97, ast: 1.2, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: -0.93, ftImpact: 0, to: -0.62 } },
+          { rank: 23, name: "Simone Fontecchio", team: "MIA", games: 1, min: 11, pts: 4, reb: 2, ast: 1, stl: 0, blk: 1, to: 2, tpm: 0, fgPct: 50, ftPct: 0, composite: -2.6, zScores: { pts: -0.83, reb: -0.52, ast: -0.44, stl: -0.85, blk: 1.23, tpm: -0.76, fgImpact: 0.19, ftImpact: 0, to: -0.62 } },
+          { rank: 24, name: "Vladislav Goldin", team: "MIA", games: 1, min: 7, pts: 6, reb: 1, ast: 0, stl: 0, blk: 0, to: 1, tpm: 0, fgPct: 75, ftPct: 0, composite: -3.02, zScores: { pts: -0.36, reb: -0.97, ast: -0.99, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: 0.97, ftImpact: 0, to: 0.44 } },
+          { rank: 25, name: "Tre Donaldson", team: "MIA", games: 1, min: 16, pts: 6, reb: 0, ast: 3, stl: 1, blk: 1, to: 2, tpm: 0, fgPct: 20, ftPct: 66.7, composite: -3.02, zScores: { pts: -0.36, reb: -1.42, ast: 0.66, stl: 0.16, blk: 1.23, tpm: -0.76, fgImpact: -0.93, ftImpact: -0.98, to: -0.62 } },
+          { rank: 26, name: "Bobby Portis", team: "MIA", games: 1, min: 11, pts: 4, reb: 3, ast: 2, stl: 0, blk: 0, to: 1, tpm: 1, fgPct: 25, ftPct: 50, composite: -3.08, zScores: { pts: -0.83, reb: -0.07, ast: 0.11, stl: -0.85, blk: -0.5, tpm: 0.15, fgImpact: -0.59, ftImpact: -0.93, to: 0.44 } },
+          { rank: 27, name: "Ryan Conwell", team: "MIA", games: 1, min: 18, pts: 6, reb: 1, ast: 2, stl: 0, blk: 0, to: 1, tpm: 0, fgPct: 37.5, ftPct: 0, composite: -3.29, zScores: { pts: -0.36, reb: -0.97, ast: 0.11, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: -0.4, ftImpact: 0, to: 0.44 } },
+          { rank: 28, name: "Malachi Smith", team: "TOR", games: 1, min: 31, pts: 7, reb: 5, ast: 2, stl: 2, blk: 0, to: 3, tpm: 0, fgPct: 27.3, ftPct: 50, composite: -3.31, zScores: { pts: -0.13, reb: 0.82, ast: 0.11, stl: 1.18, blk: -0.5, tpm: -0.76, fgImpact: -1.42, ftImpact: -0.93, to: -1.68 } },
+          { rank: 29, name: "Nimari Burnett", team: "TOR", games: 1, min: 24, pts: 6, reb: 3, ast: 3, stl: 1, blk: 0, to: 4, tpm: 1, fgPct: 20, ftPct: 50, composite: -5.5, zScores: { pts: -0.36, reb: -0.07, ast: 0.66, stl: 0.16, blk: -0.5, tpm: 0.15, fgImpact: -1.86, ftImpact: -0.93, to: -2.74 } },
+          { rank: 30, name: "Klay Thompson", team: "MIA", games: 1, min: 13, pts: 0, reb: 2, ast: 0, stl: 0, blk: 0, to: 1, tpm: 0, fgPct: 0, ftPct: 0, composite: -5.63, zScores: { pts: -1.77, reb: -0.52, ast: -0.99, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: -0.68, ftImpact: 0, to: 0.44 } },
+          { rank: 31, name: "Lester Quinones", team: "MIA", games: 1, min: 9, pts: 0, reb: 1, ast: 0, stl: 0, blk: 0, to: 1, tpm: 0, fgPct: 0, ftPct: 0, composite: -6.08, zScores: { pts: -1.77, reb: -0.97, ast: -0.99, stl: -0.85, blk: -0.5, tpm: -0.76, fgImpact: -0.68, ftImpact: 0, to: 0.44 } }
+        ]
+      }
+    },
     "nba-summer-california": {
       "2026-07-06": {
         windowStart: "2026-06-30",
