@@ -1,0 +1,12 @@
+{
+  "league": "nba-preseason",
+  "date": "2026-10-04",
+  "games": [
+    "Utah Jazz 109 @ Denver Nuggets 97 (Final)",
+    "Golden State Warriors 101 @ LA Clippers 104 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 40.3,
+    "ft": 72.7
+  }
+}
