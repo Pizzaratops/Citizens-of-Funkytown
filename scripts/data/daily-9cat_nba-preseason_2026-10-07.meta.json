@@ -1,0 +1,15 @@
+{
+  "league": "nba-preseason",
+  "date": "2026-10-07",
+  "games": [
+    "Minnesota Timberwolves 112 @ Indiana Pacers 123 (Final)",
+    "Orlando Magic 122 @ Memphis Grizzlies 118 (Final)",
+    "Milwaukee Bucks 128 @ Oklahoma City Thunder 126 (Final)",
+    "Phoenix Suns 117 @ Chicago Bulls 124 (Final)",
+    "Golden State Warriors 118 @ Portland Trail Blazers 123 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 47.6,
+    "ft": 74.8
+  }
+}
