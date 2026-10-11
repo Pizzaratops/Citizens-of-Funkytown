@@ -1,0 +1,17 @@
+{
+  "league": "nba-preseason",
+  "date": "2026-10-10",
+  "games": [
+    "LA Clippers 106 @ Toronto Raptors 114 (Final)",
+    "Atlanta Hawks 119 @ Indiana Pacers 117 (Final)",
+    "Detroit Pistons 108 @ Washington Wizards 114 (Final/OT)",
+    "Minnesota Timberwolves 125 @ Miami Heat 124 (Final)",
+    "Philadelphia 76ers 106 @ Boston Celtics 144 (Final)",
+    "Sacramento Kings 106 @ Golden State Warriors 111 (Final)",
+    "San Antonio Spurs 98 @ Phoenix Suns 102 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 44.9,
+    "ft": 79
+  }
+}
