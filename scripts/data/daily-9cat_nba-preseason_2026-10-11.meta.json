@@ -1,0 +1,11 @@
+{
+  "league": "nba-preseason",
+  "date": "2026-10-11",
+  "games": [
+    "Dallas Mavericks 132 @ Houston Rockets 115 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 44.6,
+    "ft": 82.7
+  }
+}
