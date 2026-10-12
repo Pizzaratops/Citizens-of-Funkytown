@@ -2,10 +2,13 @@
   "league": "nba-preseason",
   "date": "2026-10-11",
   "games": [
-    "Dallas Mavericks 132 @ Houston Rockets 115 (Final)"
+    "Dallas Mavericks 132 @ Houston Rockets 115 (Final)",
+    "Orlando Magic 105 @ Cleveland Cavaliers 119 (Final)",
+    "Milwaukee Bucks 90 @ Charlotte Hornets 105 (Final)",
+    "Chicago Bulls 128 @ Denver Nuggets 133 (Final)"
   ],
   "leagueAvg": {
-    "fg": 44.6,
-    "ft": 82.7
+    "fg": 44.3,
+    "ft": 75.8
   }
 }
