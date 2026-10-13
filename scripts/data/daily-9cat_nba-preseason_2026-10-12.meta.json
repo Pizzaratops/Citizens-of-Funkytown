@@ -1,0 +1,15 @@
+{
+  "league": "nba-preseason",
+  "date": "2026-10-12",
+  "games": [
+    "London Lions 66 @ Portland Trail Blazers 119 (Final)",
+    "Oklahoma City Thunder 110 @ Atlanta Hawks 113 (Final)",
+    "Brooklyn Nets 131 @ Washington Wizards 122 (Final)",
+    "Minnesota Timberwolves 122 @ New York Knicks 104 (Final)",
+    "San Antonio Spurs 109 @ Utah Jazz 119 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 46.7,
+    "ft": 78.6
+  }
+}
