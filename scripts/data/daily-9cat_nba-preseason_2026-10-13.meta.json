@@ -1,0 +1,15 @@
+{
+  "league": "nba-preseason",
+  "date": "2026-10-13",
+  "games": [
+    "Cleveland Cavaliers 116 @ Orlando Magic 132 (Final)",
+    "New York Knicks 98 @ Toronto Raptors 148 (Final)",
+    "Indiana Pacers 112 @ Oklahoma City Thunder 114 (Final/OT)",
+    "Golden State Warriors 101 @ Los Angeles Lakers 89 (Final)",
+    "Portland Trail Blazers 110 @ Sacramento Kings 98 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 44.6,
+    "ft": 72.3
+  }
+}
