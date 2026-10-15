@@ -1,0 +1,17 @@
+{
+  "league": "nba-preseason",
+  "date": "2026-10-14",
+  "games": [
+    "Brooklyn Nets 128 @ Miami Heat 144 (Final)",
+    "Charlotte Hornets 93 @ Boston Celtics 114 (Final)",
+    "Phoenix Suns 103 @ San Antonio Spurs 123 (Final)",
+    "New Orleans Pelicans 101 @ Dallas Mavericks 97 (Final)",
+    "Chicago Bulls 125 @ Milwaukee Bucks 104 (Final)",
+    "Detroit Pistons 128 @ Minnesota Timberwolves 106 (Final)",
+    "Denver Nuggets 110 @ LA Clippers 122 (Final)"
+  ],
+  "leagueAvg": {
+    "fg": 46.4,
+    "ft": 76.5
+  }
+}
