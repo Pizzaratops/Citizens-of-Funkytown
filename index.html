@@ -6,6 +6,29 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+// ============================================================
+//  MFHFB HQ — Weiterleitung (NBA-Cutover)
+// ============================================================
+//  Diese Seite ist in den Hub umgezogen: https://pizzaratops.github.io/MFHFBHQ/#/funkytown
+//  Alte Links (#livescores, #matchup, #trade, …) landen auf der passenden Hub-Seite.
+//  Ausnahmen (bleiben hier):
+//    - ?legacy=1              (alte Seite bewusst öffnen; gilt für die ganze Sitzung)
+//    - Einbettung im iframe   (Hub-Legacy-Ansicht)
+// ============================================================
+(function () {
+  var hash = location.hash.slice(1);
+  var stay = window.self !== window.top;
+  try {
+    if (/(^|[?&])legacy=1/.test(location.search)) sessionStorage.setItem('cof-legacy', '1');
+    if (sessionStorage.getItem('cof-legacy') === '1') stay = true;
+  } catch (e) { if (/(^|[?&])legacy=1/.test(location.search)) stay = true; }
+  if (stay) return;
+  var MAP = {"home": "", "tabellenverlauf": "stverlauf", "historie": "standings", "analytics": "analytics", "draftboard": "draftresults", "beitraege": "nbadues", "regeln": "", "rankings": "players", "projections": "projections", "spielerverlauf": "rolling", "livescores": "livescores", "catweb": "catweb", "matchup": "planner", "waiver": "waiver", "team": "teams", "nbateam": "nbateams"};
+  var sub = MAP[hash] != null ? MAP[hash] : '';
+  location.replace('https://pizzaratops.github.io/MFHFBHQ/#/funkytown' + (sub ? '/' + sub : ''));
+})();
+</script>
   <title>Citizens of Funkytown 🕺</title>
   <link rel="manifest" href="manifest.json?v=7">
   <!-- iOS Safari nutzt manifest.json kaum -- fuer "Zum Home-Bildschirm" (Teilen-Menü,
